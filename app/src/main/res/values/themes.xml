@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.GaweKuy" parent="Base.Theme.GaweKuy" />
+
+    <style name="Theme.GaweKuy.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_background</item>
+        <item name="postSplashScreenTheme">@style/Base.Theme.GaweKuy</item>
+    </style>
+
 </resources>
