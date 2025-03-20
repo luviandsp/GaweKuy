@@ -1,29 +1,22 @@
 package com.gawebersama.gawekuy.ui.auth
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
+import androidx.navigation.navOptions
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.auth.AuthRepository
-import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
-import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
-import com.gawebersama.gawekuy.ui.main.MainActivity
+import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterSelectorBinding
+import com.gawebersama.gawekuy.databinding.FragmentRegisterSelectBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.launch
 
-class LoginFragment : Fragment() {
+class RegisterSelectFragment : Fragment() {
 
-    private var _binding: FragmentLoginBinding? = null
+    private var _binding: FragmentRegisterSelectBinding? = null
     private val binding get() = _binding!!
-    val authRepository = AuthRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,22 +26,18 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        _binding = FragmentRegisterSelectBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         showBottomSheetDialog()
-
-        if (authRepository.isLoggedIn()) {
-            navigateToMainActivity()
-        }
     }
 
     private fun showBottomSheetDialog() {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
-        val binding = BottomSheetDialogLoginBinding.inflate(layoutInflater)
+        val binding = BottomSheetDialogRegisterSelectorBinding.inflate(layoutInflater)
 
         bottomSheetDialog.setCanceledOnTouchOutside(false)
         bottomSheetDialog.setCancelable(false)
@@ -61,18 +50,25 @@ class LoginFragment : Fragment() {
         bottomSheetDialog.setContentView(binding.root)
         bottomSheetDialog.show()
 
-        var isLoggedIn = authRepository.isLoggedIn()
-
         with(binding) {
-            tvRegister.setOnClickListener {
+            btnRegisterClient.setOnClickListener {
                 bottomSheetDialog.dismiss()
+                toRegisterFragment(0)
+            }
 
+            btnRegisterFreelancer.setOnClickListener {
+                bottomSheetDialog.dismiss()
+                toRegisterFragment(1)
+            }
+
+            tvLogin.setOnClickListener {
                 val navController = view?.findNavController()
                 val navOptions = NavOptions.Builder()
-                    .setPopUpTo(R.id.loginFragment, true)
+                    .setPopUpTo(R.id.registerFragment, true)
                     .build()
 
-                navController?.navigate(R.id.login_to_registerSelect, null, navOptions)
+                navController?.navigate(R.id.registerSelect_to_login, null, navOptions)
+                bottomSheetDialog.dismiss()
             }
 
             btnBack.setOnClickListener {
@@ -85,35 +81,26 @@ class LoginFragment : Fragment() {
                     .setPopUpTo(R.id.loginFragment, true)
                     .build()
 
-                navController?.navigate(R.id.login_to_onboarding, null, navOptions)
+                navController?.navigate(R.id.registerSelect_to_onboarding, null, navOptions)
                 bottomSheetDialog.dismiss()
-            }
-
-            btnLogin.setOnClickListener {
-                val email = tietEmail.text.toString()
-                val password = tietPassword.text.toString()
-
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(activity, "Email dan Password wajib diisi", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                lifecycleScope.launch {
-                    isLoggedIn = authRepository.login(email, password)
-
-                    if (isLoggedIn) {
-                        navigateToMainActivity()
-                    }
-                }
             }
         }
     }
 
-    private fun navigateToMainActivity() {
-        val intent = Intent(activity, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+    private fun toRegisterFragment(clientType: Int) {
+        val action = RegisterSelectFragmentDirections.registerSelectToRegister(clientType)
+        view?.findNavController()?.navigate(action, animation())
     }
+
+    private fun animation() = navOptions {
+        anim {
+            enter = R.anim.slide_in_right
+            exit = R.anim.slide_out_left
+            popEnter = R.anim.slide_in_left
+            popExit = R.anim.slide_out_right
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

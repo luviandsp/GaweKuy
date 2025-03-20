@@ -43,6 +43,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_email"
+            android:textColor="@color/black"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/hint_email"
@@ -66,6 +67,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_password"
+            android:textColor="@color/black"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/hint_password"

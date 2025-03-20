@@ -14,8 +14,8 @@
             android:id="@+id/onBoarding_to_login"
             app:destination="@id/loginFragment" />
         <action
-            android:id="@+id/onBoarding_to_register"
-            app:destination="@id/registerFragment" />
+            android:id="@+id/onBoarding_to_registerSelect"
+            app:destination="@id/registerSelectFragment" />
     </fragment>
 
     <fragment
@@ -24,10 +24,26 @@
         android:label="fragment_login"
         tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/login_to_register"
-            app:destination="@id/registerFragment" />
+            android:id="@+id/login_to_registerSelect"
+            app:destination="@id/registerSelectFragment" />
         <action
             android:id="@+id/login_to_onboarding"
+            app:destination="@id/onBoardingFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerSelectFragment"
+        android:name="com.gawebersama.gawekuy.ui.auth.RegisterSelectFragment"
+        android:label="fragment_register_select"
+        tools:layout="@layout/fragment_register_select">
+        <action
+            android:id="@+id/registerSelect_to_register"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/registerSelect_to_login"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/registerSelect_to_onboarding"
             app:destination="@id/onBoardingFragment" />
     </fragment>
 
@@ -36,15 +52,15 @@
         android:name="com.gawebersama.gawekuy.ui.auth.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register">
+        <argument
+            android:name="clientType"
+            app:argType="integer" />
         <action
             android:id="@+id/register_to_login"
             app:destination="@id/loginFragment" />
         <action
-            android:id="@+id/register_to_inputData"
-            app:destination="@id/inputDataFragment" />
-        <action
-            android:id="@+id/register_to_onboarding"
-            app:destination="@id/onBoardingFragment" />
+            android:id="@+id/register_to_registerSelect"
+            app:destination="@id/registerSelectFragment" />
     </fragment>
 
     <fragment

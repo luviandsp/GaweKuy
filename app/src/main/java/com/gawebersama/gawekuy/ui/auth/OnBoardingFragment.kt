@@ -35,7 +35,7 @@ class OnBoardingFragment : Fragment() {
             }
 
             btnRegister.setOnClickListener {
-                findNavController().navigate(R.id.onBoarding_to_register, null, animation())
+                findNavController().navigate(R.id.onBoarding_to_registerSelect, null, animation())
             }
         }
     }

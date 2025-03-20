@@ -27,7 +27,7 @@
     <com.google.android.material.textview.MaterialTextView
         style="@style/BottomSheetDialogText"
         android:id="@+id/tv_text"
-        android:text="@string/register_text" />
+        android:text="@string/register_text_client" />
 
     <com.google.android.material.textview.MaterialTextView
         style="@style/BottomSheetDialogText.Label"
@@ -46,6 +46,7 @@
             android:id="@+id/tiet_email"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:textColor="@color/black"
             android:hint="@string/hint_email"
             android:inputType="textEmailAddress" />
 
@@ -67,6 +68,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_password"
+            android:textColor="@color/black"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/hint_password"
@@ -90,6 +92,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_confirm_password"
+            android:textColor="@color/black"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/hint_password"

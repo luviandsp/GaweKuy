@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.auth.AuthRepository
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterBinding
@@ -20,6 +21,7 @@ import com.gawebersama.gawekuy.databinding.FragmentRegisterBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
 
 class RegisterFragment : Fragment() {
@@ -27,6 +29,8 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     val authRepository = AuthRepository()
+
+    val args: RegisterFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +67,12 @@ class RegisterFragment : Fragment() {
         var isLoggedIn = authRepository.isLoggedIn()
 
         with(binding) {
+            if(args.clientType == 0) {
+                tvText.setText(R.string.register_text_client)
+            } else {
+                tvText.setText(R.string.register_text_freelancer)
+            }
+
             btnRegister.setOnClickListener {
                 val email = tietEmail.text.toString()
                 val password = tietPassword.text.toString()
@@ -108,19 +118,6 @@ class RegisterFragment : Fragment() {
             }
 
             tvLogin.setOnClickListener {
-                bottomSheetDialog.dismiss()
-
-                val navController = view?.findNavController()
-                val navOptions = NavOptions.Builder()
-                    .setPopUpTo(R.id.registerFragment, true)
-                    .build()
-
-                navController?.navigate(R.id.register_to_login, null, navOptions)
-            }
-
-            btnBack.setOnClickListener {
-                bottomSheetDialog.dismiss()
-
                 val navController = view?.findNavController()
                 val navOptions = NavOptions.Builder()
                     .setEnterAnim(R.anim.slide_in_left)
@@ -130,7 +127,22 @@ class RegisterFragment : Fragment() {
                     .setPopUpTo(R.id.registerFragment, true)
                     .build()
 
-                navController?.navigate(R.id.register_to_onboarding, null, navOptions)
+                navController?.navigate(R.id.register_to_login, null, navOptions)
+                bottomSheetDialog.dismiss()
+            }
+
+            btnBack.setOnClickListener {
+                val navController = view?.findNavController()
+                val navOptions = NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_left)
+                    .setExitAnim(R.anim.slide_out_right)
+                    .setPopEnterAnim(R.anim.slide_in_right)
+                    .setPopExitAnim(R.anim.slide_out_left)
+                    .setPopUpTo(R.id.registerFragment, true)
+                    .build()
+
+                navController?.navigate(R.id.register_to_registerSelect, null, navOptions)
+                bottomSheetDialog.dismiss()
             }
 
             tietPassword.addTextChangedListener(object : TextWatcher {
@@ -184,8 +196,8 @@ class RegisterFragment : Fragment() {
         startActivity(intent)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         _binding = null
     }
 }
