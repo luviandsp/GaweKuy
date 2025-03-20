@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.GaweKuy" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="fontFamily">@font/urbanist</item>
+        <item name="android:windowBackground">@color/light_blue</item>
+        <item name="android:statusBarColor">@color/light_blue</item>
     </style>
 
     <style name="Theme.GaweKuy" parent="Base.Theme.GaweKuy" />

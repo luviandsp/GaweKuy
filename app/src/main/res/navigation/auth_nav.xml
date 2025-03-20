@@ -3,7 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/auth_nav"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/onBoardingFragment">
+
+    <fragment
+        android:id="@+id/onBoardingFragment"
+        android:name="com.gawebersama.gawekuy.ui.auth.OnBoardingFragment"
+        android:label="fragment_on_boarding"
+        tools:layout="@layout/fragment_on_boarding" >
+        <action
+            android:id="@+id/onBoarding_to_login"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/onBoarding_to_register"
+            app:destination="@id/registerFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/loginFragment"
@@ -13,6 +26,9 @@
         <action
             android:id="@+id/login_to_register"
             app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/login_to_onboarding"
+            app:destination="@id/onBoardingFragment" />
     </fragment>
 
     <fragment
@@ -26,6 +42,9 @@
         <action
             android:id="@+id/register_to_inputData"
             app:destination="@id/inputDataFragment" />
+        <action
+            android:id="@+id/register_to_onboarding"
+            app:destination="@id/onBoardingFragment" />
     </fragment>
 
     <fragment

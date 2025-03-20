@@ -6,13 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.auth.AuthRepository
+import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
 import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
@@ -35,19 +39,55 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews()
+        showBottomSheetDialog()
 
         if (authRepository.isLoggedIn()) {
             navigateToMainActivity()
         }
     }
 
-    private fun initViews() {
+    private fun showBottomSheetDialog() {
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val binding = BottomSheetDialogLoginBinding.inflate(layoutInflater)
+
+        bottomSheetDialog.setCanceledOnTouchOutside(false)
+        bottomSheetDialog.setCancelable(false)
+
+        bottomSheetDialog.setOnShowListener { dialog ->
+            val d = dialog as BottomSheetDialog
+            d.window?.setDimAmount(0f)
+        }
+
+        bottomSheetDialog.setContentView(binding.root)
+        bottomSheetDialog.show()
+
         var isLoggedIn = authRepository.isLoggedIn()
 
         with(binding) {
-            btnRegister.setOnClickListener {
-                view?.findNavController()?.navigate(R.id.login_to_register)
+            tvRegister.setOnClickListener {
+                bottomSheetDialog.dismiss()
+
+                val navController = view?.findNavController()
+                val navOptions = NavOptions.Builder()
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+
+                navController?.navigate(R.id.login_to_register, null, navOptions)
+            }
+
+            btnBack.setOnClickListener {
+                bottomSheetDialog.dismiss()
+
+                val navController = view?.findNavController()
+                val navOptions = NavOptions.Builder()
+                    .setEnterAnim(R.anim.slide_in_left)
+                    .setExitAnim(R.anim.slide_out_right)
+                    .setPopEnterAnim(R.anim.slide_in_right)
+                    .setPopExitAnim(R.anim.slide_out_left)
+                    .setPopUpTo(R.id.loginFragment, true)
+                    .build()
+
+                navController?.navigate(R.id.login_to_onboarding, null, navOptions)
             }
 
             btnLogin.setOnClickListener {
@@ -76,4 +116,8 @@ class LoginFragment : Fragment() {
         startActivity(intent)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }

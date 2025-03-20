@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/BottomSheetDialogWindow">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="6"
+        android:orientation="horizontal">
+
+        <ImageButton
+            style="@style/BackButton"
+            android:id="@+id/btn_back"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:contentDescription="@string/back_arrow_image" />
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/BottomSheetDialogText.Title"
+            android:layout_weight="4"
+            android:id="@+id/tv_title"
+            android:text="@string/register_title" />
+
+    </LinearLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/BottomSheetDialogText"
+        android:id="@+id/tv_text"
+        android:text="@string/register_text" />
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/BottomSheetDialogText.Label"
+        android:id="@+id/tv_email"
+        android:text="@string/email" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_email"
+        app:boxStrokeColor="@color/blue"
+        app:hintTextColor="@color/blue"
+        app:cursorColor="@color/blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tiet_email"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/hint_email"
+            android:inputType="textEmailAddress" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/BottomSheetDialogText.Label"
+        android:id="@+id/tv_password"
+        android:text="@string/password" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_password"
+        app:boxStrokeColor="@color/blue"
+        app:hintTextColor="@color/blue"
+        app:cursorColor="@color/blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tiet_password"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/hint_password"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/BottomSheetDialogText.Label"
+        android:id="@+id/tv_confirm_password"
+        android:text="@string/confirm_password" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_confirm_password"
+        app:boxStrokeColor="@color/blue"
+        app:hintTextColor="@color/blue"
+        app:cursorColor="@color/blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tiet_confirm_password"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/hint_password"
+            android:inputType="textPassword" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/password_requirements_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <ImageView
+                android:id="@+id/icon_length"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/cross_circle" />
+
+            <TextView
+                android:id="@+id/tv_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minimal 8 karakter"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <ImageView
+                android:id="@+id/icon_uppercase"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/cross_circle" />
+
+            <TextView
+                android:id="@+id/tv_uppercase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minimal 1 huruf kapital"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <ImageView
+                android:id="@+id/icon_lowercase"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/cross_circle" />
+
+            <TextView
+                android:id="@+id/tv_lowercase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minimal 1 huruf kecil"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <ImageView
+                android:id="@+id/icon_number"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/cross_circle" />
+
+            <TextView
+                android:id="@+id/tv_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Minimal 1 angka"
+                android:textSize="14sp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/ButtonAuth"
+        android:id="@+id/btn_register"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginTop="12dp"
+        android:text="@string/register" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:gravity="center">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fontFamily="@font/urbanist_medium"
+            android:textColor="@color/black"
+            android:text="@string/already_have_an_account"
+            android:textSize="16sp"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fontFamily="@font/urbanist_medium"
+            android:textColor="@color/blue"
+            android:text="@string/login"
+            android:textSize="16sp"
+            android:layout_marginStart="6dp"/>
+    </LinearLayout>
+</LinearLayout>
