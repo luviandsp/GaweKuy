@@ -9,6 +9,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.auth.ClientType
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterSelectorBinding
 import com.gawebersama.gawekuy.databinding.FragmentRegisterSelectBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -53,12 +54,12 @@ class RegisterSelectFragment : Fragment() {
         with(binding) {
             btnRegisterClient.setOnClickListener {
                 bottomSheetDialog.dismiss()
-                toRegisterFragment(0)
+                toRegisterFragment(ClientType.CLIENT)
             }
 
             btnRegisterFreelancer.setOnClickListener {
                 bottomSheetDialog.dismiss()
-                toRegisterFragment(1)
+                toRegisterFragment(ClientType.FREELANCER)
             }
 
             tvLogin.setOnClickListener {
@@ -87,7 +88,7 @@ class RegisterSelectFragment : Fragment() {
         }
     }
 
-    private fun toRegisterFragment(clientType: Int) {
+    private fun toRegisterFragment(clientType: ClientType) {
         val action = RegisterSelectFragmentDirections.registerSelectToRegister(clientType)
         view?.findNavController()?.navigate(action, animation())
     }
@@ -100,7 +101,6 @@ class RegisterSelectFragment : Fragment() {
             popExit = R.anim.slide_out_right
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -8,38 +8,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.auth.AuthRepository
+import com.gawebersama.gawekuy.data.auth.ClientType
+import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterBinding
 import com.gawebersama.gawekuy.databinding.FragmentRegisterBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
-import kotlin.getValue
-
 
 class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
-    val authRepository = AuthRepository()
+    private val authViewModel by viewModels<AuthViewModel>()
 
     val args: RegisterFragmentArgs by navArgs()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -51,138 +46,62 @@ class RegisterFragment : Fragment() {
 
     private fun showBottomSheetDialog() {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
-        val binding = BottomSheetDialogRegisterBinding.inflate(layoutInflater)
+        val dialogBinding = BottomSheetDialogRegisterBinding.inflate(layoutInflater)
 
         bottomSheetDialog.setCanceledOnTouchOutside(false)
         bottomSheetDialog.setCancelable(false)
-
-        bottomSheetDialog.setOnShowListener { dialog ->
-            val d = dialog as BottomSheetDialog
-            d.window?.setDimAmount(0f)
-        }
-
-        bottomSheetDialog.setContentView(binding.root)
+        bottomSheetDialog.setContentView(dialogBinding.root)
         bottomSheetDialog.show()
 
-        var isLoggedIn = authRepository.isLoggedIn()
-
-        with(binding) {
-            if(args.clientType == 0) {
+        with(dialogBinding) {
+            if (args.clientType == ClientType.CLIENT) {
                 tvText.setText(R.string.register_text_client)
             } else {
                 tvText.setText(R.string.register_text_freelancer)
             }
 
             btnRegister.setOnClickListener {
-                val email = tietEmail.text.toString()
-                val password = tietPassword.text.toString()
-                val confirmPassword = tietConfirmPassword.text.toString()
+                val email = tietEmail.text.toString().trim()
+                val password = tietPassword.text.toString().trim()
+                val confirmPassword = tietConfirmPassword.text.toString().trim()
+                val fullName = tietFullName.text.toString().trim()
+                val phoneNumber = tietPhone.text.toString().trim()
+                val clientType = args.clientType.toString()
 
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(activity, "Email dan Password wajib diisi", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if (password.length < 8) {
-                    Toast.makeText(activity, "Password minimal 8 karakter", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if (!password.any { it.isUpperCase() }) {
-                    Toast.makeText(activity, "Password harus mengandung huruf kapital", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if (!password.any { it.isLowerCase() }) {
-                    Toast.makeText(activity, "Password harus mengandung huruf kecil", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if (!password.any { it.isDigit() }) {
-                    Toast.makeText(activity, "Password harus mengandung angka", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                if (password != confirmPassword) {
-                    Toast.makeText(activity, "Password tidak sama", Toast.LENGTH_SHORT).show()
+                if (!validateInputs(email, password, confirmPassword, fullName, phoneNumber)) {
                     return@setOnClickListener
                 }
 
                 lifecycleScope.launch {
-                    isLoggedIn = authRepository.register(email, password)
+                    authViewModel.registerUser(email, password, fullName, phoneNumber, clientType)
+                }
+            }
 
-                    if (isLoggedIn) {
-                        navigateToMainActivity()
-                    }
+            authViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    Toast.makeText(activity, "Registrasi Berhasil, Silakan Login", Toast.LENGTH_SHORT).show()
+                    navigateToMainActivity()
+                } else {
+                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
                 }
             }
 
             tvLogin.setOnClickListener {
-                val navController = view?.findNavController()
-                val navOptions = NavOptions.Builder()
-                    .setEnterAnim(R.anim.slide_in_left)
-                    .setExitAnim(R.anim.slide_out_right)
-                    .setPopEnterAnim(R.anim.slide_in_right)
-                    .setPopExitAnim(R.anim.slide_out_left)
-                    .setPopUpTo(R.id.registerFragment, true)
-                    .build()
-
-                navController?.navigate(R.id.register_to_login, null, navOptions)
+                navigateToLogin()
                 bottomSheetDialog.dismiss()
             }
 
             btnBack.setOnClickListener {
-                val navController = view?.findNavController()
-                val navOptions = NavOptions.Builder()
-                    .setEnterAnim(R.anim.slide_in_left)
-                    .setExitAnim(R.anim.slide_out_right)
-                    .setPopEnterAnim(R.anim.slide_in_right)
-                    .setPopExitAnim(R.anim.slide_out_left)
-                    .setPopUpTo(R.id.registerFragment, true)
-                    .build()
-
-                navController?.navigate(R.id.register_to_registerSelect, null, navOptions)
+                navigateBack()
                 bottomSheetDialog.dismiss()
             }
 
+            // Validasi input password secara real-time
             tietPassword.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {}
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    val password = s.toString()
-
-                    // Validasi panjang password
-                    if (password.length >= 8) {
-                        binding.iconLength.setImageResource(R.drawable.baseline_check_circle_24)
-                    } else {
-                        binding.iconLength.setImageResource(R.drawable.cross_circle)
-                    }
-
-                    // Validasi huruf kapital
-                    if (password.any { it.isUpperCase() }) {
-                        binding.iconUppercase.setImageResource(R.drawable.baseline_check_circle_24)
-                    } else {
-                        binding.iconUppercase.setImageResource(R.drawable.cross_circle)
-                    }
-
-                    // Validasi huruf kecil
-                    if (password.any { it.isLowerCase() }) {
-                        binding.iconLowercase.setImageResource(R.drawable.baseline_check_circle_24)
-                    } else {
-                        binding.iconLowercase.setImageResource(R.drawable.cross_circle)
-                    }
-
-                    // Validasi angka
-                    if (password.any { it.isDigit() }) {
-                        binding.iconNumber.setImageResource(R.drawable.baseline_check_circle_24)
-                    } else {
-                        binding.iconNumber.setImageResource(R.drawable.cross_circle)
-                    }
+                    updatePasswordValidation(s.toString(), dialogBinding)
                 }
 
                 override fun afterTextChanged(s: Editable?) {}
@@ -190,10 +109,61 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    private fun validateInputs(email: String, password: String, confirmPassword: String, fullName: String, phone: String): Boolean {
+        if (email.isEmpty() || password.isEmpty() || fullName.isEmpty() || phone.isEmpty()) {
+            Toast.makeText(activity, "Semua field harus diisi!", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (password.length < 8) {
+            Toast.makeText(activity, "Password minimal 8 karakter", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!password.any { it.isUpperCase() }) {
+            Toast.makeText(activity, "Password harus mengandung huruf kapital", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!password.any { it.isLowerCase() }) {
+            Toast.makeText(activity, "Password harus mengandung huruf kecil", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!password.any { it.isDigit() }) {
+            Toast.makeText(activity, "Password harus mengandung angka", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (password != confirmPassword) {
+            Toast.makeText(activity, "Password tidak sama", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        return true
+    }
+
+    private fun updatePasswordValidation(password: String, binding: BottomSheetDialogRegisterBinding) {
+        with(binding) {
+            iconLength.setImageResource(if (password.length >= 8) R.drawable.baseline_check_circle_24 else R.drawable.cross_circle)
+            iconUppercase.setImageResource(if (password.any { it.isUpperCase() }) R.drawable.baseline_check_circle_24 else R.drawable.cross_circle)
+            iconLowercase.setImageResource(if (password.any { it.isLowerCase() }) R.drawable.baseline_check_circle_24 else R.drawable.cross_circle)
+            iconNumber.setImageResource(if (password.any { it.isDigit() }) R.drawable.baseline_check_circle_24 else R.drawable.cross_circle)
+        }
+    }
+
     private fun navigateToMainActivity() {
         val intent = Intent(activity, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+    }
+
+    private fun navigateToLogin() {
+        view?.findNavController()?.navigate(R.id.register_to_login)
+    }
+
+    private fun navigateBack() {
+        view?.findNavController()?.navigate(R.id.register_to_registerSelect)
     }
 
     override fun onDestroyView() {

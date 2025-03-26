@@ -12,6 +12,12 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
+        android:id="@+id/order_fragment"
+        android:name="com.gawebersama.gawekuy.ui.main.OrderFragment"
+        android:label="fragment_order"
+        tools:layout="@layout/fragment_order" />
+
+    <fragment
         android:id="@+id/profile_fragment"
         android:name="com.gawebersama.gawekuy.ui.main.ProfileFragment"
         android:label="fragment_profile"

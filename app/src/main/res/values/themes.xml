@@ -4,14 +4,15 @@
         <!-- Customize your light theme here. -->
         <item name="fontFamily">@font/urbanist</item>
         <item name="android:windowBackground">@color/light_blue</item>
-        <item name="android:statusBarColor">@color/light_blue</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="Theme.GaweKuy" parent="Base.Theme.GaweKuy" />
 
     <style name="Theme.GaweKuy.SplashScreen" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_background</item>
+        <item name="windowSplashScreenBackground">@color/transparent</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_app_text_foreground</item>
         <item name="postSplashScreenTheme">@style/Base.Theme.GaweKuy</item>
     </style>
 

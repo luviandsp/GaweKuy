@@ -54,7 +54,7 @@
         tools:layout="@layout/fragment_register">
         <argument
             android:name="clientType"
-            app:argType="integer" />
+            app:argType="com.gawebersama.gawekuy.data.auth.ClientType" />
         <action
             android:id="@+id/register_to_login"
             app:destination="@id/loginFragment" />

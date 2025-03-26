@@ -25,4 +25,9 @@
     <string name="join_as_client">Gabung sebagai client</string>
     <string name="join_as_freelancer">Gabung sebagai freelancer</string>
     <string name="or">Atau</string>
+    <string name="welcome">Selamat Datang</string>
+    <string name="full_name">Nama Lengkap</string>
+    <string name="hint_full_name">Masukkan Nama Lengkap</string>
+    <string name="phone_number">Nomor Telepon WhatsApp</string>
+    <string name="hint_phone">Masukkan Nomor Telepon WhatsApp</string>
 </resources>

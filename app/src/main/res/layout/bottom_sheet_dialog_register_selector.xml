@@ -46,12 +46,10 @@
         android:weightSum="5">
 
         <com.google.android.material.divider.MaterialDivider
+            style="@style/Divider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:layout_gravity="center"
-            app:dividerColor="@color/black"
-            app:dividerThickness="2dp"/>
+            android:layout_weight="2" />
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="0dp"
@@ -60,17 +58,14 @@
             android:layout_gravity="center"
             android:textAlignment="center"
             app:fontFamily="@font/urbanist_medium"
-            android:textColor="@color/black"
             android:text="@string/or"
             android:textSize="16sp"/>
 
         <com.google.android.material.divider.MaterialDivider
+            style="@style/Divider"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:layout_gravity="center"
-            app:dividerColor="@color/black"
-            app:dividerThickness="2dp"/>
+            android:layout_weight="2" />
 
     </LinearLayout>
 
@@ -93,7 +88,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:fontFamily="@font/urbanist_medium"
-            android:textColor="@color/black"
             android:text="@string/already_have_an_account"
             android:textSize="16sp"/>
 

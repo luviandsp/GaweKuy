@@ -6,13 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.auth.AuthRepository
+import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
 import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
@@ -23,16 +23,12 @@ class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    val authRepository = AuthRepository()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private val authViewModel by viewModels<AuthViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -40,79 +36,72 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         showBottomSheetDialog()
-
-        if (authRepository.isLoggedIn()) {
-            navigateToMainActivity()
-        }
     }
 
     private fun showBottomSheetDialog() {
         val bottomSheetDialog = BottomSheetDialog(requireContext())
-        val binding = BottomSheetDialogLoginBinding.inflate(layoutInflater)
+        val sheetBinding = BottomSheetDialogLoginBinding.inflate(layoutInflater)
 
         bottomSheetDialog.setCanceledOnTouchOutside(false)
         bottomSheetDialog.setCancelable(false)
-
         bottomSheetDialog.setOnShowListener { dialog ->
-            val d = dialog as BottomSheetDialog
-            d.window?.setDimAmount(0f)
+            (dialog as BottomSheetDialog).window?.setDimAmount(0f)
         }
 
-        bottomSheetDialog.setContentView(binding.root)
+        bottomSheetDialog.setContentView(sheetBinding.root)
         bottomSheetDialog.show()
 
-        var isLoggedIn = authRepository.isLoggedIn()
-
-        with(binding) {
+        with(sheetBinding) {
             tvRegister.setOnClickListener {
+                navigate(R.id.login_to_registerSelect)
                 bottomSheetDialog.dismiss()
-
-                val navController = view?.findNavController()
-                val navOptions = NavOptions.Builder()
-                    .setPopUpTo(R.id.loginFragment, true)
-                    .build()
-
-                navController?.navigate(R.id.login_to_registerSelect, null, navOptions)
             }
 
             btnBack.setOnClickListener {
-                val navController = view?.findNavController()
-                val navOptions = NavOptions.Builder()
-                    .setEnterAnim(R.anim.slide_in_left)
-                    .setExitAnim(R.anim.slide_out_right)
-                    .setPopEnterAnim(R.anim.slide_in_right)
-                    .setPopExitAnim(R.anim.slide_out_left)
-                    .setPopUpTo(R.id.loginFragment, true)
-                    .build()
-
-                navController?.navigate(R.id.login_to_onboarding, null, navOptions)
+                navigate(R.id.login_to_onboarding)
                 bottomSheetDialog.dismiss()
             }
 
             btnLogin.setOnClickListener {
-                val email = tietEmail.text.toString()
-                val password = tietPassword.text.toString()
+                val email = tietEmail.text.toString().trim()
+                val password = tietPassword.text.toString().trim()
 
                 if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(activity, "Email dan Password wajib diisi", Toast.LENGTH_SHORT).show()
+                    showToast("Email dan Password wajib diisi")
                     return@setOnClickListener
                 }
 
                 lifecycleScope.launch {
-                    isLoggedIn = authRepository.login(email, password)
+                    authViewModel.loginUser(email, password)
+                }
+            }
 
-                    if (isLoggedIn) {
-                        navigateToMainActivity()
-                    }
+            authViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    navigateToMainActivity()
+                } else {
+                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
+    private fun navigate(destination: Int) {
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.loginFragment, true)
+            .build()
+        view?.findNavController()?.navigate(destination, null, navOptions)
+    }
+
     private fun navigateToMainActivity() {
-        val intent = Intent(activity, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        Intent(activity, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(this)
+        }
+    }
+
+    private fun showToast(message: String?) {
+        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

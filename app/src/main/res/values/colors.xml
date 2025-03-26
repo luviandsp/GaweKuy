@@ -4,5 +4,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_blue">#DCEEFF</color>
     <color name="blue">#0084FF</color>
+    <color name="dark_blue">#002347</color>
+    <color name="dark_grey">#242424</color>
+    <color name="light_grey">#8D8D8D</color>
+    <color name="orange">#F37D31</color>
+    <color name="red">#FF0000</color>
     <color name="transparent">#00000000</color>
 </resources>
