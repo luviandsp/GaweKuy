@@ -1,6 +1,5 @@
 package com.gawebersama.gawekuy.ui.main
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import com.gawebersama.gawekuy.data.dataclass.Category
 import com.gawebersama.gawekuy.data.dataclass.FreelancerService
 import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
 import com.gawebersama.gawekuy.databinding.FragmentHomeBinding
-import kotlin.getValue
 
 class HomeFragment : Fragment() {
 
@@ -35,7 +33,6 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        authViewModel.getUser()
         initViews()
     }
 

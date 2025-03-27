@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/BottomSheetDialogWindow">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="6"
+        android:orientation="horizontal">
+
+        <ImageButton
+            style="@style/BackButton"
+            android:id="@+id/btn_back"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:contentDescription="@string/back_arrow_image" />
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/BottomSheetDialogText.Title"
+            android:layout_weight="4"
+            android:id="@+id/tv_title"
+            android:textSize="25sp"
+            android:text="CHANGE PASSWORD" />
+    </LinearLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/BottomSheetDialogText"
+        android:id="@+id/tv_text"
+        android:text="Masukkan email untuk mengubah kata sandi!!" />
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/BottomSheetDialogText.Label"
+        android:id="@+id/tv_email"
+        android:text="@string/email" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_email"
+        app:boxStrokeColor="@color/blue"
+        app:hintTextColor="@color/blue"
+        app:cursorColor="@color/blue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tiet_email"
+            style="@style/InputText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="@string/hint_email"
+            android:inputType="textEmailAddress" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/ButtonAuth"
+        android:id="@+id/btn_change_password"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginTop="12dp"
+        android:text="@string/change_password" />
+
+</LinearLayout>

@@ -9,7 +9,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.auth.ClientType
+import com.gawebersama.gawekuy.data.enum.ClientType
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterSelectorBinding
 import com.gawebersama.gawekuy.databinding.FragmentRegisterSelectBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog

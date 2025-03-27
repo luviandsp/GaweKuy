@@ -15,9 +15,12 @@
         android:theme="@style/Theme.GaweKuy"
         tools:targetApi="31">
         <activity
+            android:name=".ui.profile.EditProfileActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.auth.AuthActivity"
-            android:theme="@style/Theme.GaweKuy.SplashScreen"
-            android:exported="true" >
+            android:exported="true"
+            android:theme="@style/Theme.GaweKuy.SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,6 +30,7 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

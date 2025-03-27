@@ -71,6 +71,7 @@
     <style name="BottomSheetDialogText.Label" >
         <item name="android:textAlignment">textStart</item>
         <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
     </style>
 
     <style name="InputText">
@@ -86,5 +87,26 @@
     <style name="App.Custom.Indicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
         <item name="android:color">@color/transparent</item>
         <item name="itemRippleColor">@color/transparent</item>
+    </style>
+
+    <style name="optionProfileImage" >
+        <item name="android:layout_height">24dp</item>
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+    </style>
+
+    <style name="optionProfileDesc" >
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="fontFamily">@font/urbanist_semibold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_gravity">start</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="optionProfileDivider" >
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
     </style>
 </resources>

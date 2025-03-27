@@ -83,23 +83,44 @@
             android:id="@+id/tv_phone"
             android:text="@string/phone_number" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_phone"
-            app:boxStrokeColor="@color/blue"
-            app:hintTextColor="@color/blue"
-            app:cursorColor="@color/blue"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tiet_phone"
-                style="@style/InputText"
-                android:layout_width="match_parent"
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:hint="@string/hint_phone"
-                android:inputType="phone" />
+                android:layout_gravity="center"
+                android:gravity="center"
+                app:ccp_textSize="12sp"
+                app:ccp_defaultNameCode="ID"
+                app:ccp_autoDetectCountry="true"
+                app:ccp_showFlag="true"
+                app:ccp_showArrow="true"
+                app:ccp_showFullName="false" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_phone"
+                app:boxStrokeColor="@color/blue"
+                app:hintTextColor="@color/blue"
+                app:cursorColor="@color/blue"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tiet_phone"
+                    style="@style/InputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/hint_phone"
+                    android:inputType="phone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
             style="@style/BottomSheetDialogText.Label"

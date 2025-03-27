@@ -28,6 +28,8 @@
     <string name="welcome">Selamat Datang</string>
     <string name="full_name">Nama Lengkap</string>
     <string name="hint_full_name">Masukkan Nama Lengkap</string>
-    <string name="phone_number">Nomor Telepon WhatsApp</string>
-    <string name="hint_phone">Masukkan Nomor Telepon WhatsApp</string>
+    <string name="phone_number">Nomor Telepon</string>
+    <string name="hint_phone">Masukkan Nomor Telepon</string>
+    <string name="change_password">Ubah Kata Sandi</string>
+    <string name="save_profile">Simpan</string>
 </resources>

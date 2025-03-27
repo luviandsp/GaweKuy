@@ -34,4 +34,9 @@ class InputDataFragment : Fragment() {
 
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }

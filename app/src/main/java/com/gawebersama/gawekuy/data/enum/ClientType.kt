@@ -1,4 +1,4 @@
-package com.gawebersama.gawekuy.data.auth
+package com.gawebersama.gawekuy.data.enum
 
 enum class ClientType {
     CLIENT,

@@ -5,15 +5,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.auth.AuthRepository
 import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
 import com.gawebersama.gawekuy.databinding.FragmentOnBoardingBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity

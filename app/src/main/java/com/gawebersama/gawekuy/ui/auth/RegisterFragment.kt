@@ -11,11 +11,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.auth.ClientType
+import com.gawebersama.gawekuy.data.enum.ClientType
 import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterBinding
 import com.gawebersama.gawekuy.databinding.FragmentRegisterBinding
@@ -60,12 +59,14 @@ class RegisterFragment : Fragment() {
                 tvText.setText(R.string.register_text_freelancer)
             }
 
+            ccp.registerCarrierNumberEditText(tietPhone)
+
             btnRegister.setOnClickListener {
                 val email = tietEmail.text.toString().trim()
                 val password = tietPassword.text.toString().trim()
                 val confirmPassword = tietConfirmPassword.text.toString().trim()
                 val fullName = tietFullName.text.toString().trim()
-                val phoneNumber = tietPhone.text.toString().trim()
+                val phoneNumber = ccp.fullNumber
                 val clientType = args.clientType.toString()
 
                 if (!validateInputs(email, password, confirmPassword, fullName, phoneNumber)) {

@@ -1,15 +1,43 @@
-package com.gawebersama.gawekuy.data.auth
+package com.gawebersama.gawekuy.data.repository
 
+import com.gawebersama.gawekuy.data.dataclass.User
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
+import kotlin.collections.hashMapOf
 import kotlin.coroutines.cancellation.CancellationException
 
 class AuthRepository {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
+
+    private fun User.toHashMap(): HashMap<String, Any?> {
+        return hashMapOf(
+            "userId" to userId,
+            "email" to email,
+            "name" to name,
+            "phone" to phone,
+            "role" to role,
+            "profileImageUrl" to profileImageUrl,
+            "createdAt" to createdAt
+        )
+    }
+
+    private fun Map<String, Any>.toUser(): User {
+        return User(
+            userId = this["userId"] as? String,
+            email = this["email"] as? String,
+            name = this["name"] as? String,
+            phone = this["phone"] as? String,
+            role = this["role"] as? String,
+            profileImageUrl = this["profileImageUrl"] as? String,
+            createdAt = this["createdAt"] as? Timestamp
+        )
+    }
 
     // Cek apakah user sudah login
     fun isLoggedIn(): Boolean {
@@ -36,15 +64,15 @@ class AuthRepository {
             // Kirim email verifikasi
             authResult.user?.sendEmailVerification()
 
-            // Data user yang akan disimpan di Firestore
-            val userData = mapOf(
-                "userId" to userId,
-                "email" to email,
-                "name" to name,
-                "phone" to phone,
-                "role" to role, // Bisa "client" atau "freelancer"
-                "createdAt" to System.currentTimeMillis()
-            )
+            val userData = User(
+                userId = userId,
+                email = email,
+                name = name,
+                phone = phone,
+                role = role,
+                profileImageUrl = null,
+                createdAt = Timestamp.now()
+            ).toHashMap()
 
             // Simpan ke Firestore
             firestore.collection("users").document(userId).set(userData).await()
@@ -72,46 +100,12 @@ class AuthRepository {
     }
 
     // Mengambil data user dari Firestore
-    suspend fun getUserData(): Map<String, Any>? {
+    suspend fun getUserData(): User? {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return null
             val document = firestore.collection("users").document(userId).get().await()
             if (document.exists()) {
-                document.data
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            println("AuthRepository: failed to get user data - ${e.message}")
-            null
-        }
-    }
-
-    suspend fun getUserName(): String? {
-        return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return null
-            val document = firestore.collection("users").document(userId).get().await()
-            if (document.exists()) {
-                println("AuthRepository: getUserName success")
-                document.getString("name")
-            } else {
-                null
-            }
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            println("AuthRepository: failed to get user data - ${e.message}")
-            null
-        }
-    }
-
-    suspend fun getUserRole(): String? {
-        return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return null
-            val document = firestore.collection("users").document(userId).get().await()
-            if (document.exists()) {
-                println("AuthRepository: getUserRole success")
-                document.getString("role")
+                document.data?.toUser()
             } else {
                 null
             }
@@ -123,16 +117,18 @@ class AuthRepository {
     }
 
     // Update data profil user
-    suspend fun updateProfile(name: String, phone: String): Pair<Boolean, String?> {
+    suspend fun updateProfile(name: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
 
             val updates = mapOf(
                 "name" to name,
-                "phone" to phone
+                "profileImageUrl" to profileImageUrl
             )
 
-            firestore.collection("users").document(userId).update(updates).await()
+            firestore.collection("users").document(userId)
+                .set(updates, SetOptions.merge())
+                .await()
 
             println("AuthRepository: profile updated")
             Pair(true, "Profil berhasil diperbarui")
@@ -142,6 +138,7 @@ class AuthRepository {
             Pair(false, getErrorMessage(e))
         }
     }
+
 
     // Lupa password - Kirim email reset password
     suspend fun forgotPassword(email: String): Pair<Boolean, String?> {
@@ -182,6 +179,8 @@ class AuthRepository {
                 "Password minimal harus 8 karakter"
             e.message?.contains("The supplied auth credential is incorrect, malformed or has expired.", ignoreCase = true) == true ->
                 "Email atau password salah"
+            e.message?.contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.", ignoreCase = true) == true ->
+                "Terjadi kesalahan jaringan, coba lagi nanti"
             else -> e.message ?: "Terjadi kesalahan, coba lagi nanti"
         }
     }
