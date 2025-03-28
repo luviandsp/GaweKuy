@@ -14,14 +14,14 @@ import com.gawebersama.gawekuy.data.adapter.CategoryAdapter
 import com.gawebersama.gawekuy.data.adapter.FreelancerServiceAdapter
 import com.gawebersama.gawekuy.data.dataclass.Category
 import com.gawebersama.gawekuy.data.dataclass.FreelancerService
-import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel by viewModels<AuthViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +39,7 @@ class HomeFragment : Fragment() {
     private fun initViews() {
 
         with (binding) {
-            authViewModel.userName.observe(viewLifecycleOwner) { name ->
+            userViewModel.userName.observe(viewLifecycleOwner) { name ->
                 binding.tvName.text = name ?: "Guest"
             }
         }

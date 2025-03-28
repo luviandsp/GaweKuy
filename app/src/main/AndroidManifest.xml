@@ -15,6 +15,9 @@
         android:theme="@style/Theme.GaweKuy"
         tools:targetApi="31">
         <activity
+            android:name=".ui.profile.SettingActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false" />
         <activity

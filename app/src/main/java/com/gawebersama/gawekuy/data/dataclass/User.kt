@@ -9,5 +9,7 @@ data class User(
     val phone: String?,
     val role: String?,
     val profileImageUrl: String?,
-    val createdAt: Timestamp?
+    val biography: String?,
+    val createdAt: Timestamp?,
+    val accountStatus: Boolean?
 )

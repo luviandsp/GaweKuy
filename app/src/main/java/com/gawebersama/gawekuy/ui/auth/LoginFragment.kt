@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
 import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
@@ -23,7 +23,7 @@ class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel by viewModels<AuthViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,16 +72,16 @@ class LoginFragment : Fragment() {
                 val password = tietPassword.text.toString().trim()
 
                 if (email.isEmpty() || password.isEmpty()) {
-                    showToast("Email dan Password wajib diisi")
+                    Toast.makeText(activity, "Email dan password tidak boleh kosong", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
                 lifecycleScope.launch {
-                    authViewModel.loginUser(email, password)
+                    userViewModel.loginUser(email, password)
                 }
             }
 
-            authViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+            userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
                 if (result.first) {
                     navigateToMainActivity()
                 } else {
@@ -103,10 +103,6 @@ class LoginFragment : Fragment() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(this)
         }
-    }
-
-    private fun showToast(message: String?) {
-        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

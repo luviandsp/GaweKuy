@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.profile.SettingActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Toolbar">
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            style="@style/BackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="@string/back_arrow_image" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setting"
+            android:textSize="20sp"
+            app:fontFamily="@font/urbanist_bold" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.cardview.widget.CardView
+        style="@style/CardViewApp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/SettingDesc"
+                android:text="@string/change_visual" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="7"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/optionProfileImage"
+                    android:src="@drawable/light_theme_option" />
+
+                <TextView
+                    style="@style/optionProfileDesc"
+                    android:layout_weight="6"
+                    android:text="@string/light_mode" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rb_light"
+                    style="@style/RadioButtonSetting"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                style="@style/optionProfileDivider" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="7"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/optionProfileImage"
+                    android:src="@drawable/dark_theme_option" />
+
+                <TextView
+                    style="@style/optionProfileDesc"
+                    android:layout_weight="6"
+                    android:text="@string/dark_mode" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/rb_dark"
+                    style="@style/RadioButtonSetting"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        style="@style/CardViewApp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/SettingDesc"
+                android:text="@string/notifications" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="6"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/optionProfileImage"
+                    android:src="@drawable/sound_on" />
+
+                <TextView
+                    style="@style/optionProfileDesc"
+                    android:layout_weight="6"
+                    android:text="@string/on" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_notification"
+                    style="@style/SwitchSetting" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        style="@style/CardViewApp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/SettingDesc"
+                android:text="@string/account_status" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="6"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/optionProfileImage"
+                    android:src="@drawable/check_fill" />
+
+                <TextView
+                    style="@style/optionProfileDesc"
+                    android:layout_weight="6"
+                    android:text="@string/active" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_account_status"
+                    style="@style/SwitchSetting" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

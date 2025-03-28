@@ -20,7 +20,7 @@
             android:id="@+id/tvDialogTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/exit_account"
+            android:text="@string/become_freelancer"
             app:fontFamily="@font/urbanist_bold"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:fontFamily="@font/urbanist_semibold"
-            android:text="@string/are_you_sure_to_exit"
+            android:text="@string/are_you_sure_to_become_a_freelancer"
             android:textSize="14sp"
             android:textColor="@color/black"
             android:gravity="center"
@@ -47,8 +47,8 @@
             android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancel"
-                style="@style/ButtonAuth.Register"
+                android:id="@+id/btn_confirm"
+                style="@style/ButtonAuth"
                 app:strokeWidth="2dp"
                 app:strokeColor="@color/blue"
                 android:layout_width="match_parent"
@@ -56,16 +56,16 @@
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="0dp"
-                android:text="@string/cancel" />
+                android:text="@string/sure" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnLogout"
+                android:id="@+id/btn_cancel"
                 style="@style/ButtonAuth"
                 android:backgroundTint="@color/red"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/exit"
+                android:text="@string/not_sure"
                 android:textColor="@color/white"
                 android:layout_marginEnd="0dp"
                 android:layout_marginStart="8dp" />

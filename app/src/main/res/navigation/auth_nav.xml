@@ -57,7 +57,7 @@
         tools:layout="@layout/fragment_register">
         <argument
             android:name="clientType"
-            app:argType="com.gawebersama.gawekuy.data.enum.ClientType" />
+            app:argType="com.gawebersama.gawekuy.data.enum.UserRole" />
         <action
             android:id="@+id/register_to_login"
             app:destination="@id/loginFragment" />

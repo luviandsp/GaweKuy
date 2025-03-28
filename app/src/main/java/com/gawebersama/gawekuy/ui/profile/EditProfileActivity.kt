@@ -3,51 +3,50 @@ package com.gawebersama.gawekuy.ui.profile
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
 import com.gawebersama.gawekuy.data.viewmodel.StorageViewModel
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityEditProfileBinding
 import com.github.drjacky.imagepicker.ImagePicker
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.File
 
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
-    private val authViewModel by viewModels<AuthViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
     private val storageViewModel by viewModels<StorageViewModel>()
 
     private var imageUri: Uri? = null
+    private var isPhotoDeleted: Boolean = false
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             result.data?.data?.let { uri ->
-                // Tampilkan gambar sementara sebelum upload
                 Glide.with(this)
                     .load(uri)
                     .circleCrop()
                     .into(binding.ivProfilePicture)
 
                 imageUri = uri
+                isPhotoDeleted = false
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -59,7 +58,7 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
-            ivProfilePicture.setOnClickListener {
+            btnChangePhoto.setOnClickListener {
                 launcher.launch(
                     ImagePicker.with(this@EditProfileActivity)
                         .crop()
@@ -69,22 +68,51 @@ class EditProfileActivity : AppCompatActivity() {
                 )
             }
 
+            btnDeletePhoto.setOnClickListener {
+                isPhotoDeleted = true
+                imageUri = null
+
+                Glide.with(this@EditProfileActivity)
+                    .load(R.drawable.user_circle)
+                    .circleCrop()
+                    .into(binding.ivProfilePicture)
+            }
+
             btnSave.setOnClickListener {
                 val name = tietFullName.text.toString().trim()
+                val phone = tietPhoneNumber.text.toString().trim()
+                val biography = tietBiography.text.toString().trim()
+                val oldProfileImageUrl = userViewModel.userImageUrl.value ?: ""
 
                 if (name.isEmpty()) {
                     tietFullName.error = "Nama tidak boleh kosong"
                     return@setOnClickListener
                 }
 
-                if (imageUri != null) {
-                    uploadImageToSupabase(imageUri!!) { imageUrl ->
-                        authViewModel.updateProfile(name, imageUrl)
-                        finish()
+                if (isPhotoDeleted) {
+                    deleteProfilePhoto()
+                    userViewModel.updateProfile(name, phone, biography, "")
+                    finish()
+                } else if (imageUri != null) {
+                    if (oldProfileImageUrl.isNotEmpty()) {
+                        // Update Foto Profil Baru
+                        userViewModel.updateProfile(name, phone, biography, "")
+
+                        uploadImageToSupabase(imageUri!!) { imageUrl ->
+                            userViewModel.updateProfile(name, phone, biography, imageUrl)
+                            deleteProfilePhoto()
+                            finish()
+                        }
+                    } else {
+                        // Upload Foto Profil Baru
+                        uploadImageToSupabase(imageUri!!) { imageUrl ->
+                            userViewModel.updateProfile(name, phone, biography, imageUrl)
+                            finish()
+                        }
                     }
                 } else {
-                    val oldProfileImageUrl = authViewModel.userImageUrl.value ?: ""
-                    authViewModel.updateProfile(name, oldProfileImageUrl)
+                    // Tidak ada foto yang diubah
+                    userViewModel.updateProfile(name, phone, biography, oldProfileImageUrl)
                     finish()
                 }
             }
@@ -92,51 +120,87 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     private fun observeViewModels() {
-        authViewModel.userImageUrl.observe(this) { imageUrl ->
-            if (imageUrl.isNullOrEmpty()) {
-                Glide.with(this)
-                    .load(R.drawable.user_circle)
-                    .circleCrop()
-                    .into(binding.ivProfilePicture)
-            } else {
-                Glide.with(this)
-                    .load(imageUrl)
-                    .circleCrop()
-                    .into(binding.ivProfilePicture)
-            }
+        userViewModel.apply {
+            userImageUrl.observe(this@EditProfileActivity) { updateProfilePicture(it) }
+            userName.observe(this@EditProfileActivity) { binding.tietFullName.setText(it) }
+            userPhone.observe(this@EditProfileActivity) { binding.tietPhoneNumber.setText(it) }
+            userBiography.observe(this@EditProfileActivity) { binding.tietBiography.setText(it) }
         }
 
-        storageViewModel.imageUrl.observe(this) { newImageUrl ->
-            if (!newImageUrl.isNullOrEmpty()) {
-                // Simpan URL ke Firestore
-                CoroutineScope(Dispatchers.IO).launch {
-                    storageViewModel.saveImageUrlToFirestore(newImageUrl)
+        storageViewModel.apply {
+            uploadStatus.observe(this@EditProfileActivity) { if (it) showToast("Foto profil berhasil diunggah") }
+            deleteStatus.observe(this@EditProfileActivity) { if (it && isPhotoDeleted) showToast("Foto profil berhasil dihapus") }
+            imageUrl.observeOnce(this@EditProfileActivity) { newImageUrl ->
+                if (!newImageUrl.isNullOrEmpty()) {
+                    userViewModel.updateProfileImageUrl(newImageUrl)
+                    binding.progressBar.visibility = View.GONE
                 }
             }
         }
+    }
 
-        authViewModel.userName.observe(this@EditProfileActivity) { name ->
-            name?.let {
-                binding.tietFullName.setText(it)
-            }
+    private fun updateProfilePicture(imageUrl: String?) {
+        if (imageUrl.isNullOrEmpty()) {
+            Glide.with(this)
+                .load(R.drawable.user_circle)
+                .circleCrop()
+                .into(binding.ivProfilePicture)
+        } else {
+            Glide.with(this)
+                .load(imageUrl)
+                .circleCrop()
+                .into(binding.ivProfilePicture)
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun deleteProfilePhoto() {
+        val currentImageUrl = userViewModel.userImageUrl.value
+        if (!currentImageUrl.isNullOrEmpty()) {
+            val fileName = currentImageUrl.substringAfterLast("/")
+            storageViewModel.deleteFile(fileName, "profile_pictures")
+            userViewModel.updateProfileImageUrl("")
+        } else {
+            showToast("Foto profil tidak ditemukan")
         }
     }
 
     private fun uploadImageToSupabase(uri: Uri, onSuccess: (String) -> Unit) {
-        val file = File(uri.path ?: return)
-        val fileName = "profile_${System.currentTimeMillis()}.jpg"
+        val inputStream = contentResolver.openInputStream(uri)
+        if (inputStream == null) {
+            showToast("Gagal membaca file")
+            return
+        }
 
+        val fileName = "profile_${System.currentTimeMillis()}.jpg"
         binding.progressBar.visibility = View.VISIBLE
 
-        storageViewModel.uploadImage(file, "profile_pictures", fileName)
+        val byteArray = inputStream.use { it.readBytes() }
 
-        storageViewModel.imageUrl.observe(this) { imageUrl ->
+        storageViewModel.uploadFile(byteArray, "profile_pictures", fileName)
+
+        saveToFirestore(onSuccess)
+    }
+
+    private fun saveToFirestore(onSuccess: (String) -> Unit) {
+        storageViewModel.imageUrl.observeOnce(this) { imageUrl ->
             if (!imageUrl.isNullOrEmpty()) {
-                storageViewModel.saveImageUrlToFirestore(imageUrl)
+                userViewModel.updateProfileImageUrl(imageUrl)
                 binding.progressBar.visibility = View.GONE
-                onSuccess(imageUrl) // Panggil callback setelah URL diperoleh
+                onSuccess(imageUrl)
             }
         }
     }
 
+    fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: (T) -> Unit) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(value: T) {
+                observer(value)
+                removeObserver(this)
+            }
+        })
+    }
 }

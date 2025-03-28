@@ -1,16 +1,15 @@
 package com.gawebersama.gawekuy.data.repository
 
 import com.gawebersama.gawekuy.data.dataclass.User
+import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import kotlin.collections.hashMapOf
 import kotlin.coroutines.cancellation.CancellationException
 
-class AuthRepository {
+class UserRepository {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
@@ -23,7 +22,9 @@ class AuthRepository {
             "phone" to phone,
             "role" to role,
             "profileImageUrl" to profileImageUrl,
-            "createdAt" to createdAt
+            "biography" to biography,
+            "createdAt" to createdAt,
+            "accountStatus" to accountStatus
         )
     }
 
@@ -35,21 +36,16 @@ class AuthRepository {
             phone = this["phone"] as? String,
             role = this["role"] as? String,
             profileImageUrl = this["profileImageUrl"] as? String,
-            createdAt = this["createdAt"] as? Timestamp
+            biography = this["biography"] as? String,
+            createdAt = this["createdAt"] as? Timestamp,
+            accountStatus = this["accountStatus"] as? Boolean
         )
     }
 
-    // Cek apakah user sudah login
     fun isLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
     }
 
-    // Mendapatkan data user yang sedang login
-    fun getCurrentUser(): FirebaseUser? {
-        return firebaseAuth.currentUser
-    }
-
-    // Registrasi user baru
     suspend fun register(
         email: String,
         password: String,
@@ -61,7 +57,6 @@ class AuthRepository {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: return Pair(false, "Gagal mendapatkan ID pengguna")
 
-            // Kirim email verifikasi
             authResult.user?.sendEmailVerification()
 
             val userData = User(
@@ -71,35 +66,34 @@ class AuthRepository {
                 phone = phone,
                 role = role,
                 profileImageUrl = null,
-                createdAt = Timestamp.now()
+                biography = null,
+                createdAt = Timestamp.now(),
+                accountStatus = true
             ).toHashMap()
 
-            // Simpan ke Firestore
             firestore.collection("users").document(userId).set(userData).await()
 
-            println("AuthRepository: register success & data saved to Firestore")
+            println("UserRepository: register success & data saved to Firestore")
             Pair(true, "Silakan verifikasi email Anda sebelum login")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("AuthRepository: register failed - ${e.message}")
+            println("UserRepository: register failed - ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
 
-    // Login user
     suspend fun login(email: String, password: String): Pair<Boolean, String?> {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            println("AuthRepository: login success")
+            println("UserRepository: login success")
             Pair(true, null)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("AuthRepository: login failed - ${e.message}")
+            println("UserRepository: login failed - ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
 
-    // Mengambil data user dari Firestore
     suspend fun getUserData(): User? {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return null
@@ -111,56 +105,106 @@ class AuthRepository {
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("AuthRepository: failed to get user data - ${e.message}")
+            println("UserRepository: failed to get user data - ${e.message}")
             null
         }
     }
 
-    // Update data profil user
-    suspend fun updateProfile(name: String, profileImageUrl: String): Pair<Boolean, String?> {
+    suspend fun updateProfile(name: String, phone: String, biography: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userRef = firestore.collection("users").document(userId)
 
-            val updates = mapOf(
-                "name" to name,
-                "profileImageUrl" to profileImageUrl
-            )
+            userRef.update(
+                mapOf(
+                    "name" to name,
+                    "phone" to phone,
+                    "biography" to biography,
+                    "profileImageUrl" to profileImageUrl
+                )
+            ).await()
 
-            firestore.collection("users").document(userId)
-                .set(updates, SetOptions.merge())
-                .await()
-
-            println("AuthRepository: profile updated")
+            println("UserRepository: profile updated")
             Pair(true, "Profil berhasil diperbarui")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("AuthRepository: update profile failed - ${e.message}")
+            println("UserRepository: update profile failed - ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
 
-
-    // Lupa password - Kirim email reset password
     suspend fun forgotPassword(email: String): Pair<Boolean, String?> {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-            println("AuthRepository: forgot password success")
+            println("UserRepository: forgot password success")
             Pair(true, "Silakan cek email Anda untuk reset password")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("AuthRepository: forgot password failed - ${e.message}")
+            println("UserRepository: forgot password failed - ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
 
-    // Logout user dan hapus cache Firestore
     fun logout() {
         firebaseAuth.signOut()
         firestore.clearPersistence() // Hapus cache Firestore
         if (firebaseAuth.currentUser == null) {
-            println("AuthRepository: logout success")
+            println("UserRepository: logout success")
         } else {
-            println("AuthRepository: logout failed")
+            println("UserRepository: logout failed")
+        }
+    }
+
+    suspend fun becomeFreelancer(): Pair<Boolean, String?> {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userRef = firestore.collection("users").document(userId)
+
+            userRef.update("role", UserRole.FREELANCER.toString()).await()
+
+            println("UserRepository: become freelancer success")
+            Pair(true, "Berhasil menjadi freelancer")
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            println("UserRepository: become freelancer failed - ${e.message}")
+            Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun updateAccountStatus(isActive: Boolean): Pair<Boolean, String?> {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userRef = firestore.collection("users").document(userId)
+
+            userRef.update("accountStatus", isActive).await()
+
+            println("UserRepository: account status updated")
+            Pair(true, "Status akun berhasil diperbarui")
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+
+            println("UserRepository: update account status failed - ${e.message}")
+            Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun updateProfileImageUrl(imageUrl: String): Pair<Boolean, String?> {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+
+            val userRef = firestore.collection("users").document(userId)
+
+            userRef.update("profileImageUrl", imageUrl).await()
+
+            println("UserRepository: Profile image URL updated successfully for user $userId")
+            Pair(true, "URL foto profil berhasil diperbarui")
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+
+            val errorMessage = getErrorMessage(e)
+            println("UserRepository: Update profile image URL failed - ${e.localizedMessage}")
+
+            Pair(false, errorMessage)
         }
     }
 

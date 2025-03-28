@@ -14,8 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.enum.ClientType
-import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
+import com.gawebersama.gawekuy.data.enum.UserRole
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterBinding
 import com.gawebersama.gawekuy.databinding.FragmentRegisterBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
@@ -26,7 +26,7 @@ class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel by viewModels<AuthViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
 
     val args: RegisterFragmentArgs by navArgs()
 
@@ -53,7 +53,7 @@ class RegisterFragment : Fragment() {
         bottomSheetDialog.show()
 
         with(dialogBinding) {
-            if (args.clientType == ClientType.CLIENT) {
+            if (args.clientType == UserRole.CLIENT) {
                 tvText.setText(R.string.register_text_client)
             } else {
                 tvText.setText(R.string.register_text_freelancer)
@@ -74,11 +74,11 @@ class RegisterFragment : Fragment() {
                 }
 
                 lifecycleScope.launch {
-                    authViewModel.registerUser(email, password, fullName, phoneNumber, clientType)
+                    userViewModel.registerUser(email, password, fullName, phoneNumber, clientType)
                 }
             }
 
-            authViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+            userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
                 if (result.first) {
                     Toast.makeText(activity, "Registrasi Berhasil, Silakan Login", Toast.LENGTH_SHORT).show()
                     navigateToMainActivity()

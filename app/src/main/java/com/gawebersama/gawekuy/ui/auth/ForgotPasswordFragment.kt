@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.viewmodel.AuthViewModel
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogForgotBinding
 import com.gawebersama.gawekuy.databinding.FragmentForgotPasswordBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -22,7 +22,7 @@ class ForgotPasswordFragment : Fragment() {
 
     private var _binding: FragmentForgotPasswordBinding? = null
     private val binding get() = _binding!!
-    private val authViewModel by viewModels<AuthViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,12 +64,12 @@ class ForgotPasswordFragment : Fragment() {
                 val email = tietEmail.text.toString().trim()
 
                 if (email.isEmpty()) {
-                    showToast("Email wajib diisi")
+                    Toast.makeText(activity, "Email tidak boleh kosong", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
                 lifecycleScope.launch {
-                    authViewModel.forgotPassword(email)
+                    userViewModel.forgotPassword(email)
                 }
             }
         }
@@ -80,10 +80,6 @@ class ForgotPasswordFragment : Fragment() {
             .setPopUpTo(R.id.forgotPasswordFragment, true)
             .build()
         view?.findNavController()?.navigate(destination, null, navOptions)
-    }
-
-    private fun showToast(message: String?) {
-        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroyView() {

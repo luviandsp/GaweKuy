@@ -38,6 +38,7 @@
         app:boxStrokeColor="@color/blue"
         app:hintTextColor="@color/blue"
         app:cursorColor="@color/blue"
+        app:hintEnabled="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -61,6 +62,7 @@
         app:boxStrokeColor="@color/blue"
         app:hintTextColor="@color/blue"
         app:cursorColor="@color/blue"
+        app:hintEnabled="false"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:passwordToggleEnabled="true">

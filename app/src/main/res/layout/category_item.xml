@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/CardViewApp"
     android:layout_width="160dp"
     android:layout_height="65dp"
+    android:layout_marginStart="0dp"
+    android:layout_marginEnd="0dp"
     android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    app:cardCornerRadius="8dp">
+    android:layout_marginBottom="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gawebersama.gawekuy.data.repository.StorageRepository
 import kotlinx.coroutines.launch
-import java.io.File
 
 class StorageViewModel : ViewModel() {
 
@@ -18,9 +17,12 @@ class StorageViewModel : ViewModel() {
     private val _uploadStatus = MutableLiveData<Boolean>()
     val uploadStatus: LiveData<Boolean> get() = _uploadStatus
 
-    fun uploadImage(imageFile: File, folderName : String, fileName: String) {
+    private val _deleteStatus = MutableLiveData<Boolean>()
+    val deleteStatus: LiveData<Boolean> get() = _deleteStatus
+
+    fun uploadFile(file: ByteArray, folderName : String, fileName: String) {
         viewModelScope.launch {
-            val url = storageRepository.uploadImageToSupabase(imageFile, folderName, fileName)
+            val url = storageRepository.uploadFileToSupabase(file, folderName, fileName)
             if (url != null) {
                 _imageUrl.postValue(url)
                 _uploadStatus.postValue(true)
@@ -30,12 +32,11 @@ class StorageViewModel : ViewModel() {
         }
     }
 
-    fun saveImageUrlToFirestore(imageUrl: String) {
+    fun deleteFile(filename: String, folderName: String) {
         viewModelScope.launch {
-            val isSuccess = storageRepository.saveImageUrlToFirestore(imageUrl)
-            if (isSuccess) {
-                _imageUrl.postValue(imageUrl)
-            }
+            val success = storageRepository.deleteFileOnSupabase(filename, folderName)
+            _deleteStatus.postValue(success)
+            _imageUrl.postValue(null)
         }
     }
 }

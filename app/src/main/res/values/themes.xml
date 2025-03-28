@@ -1,11 +1,11 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.GaweKuy" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
         <item name="fontFamily">@font/urbanist</item>
         <item name="android:windowBackground">@color/light_blue</item>
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/white</item>
     </style>
 
     <style name="Theme.GaweKuy" parent="Base.Theme.GaweKuy" />

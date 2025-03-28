@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gawebersama.gawekuy.data.repository.AuthRepository
+import com.gawebersama.gawekuy.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
+class UserViewModel : ViewModel() {
 
-    private val authRepository = AuthRepository()
+    private val userRepository = UserRepository()
 
     private val _authStatus = MutableLiveData<Pair<Boolean, String?>>()
     val authStatus: LiveData<Pair<Boolean, String?>> get() = _authStatus
@@ -29,78 +29,112 @@ class AuthViewModel : ViewModel() {
     private val _isLoggedIn = MutableLiveData<Boolean>()
     val isLoggedIn: LiveData<Boolean> get() = _isLoggedIn
 
+    private val _userBiography = MutableLiveData<String?>()
+    val userBiography: LiveData<String?> get() = _userBiography
+
+    private val _accountStatus = MutableLiveData<Boolean?>()
+    val accountStatus: LiveData<Boolean?> get() = _accountStatus
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> get() = _errorMessage
+
     init {
-        // Cek status login saat ViewModel dibuat
-        _isLoggedIn.value = authRepository.isLoggedIn()
+        _isLoggedIn.value = userRepository.isLoggedIn()
         if (_isLoggedIn.value == true) {
             getUser()
         }
     }
 
-    // Fungsi untuk register
     fun registerUser(email: String, password: String, name: String, phone: String, role: String) {
         viewModelScope.launch {
-            val result = authRepository.register(email, password, name, phone, role)
+            val result = userRepository.register(email, password, name, phone, role)
             _authStatus.postValue(result)
 
-            // Jika registrasi berhasil, update status login
             if (result.first) {
                 _isLoggedIn.postValue(true)
-                getUser() // Ambil data user setelah register
             }
         }
     }
 
-    // Fungsi untuk login
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
-            val result = authRepository.login(email, password)
+            val result = userRepository.login(email, password)
             _authStatus.postValue(result)
 
-            // Jika login berhasil, update status login
             if (result.first) {
                 _isLoggedIn.postValue(true)
-                getUser() // Ambil data user setelah login
             }
         }
     }
 
-    // Ambil nama pengguna dari Firestore
     fun getUser() {
         viewModelScope.launch {
-            val userData = authRepository.getUserData()
+            val userData = userRepository.getUserData()
 
             if (userData != null) {
                 _userName.postValue(userData.name ?: "")
                 _userRole.postValue(userData.role ?: "Client")
                 _userPhone.postValue(userData.phone ?: "")
+                _userBiography.postValue(userData.biography ?: "")
                 _userImageUrl.postValue(userData.profileImageUrl)
+                _accountStatus.postValue(userData.accountStatus)
             }
         }
     }
 
-    fun updateProfile(name: String, profileImageUrl: String) {
+    fun updateProfile(name: String, phone: String, biography: String, profileImageUrl: String) {
         viewModelScope.launch {
-            val result = authRepository.updateProfile(name, profileImageUrl)
+            val result = userRepository.updateProfile(name, phone, biography, profileImageUrl)
             _authStatus.postValue(result)
         }
     }
 
-    // Logout pengguna
+    fun updateProfileImageUrl(imageUrl: String) {
+        viewModelScope.launch {
+            val result = userRepository.updateProfileImageUrl(imageUrl)
+            if (result.first) {
+                _userImageUrl.postValue(imageUrl)
+            }
+        }
+    }
+
+    fun becomeFreelancer() {
+        viewModelScope.launch {
+            val result = userRepository.becomeFreelancer()
+            _authStatus.postValue(result)
+        }
+    }
+
+    fun updateAccountStatus(isActive: Boolean) {
+        viewModelScope.launch {
+            val (success, message) = userRepository.updateAccountStatus(isActive)
+
+            if (success) {
+                _accountStatus.postValue(isActive)
+            } else {
+                _errorMessage.postValue(message)
+            }
+        }
+    }
+
     fun logoutUser() {
         viewModelScope.launch {
-            authRepository.logout()
+            userRepository.logout()
             _isLoggedIn.postValue(false)
             _userName.postValue(null)
             _userRole.postValue(null)
             _userPhone.postValue(null)
+            _userImageUrl.postValue(null)
+            _userBiography.postValue(null)
+            _accountStatus.postValue(null)
+            _errorMessage.postValue(null)
             _authStatus.postValue(Pair(false, "User logged out"))
         }
     }
 
     fun forgotPassword(email: String) {
         viewModelScope.launch {
-            authRepository.forgotPassword(email)
+            userRepository.forgotPassword(email)
         }
     }
 }
