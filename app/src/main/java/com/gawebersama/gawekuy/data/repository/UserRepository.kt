@@ -1,6 +1,6 @@
 package com.gawebersama.gawekuy.data.repository
 
-import com.gawebersama.gawekuy.data.dataclass.User
+import com.gawebersama.gawekuy.data.dataclass.UserModel
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -14,7 +14,11 @@ class UserRepository {
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
-    private fun User.toHashMap(): HashMap<String, Any?> {
+    companion object {
+        const val TAG = "UserRepository"
+    }
+
+    private fun UserModel.toHashMap(): HashMap<String, Any?> {
         return hashMapOf(
             "userId" to userId,
             "email" to email,
@@ -24,12 +28,13 @@ class UserRepository {
             "profileImageUrl" to profileImageUrl,
             "biography" to biography,
             "createdAt" to createdAt,
+            "userStatus" to userStatus,
             "accountStatus" to accountStatus
         )
     }
 
-    private fun Map<String, Any>.toUser(): User {
-        return User(
+    private fun Map<String, Any>.toUser(): UserModel {
+        return UserModel(
             userId = this["userId"] as? String,
             email = this["email"] as? String,
             name = this["name"] as? String,
@@ -37,7 +42,8 @@ class UserRepository {
             role = this["role"] as? String,
             profileImageUrl = this["profileImageUrl"] as? String,
             biography = this["biography"] as? String,
-            createdAt = this["createdAt"] as? Timestamp,
+            createdAt = this["createdAt"] as? Timestamp ?: Timestamp.now(),
+            userStatus = this["userStatus"] as? String,
             accountStatus = this["accountStatus"] as? Boolean
         )
     }
@@ -59,7 +65,7 @@ class UserRepository {
 
             authResult.user?.sendEmailVerification()
 
-            val userData = User(
+            val userModelData = UserModel(
                 userId = userId,
                 email = email,
                 name = name,
@@ -68,10 +74,11 @@ class UserRepository {
                 profileImageUrl = null,
                 biography = null,
                 createdAt = Timestamp.now(),
+                userStatus = null,
                 accountStatus = true
             ).toHashMap()
 
-            firestore.collection("users").document(userId).set(userData).await()
+            firestore.collection("users").document(userId).set(userModelData).await()
 
             println("UserRepository: register success & data saved to Firestore")
             Pair(true, "Silakan verifikasi email Anda sebelum login")
@@ -94,7 +101,7 @@ class UserRepository {
         }
     }
 
-    suspend fun getUserData(): User? {
+    suspend fun getUserData(): UserModel? {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return null
             val document = firestore.collection("users").document(userId).get().await()
@@ -110,7 +117,7 @@ class UserRepository {
         }
     }
 
-    suspend fun updateProfile(name: String, phone: String, biography: String, profileImageUrl: String): Pair<Boolean, String?> {
+    suspend fun updateProfile(name: String, phone: String, userStatus: String, biography: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
             val userRef = firestore.collection("users").document(userId)
@@ -120,6 +127,7 @@ class UserRepository {
                     "name" to name,
                     "phone" to phone,
                     "biography" to biography,
+                    "userStatus" to userStatus,
                     "profileImageUrl" to profileImageUrl
                 )
             ).await()
@@ -147,7 +155,7 @@ class UserRepository {
 
     fun logout() {
         firebaseAuth.signOut()
-        firestore.clearPersistence() // Hapus cache Firestore
+        firestore.clearPersistence()
         if (firebaseAuth.currentUser == null) {
             println("UserRepository: logout success")
         } else {

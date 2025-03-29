@@ -153,4 +153,22 @@
         <item name="android:gravity">center</item>
         <item name="buttonTint">@color/blue</item>
     </style>
+
+    <style name="CountryCodePicker" >
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="ccpDialog_textColor">@color/white</item>
+        <item name="ccp_contentColor">@color/white</item>
+        <item name="ccpDialog_backgroundColor">@color/dark_grey</item>
+        <item name="ccpDialog_cornerRadius">8dp</item>
+        <item name="ccpDialog_showCloseIcon">true</item>
+        <item name="ccp_autoDetectCountry">true</item>
+        <item name="ccp_areaCodeDetectedCountry">true</item>
+        <item name="ccp_showFlag">true</item>
+        <item name="ccp_showArrow">true</item>
+        <item name="ccp_showFullName">false</item>
+        <item name="ccp_textSize">12sp</item>
+    </style>
 </resources>

@@ -35,6 +35,16 @@
         <item name="cornerRadius">8dp</item>
     </style>
 
+    <style name="ButtonSelection" >
+        <item name="fontFamily">@font/urbanist_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="backgroundTint">@color/blue</item>
+        <item name="android:background">@drawable/button_custom</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
     <style name="BackButton" >
         <item name="android:backgroundTint">@color/transparent</item>
         <item name="android:layout_width">0dp</item>
@@ -152,5 +162,23 @@
         <item name="android:layout_gravity">center</item>
         <item name="android:gravity">center</item>
         <item name="buttonTint">@color/blue</item>
+    </style>
+
+    <style name="CountryCodePicker" >
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:gravity">center</item>
+        <item name="ccpDialog_textColor">@color/black</item>
+        <item name="ccp_contentColor">@color/black</item>
+        <item name="ccpDialog_backgroundColor">@color/white</item>
+        <item name="ccpDialog_cornerRadius">8dp</item>
+        <item name="ccpDialog_showCloseIcon">true</item>
+        <item name="ccp_autoDetectCountry">true</item>
+        <item name="ccp_areaCodeDetectedCountry">true</item>
+        <item name="ccp_showFlag">true</item>
+        <item name="ccp_showArrow">true</item>
+        <item name="ccp_showFullName">false</item>
+        <item name="ccp_textSize">12sp</item>
     </style>
 </resources>

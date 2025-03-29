@@ -130,24 +130,60 @@
                     android:layout_marginEnd="16dp"
                     android:text="@string/phone_number" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/til_phone_number"
-                    app:boxStrokeColor="@color/blue"
-                    app:hintTextColor="@color/blue"
-                    app:cursorColor="@color/blue"
-                    app:hintEnabled="false"
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:orientation="horizontal">
+
+                        <com.hbb20.CountryCodePicker
+                            android:id="@+id/ccp"
+                            style="@style/CountryCodePicker"/>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/til_phone_number"
+                            app:boxStrokeColor="@color/blue"
+                            app:hintTextColor="@color/blue"
+                            app:cursorColor="@color/blue"
+                            app:hintEnabled="false"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" >
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/tiet_phone_number"
+                                style="@style/InputText"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:hint="@string/hint_phone"
+                                android:inputType="phone" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:id="@+id/tv_status"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:text="@string/status" />
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/tiet_phone_number"
-                        style="@style/InputText"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_status"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    app:hintEnabled="false"
+                    app:boxStrokeColor="@color/blue"
+                    android:layout_marginEnd="16dp" >
+
+                    <com.rosemaryapp.amazingspinner.AmazingSpinner
+                        android:id="@+id/spinner_status"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="@string/hint_phone"
-                        android:inputType="phone" />
+                        android:layout_height="wrap_content"
+                        android:hint="@string/select_your_status"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -166,30 +202,36 @@
                     app:hintEnabled="false"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/tiet_biography"
                         style="@style/InputText"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:gravity="top|start"
                         android:hint="@string/write_text_here"
-                        android:inputType="text" />
+                        android:overScrollMode="always"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:minHeight="150dp" />
 
                 </com.google.android.material.textfield.TextInputLayout>
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:indeterminateTint="@color/blue"
-                    android:visibility="gone"
-                    android:max="100"
-                    android:progress="50"/>
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:indeterminateTint="@color/blue"
+            android:visibility="gone"
+            android:max="100"
+            android:progress="50"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"

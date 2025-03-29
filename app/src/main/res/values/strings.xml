@@ -67,4 +67,22 @@
     <string name="minimal_caps">Minimal 1 huruf kapital</string>
     <string name="minimal_lowercase">Minimal 1 huruf kecil</string>
     <string name="minimal_number">Minimal 1 angka</string>
+    <string name="my_service">Jasa Saya</string>
+    <string name="status">Status</string>
+    <string name="worker">Pekerja</string>
+    <string name="select_your_status">Pilih Status Anda</string>
+    <string name="create_new_service">Buat Jasa Baru</string>
+    <string name="create_service">Buat Jasa</string>
+    <string name="banner_image">Gambar Banner</string>
+    <string name="description">Deskripsi</string>
+    <string name="service_name">Nama Jasa</string>
+    <string name="hint_service_name">Masukkan nama jasa</string>
+    <string name="service_selection">Pilihan Layanan</string>
+    <string name="select_file">Pilih File</string>
+    <string name="no_file_selected">Tidak ada file terpilih</string>
+    <string name="delete_service">Hapus Jasa</string>
+    <string name="add_service">Tambah Layanan</string>
+    <string name="service_name_selection">Nama Layanan</string>
+    <string name="price">Harga</string>
+    <string name="delete_service_selection">delete_service_selection</string>
 </resources>

@@ -23,6 +23,9 @@ class UserViewModel : ViewModel() {
     private val _userPhone = MutableLiveData<String?>()
     val userPhone: LiveData<String?> get() = _userPhone
 
+    private val _userStatus = MutableLiveData<String?>()
+    val userStatus: LiveData<String?> get() = _userStatus
+
     private val _userImageUrl = MutableLiveData<String?>()
     val userImageUrl: LiveData<String?> get() = _userImageUrl
 
@@ -75,6 +78,7 @@ class UserViewModel : ViewModel() {
                 _userName.postValue(userData.name ?: "")
                 _userRole.postValue(userData.role ?: "Client")
                 _userPhone.postValue(userData.phone ?: "")
+                _userStatus.postValue(userData.userStatus ?: "")
                 _userBiography.postValue(userData.biography ?: "")
                 _userImageUrl.postValue(userData.profileImageUrl)
                 _accountStatus.postValue(userData.accountStatus)
@@ -82,10 +86,18 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    fun updateProfile(name: String, phone: String, biography: String, profileImageUrl: String) {
+    fun updateProfile(name: String, phone: String, userStatus: String, biography: String, profileImageUrl: String) {
         viewModelScope.launch {
-            val result = userRepository.updateProfile(name, phone, biography, profileImageUrl)
+            val result = userRepository.updateProfile(name, phone, userStatus, biography, profileImageUrl)
             _authStatus.postValue(result)
+
+            if (result.first) {
+                _userName.postValue(name)
+                _userPhone.postValue(phone)
+                _userStatus.postValue(userStatus)
+                _userBiography.postValue(biography)
+                _userImageUrl.postValue(profileImageUrl)
+            }
         }
     }
 
@@ -102,6 +114,9 @@ class UserViewModel : ViewModel() {
         viewModelScope.launch {
             val result = userRepository.becomeFreelancer()
             _authStatus.postValue(result)
+            if (result.first) {
+                _userRole.postValue("FREELANCER")
+            }
         }
     }
 
@@ -124,6 +139,7 @@ class UserViewModel : ViewModel() {
             _userName.postValue(null)
             _userRole.postValue(null)
             _userPhone.postValue(null)
+            _userStatus.postValue(null)
             _userImageUrl.postValue(null)
             _userBiography.postValue(null)
             _accountStatus.postValue(null)
@@ -135,6 +151,7 @@ class UserViewModel : ViewModel() {
     fun forgotPassword(email: String) {
         viewModelScope.launch {
             userRepository.forgotPassword(email)
+            _authStatus.postValue(Pair(true, "Silakan cek email Anda untuk reset password"))
         }
     }
 }

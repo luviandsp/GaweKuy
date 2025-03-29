@@ -82,6 +82,9 @@ dependencies {
     // Glide
     implementation(libs.glide)
 
+    // Spinner
+    implementation(libs.amazingspinner)
+
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 

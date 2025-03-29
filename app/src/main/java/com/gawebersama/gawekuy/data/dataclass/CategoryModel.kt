@@ -1,6 +1,6 @@
 package com.gawebersama.gawekuy.data.dataclass
 
-data class Category(
+data class CategoryModel(
     val name: String?,
     val image: Int?
 )

@@ -14,10 +14,10 @@
 
         <ImageView
             android:id="@+id/iv_freelancer"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_launcher_background"/>
 
         <LinearLayout

@@ -15,6 +15,18 @@
         android:theme="@style/Theme.GaweKuy"
         tools:targetApi="31">
         <activity
+            android:name=".ui.profile.CreateServiceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.FavoriteFreelancerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.ProjectHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.MyServiceActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.profile.SettingActivity"
             android:exported="false" />
         <activity

@@ -3,6 +3,7 @@ package com.gawebersama.gawekuy.ui.profile
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -14,6 +15,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.bumptech.glide.Glide
 import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.enum.UserStatus
 import com.gawebersama.gawekuy.data.viewmodel.StorageViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityEditProfileBinding
@@ -27,6 +29,8 @@ class EditProfileActivity : AppCompatActivity() {
 
     private var imageUri: Uri? = null
     private var isPhotoDeleted: Boolean = false
+
+    val statusList = UserStatus.entries.map { it.name.lowercase().replace("_", " ").capitalizeWords() }
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -42,6 +46,10 @@ class EditProfileActivity : AppCompatActivity() {
         }
     }
 
+    companion object {
+        const val RESULT_CODE = 110
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
@@ -52,12 +60,23 @@ class EditProfileActivity : AppCompatActivity() {
             insets
         }
 
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, statusList)
+        binding.spinnerStatus.setAdapter(adapter)
+        binding.spinnerStatus.setOnItemClickListener { _, _, position, _ ->
+            statusList[position]
+        }
+        binding.spinnerStatus.setDropDownBackgroundResource(R.drawable.dropdown_background)
+
         initViews()
         observeViewModels()
     }
 
     private fun initViews() {
         with(binding) {
+            btnBack.setOnClickListener {
+                finish()
+            }
+
             btnChangePhoto.setOnClickListener {
                 launcher.launch(
                     ImagePicker.with(this@EditProfileActivity)
@@ -78,10 +97,13 @@ class EditProfileActivity : AppCompatActivity() {
                     .into(binding.ivProfilePicture)
             }
 
+            ccp.registerCarrierNumberEditText(tietPhoneNumber)
+
             btnSave.setOnClickListener {
                 val name = tietFullName.text.toString().trim()
-                val phone = tietPhoneNumber.text.toString().trim()
+                val phone = ccp.fullNumber.trim()
                 val biography = tietBiography.text.toString().trim()
+                val selectedStatus = spinnerStatus.text.toString().trim()
                 val oldProfileImageUrl = userViewModel.userImageUrl.value ?: ""
 
                 if (name.isEmpty()) {
@@ -89,30 +111,39 @@ class EditProfileActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
+                if (phone.isEmpty()) {
+                    tietPhoneNumber.error = "Nomor telepon tidak boleh kosong"
+                    return@setOnClickListener
+                }
+
                 if (isPhotoDeleted) {
                     deleteProfilePhoto()
-                    userViewModel.updateProfile(name, phone, biography, "")
+                    userViewModel.updateProfile(name, phone, selectedStatus, biography, "")
+                    setResult(RESULT_CODE)
                     finish()
                 } else if (imageUri != null) {
                     if (oldProfileImageUrl.isNotEmpty()) {
                         // Update Foto Profil Baru
-                        userViewModel.updateProfile(name, phone, biography, "")
+                        userViewModel.updateProfile(name, phone, selectedStatus, biography, "")
 
                         uploadImageToSupabase(imageUri!!) { imageUrl ->
-                            userViewModel.updateProfile(name, phone, biography, imageUrl)
+                            userViewModel.updateProfile(name, phone, selectedStatus, biography, imageUrl)
                             deleteProfilePhoto()
+                            setResult(RESULT_CODE)
                             finish()
                         }
                     } else {
                         // Upload Foto Profil Baru
                         uploadImageToSupabase(imageUri!!) { imageUrl ->
-                            userViewModel.updateProfile(name, phone, biography, imageUrl)
+                            userViewModel.updateProfile(name, phone, selectedStatus, biography, imageUrl)
+                            setResult(RESULT_CODE)
                             finish()
                         }
                     }
                 } else {
                     // Tidak ada foto yang diubah
-                    userViewModel.updateProfile(name, phone, biography, oldProfileImageUrl)
+                    userViewModel.updateProfile(name, phone, selectedStatus, biography, oldProfileImageUrl)
+                    setResult(RESULT_CODE)
                     finish()
                 }
             }
@@ -123,8 +154,18 @@ class EditProfileActivity : AppCompatActivity() {
         userViewModel.apply {
             userImageUrl.observe(this@EditProfileActivity) { updateProfilePicture(it) }
             userName.observe(this@EditProfileActivity) { binding.tietFullName.setText(it) }
-            userPhone.observe(this@EditProfileActivity) { binding.tietPhoneNumber.setText(it) }
+            userPhone.observe(this@EditProfileActivity) { phone ->
+                val currentCode = binding.ccp.selectedCountryCode
+                val phoneWithoutCode = phone?.removePrefix(currentCode)
+                binding.tietPhoneNumber.setText(phoneWithoutCode)
+            }
             userBiography.observe(this@EditProfileActivity) { binding.tietBiography.setText(it) }
+            userStatus.observe(this@EditProfileActivity) { status ->
+                val formattedStatus = status?.lowercase()?.replace("_", " ")?.capitalizeWords()
+                if (statusList.contains(formattedStatus)) {
+                    binding.spinnerStatus.setText(formattedStatus, false)
+                }
+            }
         }
 
         storageViewModel.apply {
@@ -162,7 +203,6 @@ class EditProfileActivity : AppCompatActivity() {
         if (!currentImageUrl.isNullOrEmpty()) {
             val fileName = currentImageUrl.substringAfterLast("/")
             storageViewModel.deleteFile(fileName, "profile_pictures")
-            userViewModel.updateProfileImageUrl("")
         } else {
             showToast("Foto profil tidak ditemukan")
         }
@@ -203,4 +243,7 @@ class EditProfileActivity : AppCompatActivity() {
             }
         })
     }
+
+    fun String.capitalizeWords(): String =
+        split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
 }

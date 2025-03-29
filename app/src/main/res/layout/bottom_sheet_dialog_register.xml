@@ -92,16 +92,7 @@
 
             <com.hbb20.CountryCodePicker
                 android:id="@+id/ccp"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:gravity="center"
-                app:ccp_textSize="12sp"
-                app:ccp_defaultNameCode="ID"
-                app:ccp_autoDetectCountry="true"
-                app:ccp_showFlag="true"
-                app:ccp_showArrow="true"
-                app:ccp_showFullName="false" />
+                style="@style/CountryCodePicker" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_phone"

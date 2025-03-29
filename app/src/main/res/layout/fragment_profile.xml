@@ -52,15 +52,32 @@
                         android:layout_height="90dp"
                         android:src="@drawable/user_circle" />
 
-                    <TextView
-                        android:id="@+id/tv_nickname"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="12dp"
-                        android:text="@string/guest"
-                        android:textSize="24sp"
-                        app:fontFamily="@font/urbanist_bold" />
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_nickname"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/guest"
+                            android:textSize="20sp"
+                            app:fontFamily="@font/urbanist_bold" />
+
+                        <TextView
+                            android:id="@+id/tv_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/worker"
+                            android:textSize="16sp"
+                            app:fontFamily="@font/urbanist" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -96,7 +113,25 @@
                         app:fontFamily="@font/urbanist_semibold"
                         android:maxLines="1"
                         android:ellipsize="end"
+                        android:visibility="visible"
                         android:text="@string/become_freelancer_opt"
+                        app:strokeColor="@color/blue"
+                        app:strokeWidth="2dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/ButtonAuth"
+                        android:id="@+id/btn_my_project"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_weight="1"
+                        android:textSize="14sp"
+                        app:fontFamily="@font/urbanist_semibold"
+                        android:maxLines="1"
+                        android:ellipsize="end"
+                        android:visibility="gone"
+                        android:text="@string/my_service"
                         app:strokeColor="@color/blue"
                         app:strokeWidth="2dp" />
                 </LinearLayout>

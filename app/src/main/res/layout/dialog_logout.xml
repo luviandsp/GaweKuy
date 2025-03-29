@@ -47,18 +47,6 @@
             android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancel"
-                style="@style/ButtonAuth.Register"
-                app:strokeWidth="2dp"
-                app:strokeColor="@color/blue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:layout_marginStart="0dp"
-                android:text="@string/cancel" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 style="@style/ButtonAuth"
                 android:backgroundTint="@color/red"
@@ -67,8 +55,20 @@
                 android:layout_weight="1"
                 android:text="@string/exit"
                 android:textColor="@color/white"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="0dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancel"
+                style="@style/ButtonAuth.Register"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/blue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:layout_marginEnd="0dp"
-                android:layout_marginStart="8dp" />
+                android:layout_marginStart="8dp"
+                android:text="@string/cancel" />
         </LinearLayout>
     </LinearLayout>
 

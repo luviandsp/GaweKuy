@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.adapter.CategoryAdapter
 import com.gawebersama.gawekuy.data.adapter.FreelancerServiceAdapter
-import com.gawebersama.gawekuy.data.dataclass.Category
-import com.gawebersama.gawekuy.data.dataclass.FreelancerService
+import com.gawebersama.gawekuy.data.dataclass.CategoryModel
+import com.gawebersama.gawekuy.data.dataclass.FreelancerServiceModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.FragmentHomeBinding
 
@@ -50,35 +50,35 @@ class HomeFragment : Fragment() {
 
     private fun serviceRV() {
         val daftarService = listOf(
-            FreelancerService(
+            FreelancerServiceModel(
                 name = "Luvian Daffa",
                 title = "Pemrograman Android Berbasis Kotlin",
                 rating = 5.0,
                 image = R.drawable.logo,
                 price = 120000.0
             ),
-            FreelancerService(
+            FreelancerServiceModel(
                 name = "Bima Adnandita",
                 title = "Video Editing untuk Youtube dan Instagram",
                 rating = 5.0,
                 image = R.drawable.logo,
                 price = 50000.0
             ),
-            FreelancerService(
+            FreelancerServiceModel(
                 name = "Luvian Daffa",
                 title = "Video Editing untuk Youtube dan Instagram",
                 rating = 5.0,
                 image = R.drawable.logo,
                 price = 50000.0
             ),
-            FreelancerService(
+            FreelancerServiceModel(
                 name = "Luvian Syauki",
                 title = "Video Editing untuk Youtube dan Instagram",
                 rating = 5.0,
                 image = R.drawable.logo,
                 price = 50000.0
             ),
-            FreelancerService(
+            FreelancerServiceModel(
                 name = "Luvian Daffa",
                 title = "Video Editing untuk Youtube dan Instagram",
                 rating = 5.0,
@@ -90,7 +90,7 @@ class HomeFragment : Fragment() {
         with(binding) {
             val rvAdapter = FreelancerServiceAdapter(daftarService).apply {
                 setOnItemClickListener(object : FreelancerServiceAdapter.OnItemClickListener {
-                    override fun onItemClick(service: FreelancerService) {
+                    override fun onItemClick(service: FreelancerServiceModel) {
                         Toast.makeText(
                             requireContext(),
                             "Jasa: ${service.title}",
@@ -109,19 +109,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun categoryRV() {
-        val daftarCategory = listOf(
-            Category("Penulisan & Akademik", R.drawable.academic_category),
-            Category("Pengembangan Teknologi", R.drawable.computer_category),
-            Category("Desain & Multimedia", R.drawable.design_category),
-            Category("Pemasaran & Media Sosial", R.drawable.marketing_category),
-            Category("Lainnya", R.drawable.others_category)
+        val daftarCategoryModels = listOf(
+            CategoryModel("Penulisan & Akademik", R.drawable.academic_category),
+            CategoryModel("Pengembangan Teknologi", R.drawable.computer_category),
+            CategoryModel("Desain & Multimedia", R.drawable.design_category),
+            CategoryModel("Pemasaran & Media Sosial", R.drawable.marketing_category),
+            CategoryModel("Lainnya", R.drawable.others_category)
         )
 
         with(binding) {
-            val rvAdapter = CategoryAdapter(daftarCategory).apply {
+            val rvAdapter = CategoryAdapter(daftarCategoryModels).apply {
                 setOnItemClickListener(object : CategoryAdapter.OnItemClickListener {
-                    override fun onItemClick(category: Category) {
-                        Toast.makeText(requireContext(), "Kategori: ${category.name}", Toast.LENGTH_SHORT).show()
+                    override fun onItemClick(categoryModel: CategoryModel) {
+                        Toast.makeText(requireContext(), "Kategori: ${categoryModel.name}", Toast.LENGTH_SHORT).show()
                     }
                 })
             }

@@ -4,37 +4,37 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.gawebersama.gawekuy.data.dataclass.Category
-import com.gawebersama.gawekuy.databinding.CategoryItemBinding
+import com.gawebersama.gawekuy.data.dataclass.CategoryModel
+import com.gawebersama.gawekuy.databinding.ItemCategoryBinding
 
-class CategoryAdapter(private val categoryList : List<Category>) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
+class CategoryAdapter(private val categoryModelList : List<CategoryModel>) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     var selectCategory : OnItemClickListener? = null
 
-    inner class CategoryViewHolder(private val binding : CategoryItemBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(category: Category) {
+    inner class CategoryViewHolder(private val binding : ItemCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(categoryModel: CategoryModel) {
             with (binding) {
-                tvCategoryName.text = category.name
-                Glide.with(this.root).load(category.image).into(ivCategoryImage)
+                tvCategoryName.text = categoryModel.name
+                Glide.with(this.root).load(categoryModel.image).into(ivCategoryImage)
 
                 itemView.setOnClickListener {
-                    selectCategory?.onItemClick(category)
+                    selectCategory?.onItemClick(categoryModel)
                 }
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val binding = CategoryItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CategoryViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.bind(categoryList[position])
+        holder.bind(categoryModelList[position])
     }
 
     override fun getItemCount(): Int {
-        return categoryList.size
+        return categoryModelList.size
     }
 
     fun setOnItemClickListener(listener: OnItemClickListener) {
@@ -42,6 +42,6 @@ class CategoryAdapter(private val categoryList : List<Category>) : RecyclerView.
     }
 
     interface OnItemClickListener {
-        fun onItemClick(category: Category)
+        fun onItemClick(categoryModel: CategoryModel)
     }
 }

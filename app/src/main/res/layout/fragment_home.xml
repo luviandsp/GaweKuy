@@ -69,7 +69,7 @@
             app:spanCount="2"
             android:nestedScrollingEnabled="false"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-            tools:listitem="@layout/category_item" />
+            tools:listitem="@layout/item_category" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -108,7 +108,7 @@
             android:layout_marginEnd="16dp"
             android:nestedScrollingEnabled="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/freelancer_item" />
+            tools:listitem="@layout/item_freelancer_service" />
 
     </LinearLayout>
 
