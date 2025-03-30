@@ -85,4 +85,16 @@
     <string name="service_name_selection">Nama Layanan</string>
     <string name="price">Harga</string>
     <string name="delete_service_selection">delete_service_selection</string>
+    <string name="service_detail">Detail Jasa</string>
+    <string name="service_category">Kategori Jasa</string>
+    <string name="select_service_category">Pilih kategori jasa</string>
+    <string name="tags">Tags</string>
+    <string name="add_tags">Tambahkan tags</string>
+    <string name="see_portfolio">Lihat Portofolio</string>
+    <string name="add_portfolio">Tambahkan Portofolio</string>
+    <string name="example">Contoh</string>
+    <string name="are_you_sure_to_delete_this_service">Apakah anda yakin ingin menghapus jasa ini?</string>
+    <string name="delete">Hapus</string>
+    <string name="order_service">Pesan Jasa</string>
+    <string name="price_format">Rp.%s</string>
 </resources>

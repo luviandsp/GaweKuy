@@ -75,9 +75,9 @@ class UserViewModel : ViewModel() {
             val userData = userRepository.getUserData()
 
             if (userData != null) {
-                _userName.postValue(userData.name ?: "")
-                _userRole.postValue(userData.role ?: "Client")
-                _userPhone.postValue(userData.phone ?: "")
+                _userName.postValue(userData.name)
+                _userRole.postValue(userData.role)
+                _userPhone.postValue(userData.phone)
                 _userStatus.postValue(userData.userStatus ?: "")
                 _userBiography.postValue(userData.biography ?: "")
                 _userImageUrl.postValue(userData.profileImageUrl)
@@ -97,6 +97,7 @@ class UserViewModel : ViewModel() {
                 _userStatus.postValue(userStatus)
                 _userBiography.postValue(biography)
                 _userImageUrl.postValue(profileImageUrl)
+                _errorMessage.postValue(null)
             }
         }
     }

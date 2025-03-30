@@ -1,9 +1,12 @@
 package com.gawebersama.gawekuy.ui.profile
 
+import android.app.AlertDialog
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -13,13 +16,22 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.adapter.ServiceSelectionAdapter
-import com.gawebersama.gawekuy.data.dataclass.ServiceSelectionModel
+import com.gawebersama.gawekuy.data.adapter.ServiceTagsAdapter
+import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
+import com.gawebersama.gawekuy.data.util.ServiceTypeDiffCallback
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.StorageViewModel
 import com.gawebersama.gawekuy.databinding.ActivityCreateServiceBinding
+import com.gawebersama.gawekuy.databinding.DialogDeleteServiceBinding
 import com.github.drjacky.imagepicker.ImagePicker
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 
 class CreateServiceActivity : AppCompatActivity() {
 
@@ -29,6 +41,9 @@ class CreateServiceActivity : AppCompatActivity() {
 
     private lateinit var serviceSelectionAdapter: ServiceSelectionAdapter
     private val serviceSelectionList = mutableListOf<ServiceSelectionModel>()
+
+    private lateinit var serviceTagAdapter: ServiceTagsAdapter
+    private val serviceTagList = mutableListOf<String>()
 
     private var imageUri: Uri? = null
     private var serviceId: String? = null
@@ -41,6 +56,8 @@ class CreateServiceActivity : AppCompatActivity() {
             }
         }
     }
+
+    val categoryList = listOf<String>("Penulisan & Akademik", "Desain & Multimedia", "Pengembangan Teknologi", "Pemasaran & Media Sosial", "Lainnya")
 
     companion object {
         const val SERVICE_ID = "SERVICE_ID"
@@ -57,11 +74,22 @@ class CreateServiceActivity : AppCompatActivity() {
             insets
         }
 
-        serviceId = intent.getStringExtra(SERVICE_ID) // Ambil serviceId dari intent jika ada
+        serviceId = intent.getStringExtra(SERVICE_ID)
 
-        Log.d("CreateServiceActivity", "Service ID received: $serviceId") // Debugging log
+        Log.d(TAG, "Service ID received: $serviceId")
         if (serviceId != null) {
             serviceViewModel.fetchServiceById(serviceId!!)
+        } else {
+            Log.d(TAG, "Service ID is null")
+        }
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, categoryList)
+        with(binding) {
+            spinnerCategory.setAdapter(adapter)
+            spinnerCategory.setOnItemClickListener { _, _, position, _ ->
+                categoryList[position]
+            }
+            spinnerCategory.setDropDownBackgroundResource(R.drawable.dropdown_background)
         }
 
         initViews()
@@ -70,6 +98,12 @@ class CreateServiceActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
+            val flexBoxLayoutManager = FlexboxLayoutManager(this@CreateServiceActivity).apply {
+                flexDirection = FlexDirection.ROW
+                flexWrap = FlexWrap.WRAP
+                justifyContent = JustifyContent.FLEX_START
+            }
+
             tvTitle.text = if (serviceId != null) "Edit Jasa" else "Buat Jasa"
             btnCreate.text = if (serviceId != null) "Simpan Perubahan" else "Buat Jasa"
             btnDelete.visibility = if (serviceId != null) View.VISIBLE else View.GONE
@@ -79,6 +113,10 @@ class CreateServiceActivity : AppCompatActivity() {
             }
 
             btnBack.setOnClickListener { finish() }
+            llPortfolio.setOnClickListener {
+                val intent = Intent(this@CreateServiceActivity, AddingPortfolioActivity::class.java)
+                startActivity(intent)
+            }
 
             serviceSelectionAdapter = ServiceSelectionAdapter(serviceSelectionList) { position ->
                 if (position in serviceSelectionList.indices) {
@@ -101,6 +139,30 @@ class CreateServiceActivity : AppCompatActivity() {
                 Log.d(TAG, "Service List: $serviceSelectionList")
             }
 
+            serviceTagAdapter = ServiceTagsAdapter(serviceTagList) { position ->
+                if (position in serviceTagList.indices) {
+                    serviceTagList.removeAt(position)
+                    serviceTagAdapter.notifyItemRemoved(position)
+                    serviceTagAdapter.notifyItemRangeChanged(position, serviceTagList.size)
+                }
+            }
+
+            rvTags.apply {
+                layoutManager = flexBoxLayoutManager
+                adapter = serviceTagAdapter
+                setHasFixedSize(false)
+            }
+
+            fabAddTags.setOnClickListener {
+                val newTag = binding.tietServiceTags.text.toString().trim()
+
+                if (newTag.isNotEmpty()) {
+                    serviceTagList.add(newTag)
+                    serviceTagAdapter.notifyItemInserted(serviceTagList.size - 1)
+                    binding.tietServiceTags.text?.clear()
+                }
+            }
+
             btnSelectFile.setOnClickListener {
                 launcher.launch(
                     ImagePicker.with(this@CreateServiceActivity)
@@ -113,6 +175,7 @@ class CreateServiceActivity : AppCompatActivity() {
             btnCreate.setOnClickListener {
                 val serviceName = tietServiceName.text.toString().trim()
                 val serviceDescription = tietDesc.text.toString().trim()
+                val selectedCategory = spinnerCategory.text.toString().trim()
                 val oldServiceImageUrl = serviceViewModel.imageBannerUrl.value ?: ""
 
                 if (serviceName.isEmpty()) {
@@ -125,39 +188,101 @@ class CreateServiceActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
+                if (serviceSelectionList.any { it.name.isEmpty() || it.price == 0.0 }) {
+                    showToast("Nama dan harga layanan tidak boleh kosong")
+                    return@setOnClickListener
+                }
+
+                if (selectedCategory.isEmpty()) {
+                    showToast("Kategori tidak boleh kosong")
+                    return@setOnClickListener
+                }
+
                 binding.progressBar.visibility = View.VISIBLE
                 Log.d(TAG, "Service Selection List Before Saving: $serviceSelectionList")
 
                 if (imageUri != null) {
                     uploadImageToSupabase(imageUri!!) { imageUrl ->
                         if (serviceId != null) {
-                            serviceViewModel.updateService(serviceId!!, serviceName, serviceDescription, imageUrl, serviceSelectionList)
+                            serviceViewModel.updateService(
+                                serviceId = serviceId!!,
+                                serviceName = serviceName,
+                                serviceDesc = serviceDescription,
+                                imageBannerUrl = imageUrl,
+                                serviceCategory = selectedCategory,
+                                serviceTypes = serviceSelectionList,
+                                serviceTags = serviceTagList
+                            )
                             deleteOldServiceImage(oldServiceImageUrl)
                         } else {
-                            serviceViewModel.createService(serviceName, serviceDescription, imageUrl, serviceSelectionList)
+                            serviceViewModel.createService(
+                                serviceName = serviceName,
+                                serviceDesc = serviceDescription,
+                                imageBannerUrl = imageUrl,
+                                serviceCategory = selectedCategory,
+                                serviceTypes = serviceSelectionList,
+                                serviceTags = serviceTagList
+                            )
                         }
+                        setResult(RESULT_OK)
                         finish()
                     }
                 } else {
                     if (serviceId != null) {
-                        serviceViewModel.updateService(serviceId!!, serviceName, serviceDescription, oldServiceImageUrl, serviceSelectionList)
+                        serviceViewModel.updateService(
+                            serviceId = serviceId!!,
+                            serviceName = serviceName,
+                            serviceDesc = serviceDescription,
+                            imageBannerUrl = oldServiceImageUrl,
+                            serviceCategory = selectedCategory,
+                            serviceTypes = serviceSelectionList,
+                            serviceTags = serviceTagList
+                        )
                     } else {
-                        serviceViewModel.createService(serviceName, serviceDescription, oldServiceImageUrl, serviceSelectionList)
+                        serviceViewModel.createService(
+                            serviceName = serviceName,
+                            serviceDesc = serviceDescription,
+                            imageBannerUrl = oldServiceImageUrl,
+                            serviceCategory = selectedCategory,
+                            serviceTypes = serviceSelectionList,
+                            serviceTags = serviceTagList
+                        )
                     }
+                    setResult(RESULT_OK)
                     finish()
                 }
             }
 
             btnDelete.setOnClickListener {
+                showDeleteDialog()
+            }
+        }
+    }
 
+    private fun showDeleteDialog() {
+        val dialogBinding = DialogDeleteServiceBinding.inflate(layoutInflater)
+        val deleteDialog = AlertDialog.Builder(this@CreateServiceActivity).setView(dialogBinding.root).create()
+
+        with(dialogBinding) {
+            btnCancel.setOnClickListener {
+                deleteDialog.dismiss()
+            }
+
+            btnDelete.setOnClickListener {
                 val oldServiceImageUrl = serviceViewModel.imageBannerUrl.value ?: ""
 
                 if (serviceId != null) {
                     deleteOldServiceImage(oldServiceImageUrl)
                     serviceViewModel.deleteService(serviceId!!)
+                    setResult(RESULT_OK)
                     finish()
                 }
+
+                deleteDialog.dismiss()
             }
+
+            deleteDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            deleteDialog.show()
         }
     }
 
@@ -166,14 +291,25 @@ class CreateServiceActivity : AppCompatActivity() {
             operationResult.observe(this@CreateServiceActivity) { (success, message) ->
                 binding.progressBar.visibility = View.GONE
                 if (success) {
+                    setResult(RESULT_OK)
                     finish()
                 } else {
                     showToast(message ?: "Terjadi kesalahan")
                 }
             }
 
+            serviceWithUser.observe(this@CreateServiceActivity) { services ->
+                binding.tietFileName.setText(services?.firstOrNull()?.service?.imageBannerUrl ?: "")
+                Log.d(TAG, "Fetched Services: $services")
+            }
+
             serviceName.observe(this@CreateServiceActivity) { binding.tietServiceName.setText(it) }
             serviceDesc.observe(this@CreateServiceActivity) { binding.tietDesc.setText(it) }
+            serviceCategory.observe(this@CreateServiceActivity) { binding.spinnerCategory.setText(it, false) }
+
+            services.observe(this@CreateServiceActivity) { services ->
+                Log.d(TAG, "Fetched Services X: $services")
+            }
 
             imageBannerUrl.observe(this@CreateServiceActivity) { imageUrl ->
                 if (imageUrl != null) {
@@ -181,12 +317,24 @@ class CreateServiceActivity : AppCompatActivity() {
                 }
             }
 
-            serviceTypes.observe(this@CreateServiceActivity) { serviceTypes ->
-                if (serviceTypes != null) {
+            serviceTypes.observe(this@CreateServiceActivity) { newServiceTypes ->
+                newServiceTypes?.let {
+                    val diffCallback = ServiceTypeDiffCallback(serviceSelectionList, newServiceTypes)
+                    val diffResult = DiffUtil.calculateDiff(diffCallback)
+
                     serviceSelectionList.clear()
-                    serviceSelectionList.addAll(serviceTypes)
-                    serviceSelectionAdapter.notifyDataSetChanged()
-                    Log.d(TAG, "Service Types: $serviceTypes")
+                    serviceSelectionList.addAll(newServiceTypes)
+                    diffResult.dispatchUpdatesTo(serviceSelectionAdapter)
+                    Log.d(TAG, "Service Types Updated: $newServiceTypes")
+                }
+            }
+
+            serviceTags.observe(this@CreateServiceActivity) { newServiceTags ->
+                newServiceTags?.let {
+                    serviceTagList.clear()
+                    serviceTagList.addAll(newServiceTags)
+                    serviceTagAdapter.notifyItemRangeChanged(0, serviceTagList.size)
+                    Log.d(TAG, "Service Tags Updated: $newServiceTags")
                 }
             }
         }

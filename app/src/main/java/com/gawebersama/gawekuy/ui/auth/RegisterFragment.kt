@@ -80,7 +80,6 @@ class RegisterFragment : Fragment() {
 
             userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
                 if (result.first) {
-                    Toast.makeText(activity, "Registrasi Berhasil, Silakan Login", Toast.LENGTH_SHORT).show()
                     navigateToMainActivity()
                 } else {
                     Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()

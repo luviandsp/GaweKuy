@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.gawebersama.gawekuy.data.dataclass.CategoryModel
+import com.gawebersama.gawekuy.data.datamodel.CategoryModel
 import com.gawebersama.gawekuy.databinding.ItemCategoryBinding
 
 class CategoryAdapter(private val categoryModelList : List<CategoryModel>) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {

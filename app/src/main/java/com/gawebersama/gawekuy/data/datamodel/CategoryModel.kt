@@ -1,4 +1,4 @@
-package com.gawebersama.gawekuy.data.dataclass
+package com.gawebersama.gawekuy.data.datamodel
 
 data class CategoryModel(
     val name: String?,

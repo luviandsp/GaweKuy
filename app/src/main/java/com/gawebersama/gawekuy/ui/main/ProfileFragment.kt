@@ -3,8 +3,7 @@ package com.gawebersama.gawekuy.ui.main
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,13 +20,8 @@ import com.gawebersama.gawekuy.databinding.DialogFreelancerBinding
 import com.gawebersama.gawekuy.databinding.DialogLogoutBinding
 import com.gawebersama.gawekuy.databinding.FragmentProfileBinding
 import com.gawebersama.gawekuy.ui.auth.AuthActivity
-import com.gawebersama.gawekuy.ui.profile.EditProfileActivity
-import com.gawebersama.gawekuy.ui.profile.FavoriteFreelancerActivity
-import com.gawebersama.gawekuy.ui.profile.MyServiceActivity
-import com.gawebersama.gawekuy.ui.profile.ProjectHistoryActivity
-import com.gawebersama.gawekuy.ui.profile.SettingActivity
+import com.gawebersama.gawekuy.ui.profile.*
 import kotlinx.coroutines.launch
-import kotlin.jvm.java
 
 class ProfileFragment : Fragment() {
 
@@ -35,10 +29,14 @@ class ProfileFragment : Fragment() {
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
 
-    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val launcherEditActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == EditProfileActivity.RESULT_CODE) {
             refreshProfileData()
         }
+    }
+
+    companion object {
+        const val TAG = "ProfileFragment"
     }
 
     override fun onCreateView(
@@ -54,8 +52,6 @@ class ProfileFragment : Fragment() {
 
         binding.srlProfile.setOnRefreshListener {
             refreshProfileData()
-            initViews()
-            observeViewModels()
         }
 
         initViews()
@@ -65,13 +61,11 @@ class ProfileFragment : Fragment() {
     private fun initViews() {
         with(binding) {
             btnEditProfile.setOnClickListener {
-                val intent = Intent(requireActivity(), EditProfileActivity::class.java)
-                launcher.launch(intent)
+                launcherEditActivity.launch(Intent(requireActivity(), EditProfileActivity::class.java))
             }
 
             btnMyProject.setOnClickListener {
-                val intent = Intent(requireActivity(), MyServiceActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(requireActivity(), MyServiceActivity::class.java))
             }
 
             btnBecomeFreelance.setOnClickListener {
@@ -79,22 +73,15 @@ class ProfileFragment : Fragment() {
             }
 
             trSetting.setOnClickListener {
-                val intent = Intent(requireActivity(), SettingActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(requireActivity(), SettingActivity::class.java))
             }
 
             trHistory.setOnClickListener {
-                val intent = Intent(requireActivity(), ProjectHistoryActivity::class.java)
-                startActivity(intent)
+                startActivity(Intent(requireActivity(), ProjectHistoryActivity::class.java))
             }
 
             trFavorites.setOnClickListener {
-                val intent = Intent(requireActivity(), FavoriteFreelancerActivity::class.java)
-                startActivity(intent)
-            }
-
-            trReview.setOnClickListener {
-
+                startActivity(Intent(requireActivity(), FavoriteFreelancerActivity::class.java))
             }
 
             trLogout.setOnClickListener {
@@ -104,38 +91,29 @@ class ProfileFragment : Fragment() {
     }
 
     private fun observeViewModels() {
-        with (binding) {
-            userViewModel.apply {
-                userName.observe(viewLifecycleOwner) { name ->
-                    tvNickname.text = name ?: ""
-                }
+        userViewModel.apply {
+            userName.observe(viewLifecycleOwner) { name ->
+                binding.tvNickname.text = name ?: ""
+            }
 
-                userStatus.observe(viewLifecycleOwner) { status ->
-                    tvStatus.text = status ?: ""
-                }
+            userStatus.observe(viewLifecycleOwner) { status ->
+                binding.tvStatus.text = status ?: ""
+            }
 
-                userImageUrl.observe(viewLifecycleOwner) { imageUrl ->
-                    if (!imageUrl.isNullOrEmpty()) {
-                        Glide.with(requireContext())
-                            .load(imageUrl)
-                            .circleCrop()
-                            .into(ivProfilePicture)
-                    } else {
-                        Glide.with(requireContext())
-                            .load(R.drawable.user_circle)
-                            .circleCrop()
-                            .into(ivProfilePicture)
-                    }
-                }
+            userImageUrl.observe(viewLifecycleOwner) { imageUrl ->
+                Glide.with(this@ProfileFragment)
+                    .load(imageUrl.takeUnless { it.isNullOrEmpty() } ?: R.drawable.user_circle)
+                    .circleCrop()
+                    .into(binding.ivProfilePicture)
+            }
 
-                userRole.observe(viewLifecycleOwner) { role ->
-                    if (role == UserRole.FREELANCER.toString()) {
-                        btnBecomeFreelance.visibility = View.GONE
-                        btnMyProject.visibility = View.VISIBLE
-                    } else {
-                        btnBecomeFreelance.visibility = View.VISIBLE
-                        btnMyProject.visibility = View.GONE
-                    }
+            userRole.observe(viewLifecycleOwner) { role ->
+                if (role == UserRole.FREELANCER.toString()) {
+                    binding.btnBecomeFreelance.visibility = View.GONE
+                    binding.btnMyProject.visibility = View.VISIBLE
+                } else {
+                    binding.btnBecomeFreelance.visibility = View.VISIBLE
+                    binding.btnMyProject.visibility = View.GONE
                 }
             }
         }
@@ -143,64 +121,76 @@ class ProfileFragment : Fragment() {
 
     private fun showFreelancerDialog() {
         val dialogBinding = DialogFreelancerBinding.inflate(layoutInflater)
-        val freelanceDialog = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+        val freelanceDialog = AlertDialog.Builder(requireContext()).setView(dialogBinding.root).create()
 
-        dialogBinding.btnConfirm.setOnClickListener {
-            becomeFreelancer()
-            freelanceDialog.dismiss()
+        with(dialogBinding) {
+            btnConfirm.setOnClickListener {
+                becomeFreelancer()
+                freelanceDialog.dismiss()
+            }
+
+            btnCancel.setOnClickListener {
+                freelanceDialog.dismiss()
+            }
+
+            freelanceDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            freelanceDialog.show()
         }
-
-        dialogBinding.btnCancel.setOnClickListener {
-            freelanceDialog.dismiss()
-        }
-
-        freelanceDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        freelanceDialog.show()
     }
 
     private fun showLogoutDialog() {
         val dialogBinding = DialogLogoutBinding.inflate(layoutInflater)
-        val logoutDialog = AlertDialog.Builder(context).setView(dialogBinding.root).create()
+        val logoutDialog = AlertDialog.Builder(requireContext()).setView(dialogBinding.root).create()
 
-        dialogBinding.btnCancel.setOnClickListener {
-            logoutDialog.dismiss()
+        with(dialogBinding) {
+            btnCancel.setOnClickListener {
+                logoutDialog.dismiss()
+            }
+
+            btnLogout.setOnClickListener {
+                logoutUser()
+                logoutDialog.dismiss()
+            }
+
+            logoutDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            logoutDialog.show()
         }
-
-        dialogBinding.btnLogout.setOnClickListener {
-            logoutUser()
-            logoutDialog.dismiss()
-        }
-
-        logoutDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        logoutDialog.show()
     }
 
     private fun becomeFreelancer() {
         lifecycleScope.launch {
             userViewModel.becomeFreelancer()
+            Toast.makeText(requireContext(), "Anda berhasil menjadi freelancer", Toast.LENGTH_SHORT).show()
+            refreshProfileData()
         }
-
-        Toast.makeText(requireContext(), "Anda berhasil menjadi freelancer", Toast.LENGTH_SHORT).show()
-
-        refreshProfileData()
     }
 
     private fun logoutUser() {
         lifecycleScope.launch {
             userViewModel.logoutUser()
-
-            val intent = Intent(requireActivity(), AuthActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+            startActivity(Intent(requireActivity(), AuthActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
         }
     }
 
     private fun refreshProfileData() {
-        userViewModel.getUser()
+        binding.srlProfile.isRefreshing = true
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            binding.srlProfile.isRefreshing = false // Hentikan animasi refresh setelah selesai
-        }, 2000) // Simulasi delay 2 detik
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                userViewModel.getUser()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching user data: ${e.message}")
+            } finally {
+                binding.srlProfile.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshProfileData()
     }
 
     override fun onDestroyView() {

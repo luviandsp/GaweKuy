@@ -164,6 +164,46 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/BottomSheetDialogText.Label"
+                    android:id="@+id/tv_category"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/service_category" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_category"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:hintEnabled="false"
+                    app:boxStrokeColor="@color/blue"
+                    android:layout_marginBottom="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp" >
+
+                    <com.rosemaryapp.amazingspinner.AmazingSpinner
+                        android:id="@+id/spinner_category"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/select_service_category"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            style="@style/CardViewApp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:orientation="vertical" >
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
                     android:id="@+id/tv_service_selection"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
@@ -192,6 +232,117 @@
 
             </LinearLayout>
 
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            style="@style/CardViewApp">
+
+            <LinearLayout
+                android:id="@+id/ll_portfolio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:weightSum="4"
+                android:orientation="horizontal" >
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_portofolio"
+                    style="@style/BottomSheetDialogText.Label"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_weight="4"
+                    android:text="@string/add_portfolio" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="16dp"
+                    android:contentDescription="@string/add_portfolio"
+                    android:src="@drawable/baseline_arrow_forward_ios_24"/>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            style="@style/CardViewApp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:orientation="vertical" >
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:id="@+id/tv_tags"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/tags" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:weightSum="4"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_service_tags"
+                        app:boxStrokeColor="@color/blue"
+                        app:hintTextColor="@color/blue"
+                        app:cursorColor="@color/blue"
+                        app:hintEnabled="false"
+                        android:layout_weight="4"
+                        android:layout_marginEnd="12dp"
+                        android:layout_width="0dp"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        android:layout_height="wrap_content" >
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tiet_service_tags"
+                            style="@style/InputText"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:hint="@string/add_tags"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                        android:id="@+id/fab_add_tags"
+                        android:contentDescription="@string/add_tags"
+                        app:icon="@drawable/baseline_add_24"
+                        app:cornerRadius="8dp"
+                        app:iconTint="@color/white"
+                        app:backgroundTint="@color/blue"
+                        app:rippleColor="@color/light_blue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_tags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_service_tags"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager" />
+
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <ProgressBar

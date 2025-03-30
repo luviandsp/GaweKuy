@@ -61,11 +61,13 @@ class EditProfileActivity : AppCompatActivity() {
         }
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, statusList)
-        binding.spinnerStatus.setAdapter(adapter)
-        binding.spinnerStatus.setOnItemClickListener { _, _, position, _ ->
-            statusList[position]
+        with(binding) {
+            spinnerStatus.setAdapter(adapter)
+            spinnerStatus.setOnItemClickListener { _, _, position, _ ->
+                statusList[position]
+            }
+            spinnerStatus.setDropDownBackgroundResource(R.drawable.dropdown_background)
         }
-        binding.spinnerStatus.setDropDownBackgroundResource(R.drawable.dropdown_background)
 
         initViews()
         observeViewModels()

@@ -10,4 +10,10 @@
     <color name="orange">#F37D31</color>
     <color name="red">#FF0000</color>
     <color name="transparent">#00000000</color>
+    <color name="brown">#7C3100</color>
+    <color name="light_brown">#FFC098</color>
+    <color name="inactive_color_text">#7A7A7A</color>
+    <color name="inactive_color">#D1D5DB</color>
+    <color name="active_color_text">#0084FF</color>
+    <color name="active_color">#CCE6FF</color>
 </resources>

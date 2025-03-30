@@ -1,8 +1,10 @@
 [versions]
 agp = "8.9.1"
 amazingspinner = "2.0.0"
+flexbox = "3.0.0"
 imagepickerVersion = "2.3.22"
 ktorClientAndroid = "3.1.1"
+pagingRuntimeKtx = "3.3.6"
 supabaseBom = "3.1.3"
 ccp = "2.7.0"
 coreSplashscreen = "1.0.1"
@@ -31,7 +33,9 @@ androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fr
 androidx-navigation-safe-args-gradle-plugin = { module = "androidx.navigation:navigation-safe-args-gradle-plugin", version.ref = "navigationUiKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
+flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 drjacky-imagepicker = { module = "com.github.Drjacky:ImagePicker", version.ref = "imagepickerVersion" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }

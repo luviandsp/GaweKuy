@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.gawebersama.gawekuy"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -75,9 +75,15 @@ dependencies {
     implementation(libs.supabase.realtime.kt)
     implementation(libs.ktor.client.android)
 
+    // Paging
+    implementation(libs.androidx.paging.runtime.ktx)
+
     // Image Picker
     implementation(libs.drjacky.imagepicker)
     implementation(libs.ucrop)
+
+    // Flexbox Layout
+    implementation(libs.flexbox)
 
     // Glide
     implementation(libs.glide)

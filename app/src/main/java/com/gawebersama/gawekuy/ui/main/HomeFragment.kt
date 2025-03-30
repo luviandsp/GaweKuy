@@ -1,27 +1,38 @@
 package com.gawebersama.gawekuy.ui.main
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.adapter.CategoryAdapter
-import com.gawebersama.gawekuy.data.adapter.FreelancerServiceAdapter
-import com.gawebersama.gawekuy.data.dataclass.CategoryModel
-import com.gawebersama.gawekuy.data.dataclass.FreelancerServiceModel
+import com.gawebersama.gawekuy.data.adapter.ServiceAdapter
+import com.gawebersama.gawekuy.data.datamodel.CategoryModel
+import com.gawebersama.gawekuy.data.enum.FilterAndOrderService
+import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.FragmentHomeBinding
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
+    private val serviceViewModel by viewModels<ServiceViewModel>()
+    private lateinit var serviceAdapter: ServiceAdapter
+
+    companion object {
+        const val TAG = "HomeFragment"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,78 +44,44 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.srlHome.setOnRefreshListener {
+            refreshHomeData()
+        }
+
         initViews()
+        observeViewModel()
     }
 
     private fun initViews() {
-
         with (binding) {
             userViewModel.userName.observe(viewLifecycleOwner) { name ->
                 binding.tvName.text = name ?: "Guest"
             }
-        }
 
-        categoryRV()
-        serviceRV()
-    }
+            serviceAdapter = ServiceAdapter { service ->
+                val intent = Intent(requireContext(), ServiceDetailActivity::class.java).apply {
+                    putExtra(ServiceDetailActivity.SERVICE_ID, service.serviceId)
+                }
 
-    private fun serviceRV() {
-        val daftarService = listOf(
-            FreelancerServiceModel(
-                name = "Luvian Daffa",
-                title = "Pemrograman Android Berbasis Kotlin",
-                rating = 5.0,
-                image = R.drawable.logo,
-                price = 120000.0
-            ),
-            FreelancerServiceModel(
-                name = "Bima Adnandita",
-                title = "Video Editing untuk Youtube dan Instagram",
-                rating = 5.0,
-                image = R.drawable.logo,
-                price = 50000.0
-            ),
-            FreelancerServiceModel(
-                name = "Luvian Daffa",
-                title = "Video Editing untuk Youtube dan Instagram",
-                rating = 5.0,
-                image = R.drawable.logo,
-                price = 50000.0
-            ),
-            FreelancerServiceModel(
-                name = "Luvian Syauki",
-                title = "Video Editing untuk Youtube dan Instagram",
-                rating = 5.0,
-                image = R.drawable.logo,
-                price = 50000.0
-            ),
-            FreelancerServiceModel(
-                name = "Luvian Daffa",
-                title = "Video Editing untuk Youtube dan Instagram",
-                rating = 5.0,
-                image = R.drawable.logo,
-                price = 50000.0
-            )
-        )
-
-        with(binding) {
-            val rvAdapter = FreelancerServiceAdapter(daftarService).apply {
-                setOnItemClickListener(object : FreelancerServiceAdapter.OnItemClickListener {
-                    override fun onItemClick(service: FreelancerServiceModel) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Jasa: ${service.title}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                })
+                Log.d(TAG, "Clicked Service ID: ${service.serviceId}")
+                startActivity(intent)
             }
 
             rvFreelancer.apply {
                 layoutManager = LinearLayoutManager(requireContext())
-                setHasFixedSize(true)
-                adapter = rvAdapter
+                adapter = serviceAdapter
             }
+        }
+
+        categoryRV()
+    }
+
+    private fun observeViewModel() {
+        serviceViewModel.serviceWithUser.observe(viewLifecycleOwner) { services ->
+            Log.d(TAG, "Fetched Services: $services")
+            serviceAdapter.submitList(services)
+            binding.srlHome.isRefreshing = false
         }
     }
 
@@ -132,6 +109,24 @@ class HomeFragment : Fragment() {
                 adapter = rvAdapter
             }
         }
+    }
+
+    private fun refreshHomeData() {
+        binding.srlHome.isRefreshing = true
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                serviceViewModel.fetchAllServices(FilterAndOrderService.RATING)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching services: ${e.message}")
+            } finally {
+                binding.srlHome.isRefreshing = false
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshHomeData()
     }
 
     override fun onDestroyView() {

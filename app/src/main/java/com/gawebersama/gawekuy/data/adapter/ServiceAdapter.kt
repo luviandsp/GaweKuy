@@ -6,11 +6,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.gawebersama.gawekuy.data.dataclass.ServiceModel
+import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.datamodel.ServiceModel
+import com.gawebersama.gawekuy.data.datamodel.ServiceWithUserModel
 import com.gawebersama.gawekuy.databinding.ItemFreelancerServiceBinding
+import java.text.DecimalFormat
 
-class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) :
-    ListAdapter<ServiceModel, ServiceAdapter.ServiceViewHolder>(ServiceDiffCallback()) {
+class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) : ListAdapter<ServiceWithUserModel, ServiceAdapter.ServiceViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServiceViewHolder {
         val binding = ItemFreelancerServiceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -18,30 +20,51 @@ class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) :
     }
 
     override fun onBindViewHolder(holder: ServiceViewHolder, position: Int) {
-        val service = getItem(position)
-        holder.bind(service)
+        holder.bind(getItem(position))
     }
 
     inner class ServiceViewHolder(private val binding: ItemFreelancerServiceBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(serviceModel: ServiceModel) {
+        fun bind(serviceWithUser: ServiceWithUserModel) {
             binding.apply {
+                val serviceModel = serviceWithUser.service
+                val ownerName = serviceWithUser.user.name
+
+                val formatter = DecimalFormat("#,###")
+                val cheapPrice = serviceModel.serviceTypes
+                    .minOfOrNull { it.price }
+                    ?.let { "Rp.${formatter.format(it)}" } ?: "Unknown Price"
+
                 tvTitle.text = serviceModel.serviceName
-                Glide.with(itemView.context).load(serviceModel.imageBannerUrl).into(ivFreelancer)
+                Glide.with(itemView)
+                    .load(
+                        if (serviceModel.imageBannerUrl.isNullOrEmpty()) {
+                            R.drawable.logo_background
+                        } else {
+                            serviceModel.imageBannerUrl
+                        }
+                    )
+                    .into(ivFreelancer)
+                tvName.text = ownerName
+                tvPrice.text = cheapPrice
+                tvRating.text = serviceModel.serviceRating.toString()
 
                 root.setOnClickListener { onItemClick(serviceModel) }
             }
         }
     }
 
-    class ServiceDiffCallback : DiffUtil.ItemCallback<ServiceModel>() {
-        override fun areItemsTheSame(oldItem: ServiceModel, newItem: ServiceModel): Boolean {
-            return oldItem.serviceId == newItem.serviceId
-        }
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ServiceWithUserModel>() {
+            override fun areItemsTheSame(oldItem: ServiceWithUserModel, newItem: ServiceWithUserModel): Boolean {
+                return oldItem.service.serviceId == newItem.service.serviceId
+            }
 
-        override fun areContentsTheSame(oldItem: ServiceModel, newItem: ServiceModel): Boolean {
-            return oldItem == newItem
+            override fun areContentsTheSame(oldItem: ServiceWithUserModel, newItem: ServiceWithUserModel): Boolean {
+                return oldItem == newItem
+            }
         }
     }
 }
+

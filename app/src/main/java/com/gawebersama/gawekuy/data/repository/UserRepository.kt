@@ -1,6 +1,7 @@
 package com.gawebersama.gawekuy.data.repository
 
-import com.gawebersama.gawekuy.data.dataclass.UserModel
+import android.util.Log
+import com.gawebersama.gawekuy.data.datamodel.UserModel
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -35,16 +36,16 @@ class UserRepository {
 
     private fun Map<String, Any>.toUser(): UserModel {
         return UserModel(
-            userId = this["userId"] as? String,
-            email = this["email"] as? String,
-            name = this["name"] as? String,
-            phone = this["phone"] as? String,
-            role = this["role"] as? String,
+            userId = this["userId"] as String,
+            email = this["email"] as String,
+            name = this["name"] as String,
+            phone = this["phone"] as String,
+            role = this["role"] as String,
             profileImageUrl = this["profileImageUrl"] as? String,
             biography = this["biography"] as? String,
-            createdAt = this["createdAt"] as? Timestamp ?: Timestamp.now(),
+            createdAt = this["createdAt"] as Timestamp,
             userStatus = this["userStatus"] as? String,
-            accountStatus = this["accountStatus"] as? Boolean
+            accountStatus = this["accountStatus"] as Boolean
         )
     }
 
@@ -52,13 +53,7 @@ class UserRepository {
         return firebaseAuth.currentUser != null
     }
 
-    suspend fun register(
-        email: String,
-        password: String,
-        name: String,
-        phone: String,
-        role: String
-    ): Pair<Boolean, String?> {
+    suspend fun register(email: String, password: String, name: String, phone: String, role: String): Pair<Boolean, String?> {
         return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: return Pair(false, "Gagal mendapatkan ID pengguna")
@@ -80,11 +75,11 @@ class UserRepository {
 
             firestore.collection("users").document(userId).set(userModelData).await()
 
-            println("UserRepository: register success & data saved to Firestore")
+            Log.d(TAG, "User registered with ID: $userId")
             Pair(true, "Silakan verifikasi email Anda sebelum login")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("UserRepository: register failed - ${e.message}")
+            Log.e(TAG, "Error registering user: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
@@ -92,11 +87,11 @@ class UserRepository {
     suspend fun login(email: String, password: String): Pair<Boolean, String?> {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            println("UserRepository: login success")
+            Log.d(TAG, "User logged in with email: $email")
             Pair(true, null)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("UserRepository: login failed - ${e.message}")
+            Log.e(TAG, "Error logging in user: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
@@ -104,7 +99,9 @@ class UserRepository {
     suspend fun getUserData(): UserModel? {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return null
+            Log.d(TAG, "Fetching user data with ID: $userId")
             val document = firestore.collection("users").document(userId).get().await()
+            Log.d(TAG, "Fetched user data: ${document.data}")
             if (document.exists()) {
                 document.data?.toUser()
             } else {
@@ -112,7 +109,7 @@ class UserRepository {
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("UserRepository: failed to get user data - ${e.message}")
+            Log.e(TAG, "Error getting user data: ${e.message}")
             null
         }
     }
@@ -132,11 +129,11 @@ class UserRepository {
                 )
             ).await()
 
-            println("UserRepository: profile updated")
+            Log.d(TAG, "User profile updated with ID: $userId")
             Pair(true, "Profil berhasil diperbarui")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("UserRepository: update profile failed - ${e.message}")
+            Log.e(TAG, "Error updating user profile: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
@@ -144,11 +141,11 @@ class UserRepository {
     suspend fun forgotPassword(email: String): Pair<Boolean, String?> {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-            println("UserRepository: forgot password success")
+            Log.d(TAG, "Password reset email sent to $email")
             Pair(true, "Silakan cek email Anda untuk reset password")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("UserRepository: forgot password failed - ${e.message}")
+            Log.e(TAG, "Error sending password reset email: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
@@ -157,9 +154,9 @@ class UserRepository {
         firebaseAuth.signOut()
         firestore.clearPersistence()
         if (firebaseAuth.currentUser == null) {
-            println("UserRepository: logout success")
+            Log.d(TAG, "User logged out")
         } else {
-            println("UserRepository: logout failed")
+            Log.e(TAG, "Error logging out user")
         }
     }
 
@@ -170,11 +167,11 @@ class UserRepository {
 
             userRef.update("role", UserRole.FREELANCER.toString()).await()
 
-            println("UserRepository: become freelancer success")
+            Log.d(TAG, "User became freelancer with ID: $userId")
             Pair(true, "Berhasil menjadi freelancer")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            println("UserRepository: become freelancer failed - ${e.message}")
+            Log.e(TAG, "Error becoming freelancer: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
@@ -186,12 +183,11 @@ class UserRepository {
 
             userRef.update("accountStatus", isActive).await()
 
-            println("UserRepository: account status updated")
+            Log.d(TAG, "User account status updated with ID: $userId")
             Pair(true, "Status akun berhasil diperbarui")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-
-            println("UserRepository: update account status failed - ${e.message}")
+            Log.e(TAG, "Error updating account status: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }
@@ -204,13 +200,13 @@ class UserRepository {
 
             userRef.update("profileImageUrl", imageUrl).await()
 
-            println("UserRepository: Profile image URL updated successfully for user $userId")
+            Log.d(TAG, "User profile image URL updated with ID: $userId")
             Pair(true, "URL foto profil berhasil diperbarui")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
 
             val errorMessage = getErrorMessage(e)
-            println("UserRepository: Update profile image URL failed - ${e.localizedMessage}")
+            Log.e(TAG, "Error updating profile image URL: $errorMessage")
 
             Pair(false, errorMessage)
         }
