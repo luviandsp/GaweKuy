@@ -26,6 +26,7 @@ import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
 import com.gawebersama.gawekuy.data.util.ServiceTypeDiffCallback
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.StorageViewModel
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityCreateServiceBinding
 import com.gawebersama.gawekuy.databinding.DialogDeleteServiceBinding
 import com.gawebersama.gawekuy.ui.portfolio.PortfolioActivity
@@ -40,6 +41,7 @@ class CreateServiceActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateServiceBinding
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private val storageViewModel by viewModels<StorageViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
 
     private lateinit var serviceSelectionAdapter: ServiceSelectionAdapter
     private val serviceSelectionList = mutableListOf<ServiceSelectionModel>()
@@ -382,10 +384,24 @@ class CreateServiceActivity : AppCompatActivity() {
 
             ownerServiceId.observe(this@CreateServiceActivity) { ownerId ->
                 Log.d(TAG, "Owner Service ID: $ownerId")
+                if (serviceId != null) {
+                    binding.llPortfolio.setOnClickListener {
+                        val intent = Intent(this@CreateServiceActivity, PortfolioActivity::class.java)
+                        intent.putExtra(PortfolioActivity.SOURCE_INTENT, "createServiceActivity")
+                        intent.putExtra(PortfolioActivity.USER_ID, ownerId)
+                        launcherPortfolio.launch(intent)
+                    }
+                }
+            }
+        }
+
+        userViewModel.userId.observe(this@CreateServiceActivity) { userId ->
+            Log.d(TAG, "User ID: $userId")
+            if (serviceId == null) {
                 binding.llPortfolio.setOnClickListener {
                     val intent = Intent(this@CreateServiceActivity, PortfolioActivity::class.java)
                     intent.putExtra(PortfolioActivity.SOURCE_INTENT, "createServiceActivity")
-                    intent.putExtra(PortfolioActivity.USER_ID, ownerId)
+                    intent.putExtra(PortfolioActivity.USER_ID, userId)
                     launcherPortfolio.launch(intent)
                 }
             }
