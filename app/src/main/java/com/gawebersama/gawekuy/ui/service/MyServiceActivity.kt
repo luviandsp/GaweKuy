@@ -1,8 +1,9 @@
-package com.gawebersama.gawekuy.ui.profile
+package com.gawebersama.gawekuy.ui.service
 
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -57,14 +58,18 @@ class MyServiceActivity : AppCompatActivity() {
                 launcher.launch(intent)
             }
 
-            serviceAdapter = ServiceAdapter { service ->
-                val intent = Intent(this@MyServiceActivity, CreateServiceActivity::class.java).apply {
-                    putExtra(CreateServiceActivity.SERVICE_ID, service.serviceId)
+            serviceAdapter = ServiceAdapter(
+                onItemClick = { service ->
+                    val intent = Intent(this@MyServiceActivity, ServiceDetailActivity::class.java)
+                    intent.putExtra(ServiceDetailActivity.SERVICE_ID, service.serviceId)
+                    startActivity(intent)
+                },
+                onHoldClick = { service ->
+                    val intent = Intent(this@MyServiceActivity, CreateServiceActivity::class.java)
+                    intent.putExtra(CreateServiceActivity.SERVICE_ID, service.serviceId)
+                    startActivity(intent)
                 }
-
-                Log.d(TAG, "Clicked Service ID: ${service.serviceId}")
-                startActivity(intent)
-            }
+            )
 
             rvFreelancer.apply {
                 layoutManager = LinearLayoutManager(this@MyServiceActivity)
@@ -77,13 +82,20 @@ class MyServiceActivity : AppCompatActivity() {
         serviceViewModel.serviceWithUser.observe(this) { services ->
             Log.d(TAG, "Fetched Services: $services")
             serviceAdapter.submitList(services)
+            serviceAdapter.notifyDataSetChanged()
+
+            if (services?.isEmpty() != false) {
+                binding.llEmptyService.visibility = View.VISIBLE
+            } else {
+                binding.llEmptyService.visibility = View.GONE
+            }
+
             binding.srlMyService.isRefreshing = false
         }
     }
 
     private fun refreshMyServiceData() {
         binding.srlMyService.isRefreshing = true
-
         serviceViewModel.fetchUserServices()
 
         lifecycleScope.launch {

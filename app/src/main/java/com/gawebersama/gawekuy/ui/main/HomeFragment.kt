@@ -20,6 +20,7 @@ import com.gawebersama.gawekuy.data.enum.FilterAndOrderService
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.FragmentHomeBinding
+import com.gawebersama.gawekuy.ui.service.ServiceDetailActivity
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -30,6 +31,7 @@ class HomeFragment : Fragment() {
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private lateinit var serviceAdapter: ServiceAdapter
 
+
     companion object {
         const val TAG = "HomeFragment"
     }
@@ -37,7 +39,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -55,18 +57,14 @@ class HomeFragment : Fragment() {
 
     private fun initViews() {
         with (binding) {
-            userViewModel.userName.observe(viewLifecycleOwner) { name ->
-                binding.tvName.text = name ?: "Guest"
-            }
-
-            serviceAdapter = ServiceAdapter { service ->
-                val intent = Intent(requireContext(), ServiceDetailActivity::class.java).apply {
-                    putExtra(ServiceDetailActivity.SERVICE_ID, service.serviceId)
-                }
-
-                Log.d(TAG, "Clicked Service ID: ${service.serviceId}")
-                startActivity(intent)
-            }
+            serviceAdapter = ServiceAdapter(
+                onItemClick = { service ->
+                    val intent = Intent(requireContext(), ServiceDetailActivity::class.java)
+                    intent.putExtra(ServiceDetailActivity.SERVICE_ID, service.serviceId)
+                    startActivity(intent)
+                },
+                onHoldClick = { }
+            )
 
             rvFreelancer.apply {
                 layoutManager = LinearLayoutManager(requireContext())
@@ -78,6 +76,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        userViewModel.userName.observe(viewLifecycleOwner) { name ->
+            if (name != null) {
+                binding.tvName.text = name
+            } else {
+                binding.tvName.setText(R.string.user)
+            }
+        }
+
         serviceViewModel.serviceWithUser.observe(viewLifecycleOwner) { services ->
             Log.d(TAG, "Fetched Services: $services")
             serviceAdapter.submitList(services)

@@ -15,13 +15,28 @@
         android:theme="@style/Theme.GaweKuy"
         tools:targetApi="31">
         <activity
-            android:name=".ui.profile.AddingPortfolioActivity"
+            android:name=".ui.profile.FreelancerProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.main.ServiceDetailActivity"
+            android:name=".ui.portfolio.FreelancerPortfolioActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.profile.CreateServiceActivity"
+            android:name=".ui.portfolio.AddPortfolioActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.portfolio.PortfolioDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.ProfileUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.portfolio.PortfolioActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.service.ServiceDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.service.CreateServiceActivity"
             android:exported="false" />
         <activity
             android:name=".ui.profile.FavoriteFreelancerActivity"
@@ -30,7 +45,7 @@
             android:name=".ui.profile.ProjectHistoryActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.profile.MyServiceActivity"
+            android:name=".ui.service.MyServiceActivity"
             android:exported="false" />
         <activity
             android:name=".ui.profile.SettingActivity"

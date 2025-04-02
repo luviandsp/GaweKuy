@@ -1,5 +1,6 @@
-package com.gawebersama.gawekuy.ui.main
+package com.gawebersama.gawekuy.ui.service
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -15,6 +16,8 @@ import com.gawebersama.gawekuy.data.adapter.ServiceShowTagsAdapter
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.databinding.ActivityServiceDetailBinding
+import com.gawebersama.gawekuy.ui.portfolio.FreelancerPortfolioActivity
+import com.gawebersama.gawekuy.ui.profile.FreelancerProfileActivity
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -84,6 +87,18 @@ class ServiceDetailActivity : AppCompatActivity() {
                 layoutManager = LinearLayoutManager(this@ServiceDetailActivity)
                 adapter = serviceSelectedAdapter
                 setHasFixedSize(true)
+            }
+
+            llPortfolio.setOnClickListener {
+                val intent = Intent(this@ServiceDetailActivity, FreelancerPortfolioActivity::class.java)
+                intent.putExtra(FreelancerPortfolioActivity.SERVICE_ID, serviceId)
+                startActivity(intent)
+            }
+
+            llOwnerProfile.setOnClickListener {
+                val intent = Intent(this@ServiceDetailActivity, FreelancerProfileActivity::class.java)
+                intent.putExtra(FreelancerProfileActivity.SERVICE_ID, serviceId)
+                startActivity(intent)
             }
 
             btnBack.setOnClickListener { finish() }

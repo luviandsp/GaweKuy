@@ -1,6 +1,7 @@
 package com.gawebersama.gawekuy.data.repository
 
 import android.util.Log
+import com.gawebersama.gawekuy.data.datamodel.PortfolioModel
 import com.gawebersama.gawekuy.data.datamodel.ServiceModel
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
 import com.gawebersama.gawekuy.data.datamodel.ServiceWithUserModel
@@ -35,6 +36,7 @@ class ServiceRepository {
             "minPrice" to minPrice,
             "serviceCategory" to serviceCategory,
             "serviceTags" to serviceTags,
+            "portfolio" to portfolio,
             "createdAt" to createdAt
         )
     }
@@ -56,11 +58,20 @@ class ServiceRepository {
             minPrice = (this["minPrice"] as Number).toDouble(),
             serviceCategory = this["serviceCategory"] as String,
             serviceTags = (this["serviceTags"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
+            portfolio = (this["portfolio"] as? List<*>)?.filterIsInstance<Map<String, String>>() ?: emptyList(),
             createdAt = this["createdAt"] as Timestamp
         )
     }
 
-    suspend fun createService(serviceName: String, serviceDesc: String, imageBannerUrl: String, serviceCategory: String, serviceTypes: List<ServiceSelectionModel>, serviceTags: List<String>): Pair<Boolean, String?> {
+    suspend fun createService(
+        serviceName: String,
+        serviceDesc: String,
+        imageBannerUrl: String,
+        serviceCategory: String,
+        serviceTypes: List<ServiceSelectionModel>,
+        serviceTags: List<String>,
+        portfolio: List<Map<String, String>>
+    ): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
             val serviceId = firestore.collection("services").document().id // Auto-generate ID
@@ -78,6 +89,7 @@ class ServiceRepository {
                 minPrice = minPrice,
                 serviceCategory = serviceCategory,
                 serviceTags = serviceTags,
+                portfolio = portfolio,
                 createdAt = Timestamp.now()
             ).toHashMap()
 
@@ -117,7 +129,7 @@ class ServiceRepository {
             }
 
             // Gabungkan layanan dengan data pengguna
-            services.map { service -> ServiceWithUserModel(service, userData) }
+            services.map { service -> ServiceWithUserModel(service, userData, emptyList()) }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error fetching user services: ${e.message}")
@@ -134,7 +146,15 @@ class ServiceRepository {
             val userSnapshot = firestore.collection("users").document(service.userId).get().await()
             val user = userSnapshot.toObject(UserModel::class.java) ?: return null
 
-            ServiceWithUserModel(service, user)
+            val portfolios = if (service.portfolio.isNotEmpty()) {
+                firestore.collection("portfolios")
+                    .whereIn("portfolioId", service.portfolio)
+                    .get()
+                    .await()
+                    .documents.mapNotNull { it.toObject(PortfolioModel::class.java) }
+            } else emptyList()
+
+            ServiceWithUserModel(service, user, portfolios)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error fetching service by ID: ${e.message}")
@@ -154,7 +174,6 @@ class ServiceRepository {
             val serviceSnapshot = query.get().await()
             val services = serviceSnapshot.documents.mapNotNull { it.data?.toService() }
 
-            // Ambil semua userId unik dari layanan
             val userIds = services.map { it.userId }.toSet()
 
             if (userIds.isEmpty()) return emptyList()
@@ -173,7 +192,7 @@ class ServiceRepository {
                 if (user != null) {
                     ServiceWithUserModel(service, user)
                 } else {
-                    null // Jika user tidak ditemukan, layanan ini tidak ditampilkan
+                    null
                 }
             }
         } catch (e: Exception) {
@@ -183,8 +202,44 @@ class ServiceRepository {
         }
     }
 
+    suspend fun getPortfolioByServiceId(serviceId: String): List<PortfolioModel> {
+        return try {
+            val serviceSnapshot = firestore.collection("services").document(serviceId).get().await()
+            val service = serviceSnapshot.toObject(ServiceModel::class.java) ?: return emptyList()
+            val portfolioIds = service.portfolio.mapNotNull { it["portfolioId"] }
 
-    suspend fun updateService(serviceId: String, serviceName: String, serviceDesc: String, imageBannerUrl: String, serviceCategory: String, serviceTypes: List<ServiceSelectionModel>, serviceTags: List<String>): Pair<Boolean, String?> {
+            if (portfolioIds.isEmpty()) return emptyList()
+
+            val portfolios = mutableListOf<PortfolioModel>()
+
+            portfolioIds.chunked(10).forEach { batch ->
+                val portfolioSnapshot = firestore.collection("portfolios")
+                    .whereIn("portfolioId", batch)
+                    .get()
+                    .await()
+
+                portfolios.addAll(portfolioSnapshot.documents.mapNotNull { it.toObject(PortfolioModel::class.java) })
+            }
+
+            return portfolios
+
+            } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error fetching portfolio by service ID: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun updateService(
+        serviceId: String,
+        serviceName: String,
+        serviceDesc: String,
+        imageBannerUrl: String,
+        serviceCategory: String,
+        serviceTypes: List<ServiceSelectionModel>,
+        serviceTags: List<String>,
+        portfolio: List<Map<String, String>>
+    ): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
             val serviceRef = firestore.collection("services").document(serviceId)
@@ -199,6 +254,7 @@ class ServiceRepository {
                         "serviceCategory" to serviceCategory,
                         "serviceTypes" to serviceTypes.map { mapOf("name" to it.name, "price" to it.price) },
                         "serviceTags" to serviceTags,
+                        "portfolio" to portfolio,
                         "minPrice" to serviceTypes.minOfOrNull { it.price }
                     )
                 ).await()

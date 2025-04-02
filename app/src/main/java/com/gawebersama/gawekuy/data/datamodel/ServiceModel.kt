@@ -15,6 +15,7 @@ data class ServiceModel(
     @PropertyName("imageBannerUrl") val imageBannerUrl: String? = null,
     @PropertyName("serviceRating") val serviceRating: Double = 0.0,
     @PropertyName("serviceTypes") val serviceTypes : List<ServiceSelectionModel> = emptyList(),
+    @PropertyName("portfolio") val portfolio: List<Map<String, String>> = emptyList(),
     @PropertyName("minPrice") val minPrice: Double = 0.0,
     @PropertyName("serviceCategory") val serviceCategory: String = "",
     @PropertyName("serviceTags") val serviceTags: List<String>? = null,

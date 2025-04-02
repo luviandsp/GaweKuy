@@ -12,7 +12,10 @@ import com.gawebersama.gawekuy.data.datamodel.ServiceWithUserModel
 import com.gawebersama.gawekuy.databinding.ItemFreelancerServiceBinding
 import java.text.DecimalFormat
 
-class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) : ListAdapter<ServiceWithUserModel, ServiceAdapter.ServiceViewHolder>(DIFF_CALLBACK) {
+class ServiceAdapter(
+    private val onItemClick: (ServiceModel) -> Unit,
+    private val onHoldClick: (ServiceModel) -> Unit
+) : ListAdapter<ServiceWithUserModel, ServiceAdapter.ServiceViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServiceViewHolder {
         val binding = ItemFreelancerServiceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -20,7 +23,10 @@ class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) : ListAdap
     }
 
     override fun onBindViewHolder(holder: ServiceViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val serviceWithUser = getItem(position)
+        if (serviceWithUser != null) {
+            holder.bind(serviceWithUser)
+        }
     }
 
     inner class ServiceViewHolder(private val binding: ItemFreelancerServiceBinding) :
@@ -51,6 +57,10 @@ class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) : ListAdap
                 tvRating.text = serviceModel.serviceRating.toString()
 
                 root.setOnClickListener { onItemClick(serviceModel) }
+                root.setOnLongClickListener {
+                    onHoldClick(serviceModel)
+                    true
+                }
             }
         }
     }
@@ -67,4 +77,3 @@ class ServiceAdapter(private val onItemClick: (ServiceModel) -> Unit) : ListAdap
         }
     }
 }
-

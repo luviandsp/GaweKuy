@@ -75,9 +75,6 @@ dependencies {
     implementation(libs.supabase.realtime.kt)
     implementation(libs.ktor.client.android)
 
-    // Paging
-    implementation(libs.androidx.paging.runtime.ktx)
-
     // Image Picker
     implementation(libs.drjacky.imagepicker)
     implementation(libs.ucrop)
@@ -103,6 +100,8 @@ dependencies {
 
     // Country Code Picker for Phone Number
     implementation (libs.ccp)
+
+    implementation ("com.facebook.shimmer:shimmer:0.5.0")
 
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)

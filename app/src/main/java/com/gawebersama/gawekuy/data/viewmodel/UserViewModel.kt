@@ -14,6 +14,9 @@ class UserViewModel : ViewModel() {
     private val _authStatus = MutableLiveData<Pair<Boolean, String?>>()
     val authStatus: LiveData<Pair<Boolean, String?>> get() = _authStatus
 
+    private val _userId = MutableLiveData<String?>()
+    val userId: LiveData<String?> get() = _userId
+
     private val _userName = MutableLiveData<String?>()
     val userName: LiveData<String?> get() = _userName
 
@@ -75,6 +78,7 @@ class UserViewModel : ViewModel() {
             val userData = userRepository.getUserData()
 
             if (userData != null) {
+                _userId.postValue(userData.userId)
                 _userName.postValue(userData.name)
                 _userRole.postValue(userData.role)
                 _userPhone.postValue(userData.phone)
@@ -137,6 +141,7 @@ class UserViewModel : ViewModel() {
         viewModelScope.launch {
             userRepository.logout()
             _isLoggedIn.postValue(false)
+            _userId.postValue(null)
             _userName.postValue(null)
             _userRole.postValue(null)
             _userPhone.postValue(null)

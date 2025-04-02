@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/srl_profile"
@@ -7,9 +7,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.ProfileFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -29,10 +30,7 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cv_profile"
-            style="@style/CardViewApp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+            style="@style/CardViewApp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,6 +39,7 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/ll_see_profile"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -79,71 +78,89 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal"
-                    android:weightSum="2">
-
-                    <com.google.android.material.button.MaterialButton
-                        style="@style/ButtonAuth"
-                        android:id="@+id/btn_edit_profile"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:textSize="14sp"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        app:fontFamily="@font/urbanist_semibold"
-                        android:text="@string/edit_profile" />
-
-                    <com.google.android.material.button.MaterialButton
-                        style="@style/ButtonAuth.Register"
-                        android:id="@+id/btn_become_freelance"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:textSize="14sp"
-                        app:fontFamily="@font/urbanist_semibold"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:visibility="visible"
-                        android:text="@string/become_freelancer_opt"
-                        app:strokeColor="@color/blue"
-                        app:strokeWidth="2dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        style="@style/ButtonAuth"
-                        android:id="@+id/btn_my_project"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_weight="1"
-                        android:textSize="14sp"
-                        app:fontFamily="@font/urbanist_semibold"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:visibility="gone"
-                        android:text="@string/my_service"
-                        app:strokeColor="@color/blue"
-                        app:strokeWidth="2dp" />
-                </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                style="@style/ButtonAuth.Register"
+                android:id="@+id/btn_become_freelance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:textSize="14sp"
+                android:layout_marginTop="12dp"
+                app:fontFamily="@font/urbanist_semibold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:visibility="visible"
+                android:text="@string/become_freelancer_opt"
+                app:strokeColor="@color/blue"
+                app:strokeWidth="2dp" />
 
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
+            style="@style/CardViewApp" >
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp">
+
+                <TableRow
+                    android:id="@+id/tr_edit_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        style="@style/optionProfileImage"
+                        android:src="@drawable/edit"/>
+
+                    <TextView
+                        style="@style/optionProfileDesc"
+                        android:text="@string/edit_profile"/>
+                </TableRow>
+
+                <com.google.android.material.divider.MaterialDivider
+                    style="@style/optionProfileDivider" />
+
+                <TableRow
+                    android:id="@+id/tr_my_service"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        style="@style/optionProfileImage"
+                        android:src="@drawable/work"/>
+
+                    <TextView
+                        style="@style/optionProfileDesc"
+                        android:text="@string/my_service"/>
+                </TableRow>
+
+                <com.google.android.material.divider.MaterialDivider
+                    style="@style/optionProfileDivider" />
+
+                <TableRow
+                    android:id="@+id/tr_my_portfolio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        style="@style/optionProfileImage"
+                        android:src="@drawable/portfolio"/>
+
+                    <TextView
+                        style="@style/optionProfileDesc"
+                        android:text="@string/my_portfolio"/>
+                </TableRow>
+            </TableLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
             style="@style/CardViewApp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cv_profile">
+            android:layout_marginBottom="16dp">
 
             <TableLayout
                 android:layout_width="match_parent"
@@ -235,7 +252,5 @@
             </TableLayout>
 
         </androidx.cardview.widget.CardView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

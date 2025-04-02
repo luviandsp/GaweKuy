@@ -1,41 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/srl_my_service"
+    android:id="@+id/srl_freelancerPortfolio"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.service.MyServiceActivity">
+    tools:context=".ui.portfolio.FreelancerPortfolioActivity">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/ll_empty_service"
+            android:id="@+id/ll_empty_portfolio"
             android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:orientation="vertical"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:orientation="vertical">
+            android:layout_gravity="center">
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:contentDescription="@string/placeholder_empty_service"
-                android:src="@drawable/placeholder_empty_service"/>
+                android:contentDescription="@string/placeholder_empty_portfolio"
+                android:src="@drawable/placeholder_empty_portfolio" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
+                android:text="@string/placeholder_portfolio_freelancer"
                 android:textColor="@color/light_grey"
-                app:fontFamily="@font/urbanist_semibold"
-                android:text="@string/placeholder_service"/>
+                app:fontFamily="@font/urbanist_semibold" />
 
         </LinearLayout>
 
@@ -55,47 +54,46 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <ImageButton
-                        android:id="@+id/btn_back"
-                        style="@style/BackButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        android:contentDescription="@string/back_arrow_image" />
-
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/my_service"
-                        android:textSize="20sp"
-                        app:fontFamily="@font/urbanist_bold" />
+                        android:orientation="horizontal"
+                        android:weightSum="3">
 
+                        <ImageButton
+                            android:id="@+id/btn_back"
+                            style="@style/BackButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="12dp"
+                            android:contentDescription="@string/back_arrow_image" />
+
+                        <TextView
+                            android:id="@+id/tv_title"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_weight="3"
+                            android:text="@string/portfolio_user"
+                            android:textSize="20sp"
+                            app:fontFamily="@font/urbanist_bold" />
+                    </LinearLayout>
                 </androidx.appcompat.widget.Toolbar>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_freelancer"
-                    android:layout_width="match_parent"
+                    android:id="@+id/rv_portfolio"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
                     android:nestedScrollingEnabled="false"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:spanCount="2"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/toolbar"
-                    tools:listitem="@layout/item_freelancer_service" />
-
+                    tools:listitem="@layout/item_portfolio" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
-
-        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/fab_create_service"
-            style="@style/FloatingActionButtonApp"
-            android:contentDescription="@string/create_new_service"
-            android:text="@string/create_new_service"
-            app:icon="@drawable/baseline_add_24"
-            app:layout_anchor="@id/main"
-            app:layout_anchorGravity="bottom|end" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

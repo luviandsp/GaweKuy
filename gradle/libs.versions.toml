@@ -5,10 +5,11 @@ flexbox = "3.0.0"
 imagepickerVersion = "2.3.22"
 ktorClientAndroid = "3.1.1"
 pagingRuntimeKtx = "3.3.6"
+shimmerrecyclerview = "v1.3"
 supabaseBom = "3.1.3"
 ccp = "2.7.0"
 coreSplashscreen = "1.0.1"
-firebaseBom = "33.11.0"
+firebaseBom = "33.12.0"
 gmsGoogleServices = "4.4.2"
 glide = "4.16.0"
 datastorePreferences = "1.1.4"
@@ -36,6 +37,7 @@ androidx-datastore-preferences = { module = "androidx.datastore:datastore-prefer
 androidx-paging-runtime-ktx = { module = "androidx.paging:paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
+shimmerrecyclerview = { module = "com.github.sharish:ShimmerRecyclerView", version.ref = "shimmerrecyclerview" }
 supabase-auth-kt = { module = "io.github.jan-tennert.supabase:auth-kt" }
 drjacky-imagepicker = { module = "com.github.Drjacky:ImagePicker", version.ref = "imagepickerVersion" }
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }

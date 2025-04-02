@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".ui.portfolio.AddPortfolioActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar" >
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                style="@style/BackButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="@string/back_arrow_image" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_portfolio"
+                android:textSize="20sp"
+                app:fontFamily="@font/urbanist_bold" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.cardview.widget.CardView
+            style="@style/CardViewApp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:orientation="vertical" >
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/portfolio_photo" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:orientation="horizontal" >
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_select_banner"
+                        style="@style/ButtonSelection"
+                        android:text="@string/select_file" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_file_banner"
+                        app:boxStrokeColor="@color/blue"
+                        app:hintTextColor="@color/blue"
+                        app:cursorColor="@color/blue"
+                        app:hintEnabled="false"
+                        app:boxCornerRadiusTopStart="0dp"
+                        app:boxCornerRadiusBottomStart="0dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/tiet_file_banner"
+                            style="@style/InputText"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:textSize="14sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:hint="@string/no_file_selected"
+                            android:enabled="false"
+                            android:inputType="text" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:id="@+id/tv_portofolio_name"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/portfolio_name" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_portfolio_name"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_portfolio_name"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/hint_portfolio_name"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:id="@+id/tv_desc"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="@string/description" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_desc"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_desc"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="top|start"
+                        android:hint="@string/write_text_here"
+                        android:overScrollMode="always"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:minHeight="150dp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    style="@style/BottomSheetDialogText.Label"-->
+<!--                    android:layout_marginStart="16dp"-->
+<!--                    android:layout_marginEnd="16dp"-->
+<!--                    android:text="@string/documentation_images" />-->
+
+<!--                <androidx.recyclerview.widget.RecyclerView-->
+<!--                    android:id="@+id/rv_portfolio_images"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:nestedScrollingEnabled="false"-->
+<!--                    android:layout_marginStart="16dp"-->
+<!--                    android:layout_marginEnd="16dp"-->
+<!--                    android:layout_marginBottom="16dp"-->
+<!--                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--                    tools:listitem="@layout/item_portfolio_images_list"/>-->
+
+<!--                <com.google.android.material.textview.MaterialTextView-->
+<!--                    style="@style/BottomSheetDialogText.Label"-->
+<!--                    android:id="@+id/tv_add_portfolio_images"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_marginTop="0dp"-->
+<!--                    android:layout_marginStart="16dp"-->
+<!--                    android:layout_marginEnd="16dp"-->
+<!--                    android:textColor="@color/blue"-->
+<!--                    android:text="@string/add_documentation_images" />-->
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:indeterminateTint="@color/blue"
+            android:visibility="gone"
+            android:max="100"
+            android:progress="50"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create"
+            style="@style/ButtonAuth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/blue"
+            android:text="@string/add_portfolio" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete"
+            style="@style/ButtonAuth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:backgroundTint="@color/red"
+            android:text="@string/delete_portfolio" />
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

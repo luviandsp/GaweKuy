@@ -1,4 +1,4 @@
-package com.gawebersama.gawekuy.ui.profile
+package com.gawebersama.gawekuy.ui.service
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -19,6 +19,7 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.adapter.PortfolioServiceAdapter
 import com.gawebersama.gawekuy.data.adapter.ServiceSelectionAdapter
 import com.gawebersama.gawekuy.data.adapter.ServiceTagsAdapter
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
@@ -27,6 +28,7 @@ import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.StorageViewModel
 import com.gawebersama.gawekuy.databinding.ActivityCreateServiceBinding
 import com.gawebersama.gawekuy.databinding.DialogDeleteServiceBinding
+import com.gawebersama.gawekuy.ui.portfolio.PortfolioActivity
 import com.github.drjacky.imagepicker.ImagePicker
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
@@ -45,6 +47,9 @@ class CreateServiceActivity : AppCompatActivity() {
     private lateinit var serviceTagAdapter: ServiceTagsAdapter
     private val serviceTagList = mutableListOf<String>()
 
+    private lateinit var portfolioServiceAdapter: PortfolioServiceAdapter
+    private val portfolioServiceList = mutableListOf<Map<String, String>>()
+
     private var imageUri: Uri? = null
     private var serviceId: String? = null
 
@@ -53,6 +58,22 @@ class CreateServiceActivity : AppCompatActivity() {
             result.data?.data?.let { uri ->
                 imageUri = uri
                 binding.tietFileName.setText(uri.lastPathSegment)
+            }
+        }
+    }
+
+    private val launcherPortfolio = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            result.data?.let { intent ->
+                val portfolioId = intent.getStringExtra(PortfolioActivity.PORTFOLIO_ID)
+                val portfolioName = intent.getStringExtra(PortfolioActivity.PORTFOLIO_NAME)
+
+                if (portfolioId != null && portfolioName != null) {
+                    portfolioServiceList.add(mapOf("portfolioId" to portfolioId, "portfolioName" to portfolioName))
+                }
+
+                Log.d(TAG, "Portfolio List: $portfolioServiceList")
+                portfolioServiceAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -113,10 +134,6 @@ class CreateServiceActivity : AppCompatActivity() {
             }
 
             btnBack.setOnClickListener { finish() }
-            llPortfolio.setOnClickListener {
-                val intent = Intent(this@CreateServiceActivity, AddingPortfolioActivity::class.java)
-                startActivity(intent)
-            }
 
             serviceSelectionAdapter = ServiceSelectionAdapter(serviceSelectionList) { position ->
                 if (position in serviceSelectionList.indices) {
@@ -150,6 +167,18 @@ class CreateServiceActivity : AppCompatActivity() {
             rvTags.apply {
                 layoutManager = flexBoxLayoutManager
                 adapter = serviceTagAdapter
+                setHasFixedSize(false)
+            }
+
+            portfolioServiceAdapter = PortfolioServiceAdapter(portfolioServiceList) {
+                portfolioServiceList.removeAt(it)
+                portfolioServiceAdapter.notifyItemRemoved(it)
+                portfolioServiceAdapter.notifyItemRangeChanged(it, portfolioServiceList.size)
+            }
+
+            rvPortfolio.apply {
+                layoutManager = LinearLayoutManager(this@CreateServiceActivity)
+                adapter = portfolioServiceAdapter
                 setHasFixedSize(false)
             }
 
@@ -211,7 +240,8 @@ class CreateServiceActivity : AppCompatActivity() {
                                 imageBannerUrl = imageUrl,
                                 serviceCategory = selectedCategory,
                                 serviceTypes = serviceSelectionList,
-                                serviceTags = serviceTagList
+                                serviceTags = serviceTagList,
+                                portfolio = portfolioServiceList
                             )
                             deleteOldServiceImage(oldServiceImageUrl)
                         } else {
@@ -221,7 +251,8 @@ class CreateServiceActivity : AppCompatActivity() {
                                 imageBannerUrl = imageUrl,
                                 serviceCategory = selectedCategory,
                                 serviceTypes = serviceSelectionList,
-                                serviceTags = serviceTagList
+                                serviceTags = serviceTagList,
+                                portfolio = portfolioServiceList
                             )
                         }
                         setResult(RESULT_OK)
@@ -236,7 +267,8 @@ class CreateServiceActivity : AppCompatActivity() {
                             imageBannerUrl = oldServiceImageUrl,
                             serviceCategory = selectedCategory,
                             serviceTypes = serviceSelectionList,
-                            serviceTags = serviceTagList
+                            serviceTags = serviceTagList,
+                            portfolio = portfolioServiceList
                         )
                     } else {
                         serviceViewModel.createService(
@@ -245,7 +277,8 @@ class CreateServiceActivity : AppCompatActivity() {
                             imageBannerUrl = oldServiceImageUrl,
                             serviceCategory = selectedCategory,
                             serviceTypes = serviceSelectionList,
-                            serviceTags = serviceTagList
+                            serviceTags = serviceTagList,
+                            portfolio = portfolioServiceList
                         )
                     }
                     setResult(RESULT_OK)
@@ -272,8 +305,8 @@ class CreateServiceActivity : AppCompatActivity() {
                 val oldServiceImageUrl = serviceViewModel.imageBannerUrl.value ?: ""
 
                 if (serviceId != null) {
-                    deleteOldServiceImage(oldServiceImageUrl)
                     serviceViewModel.deleteService(serviceId!!)
+                    deleteOldServiceImage(oldServiceImageUrl)
                     setResult(RESULT_OK)
                     finish()
                 }
@@ -335,6 +368,25 @@ class CreateServiceActivity : AppCompatActivity() {
                     serviceTagList.addAll(newServiceTags)
                     serviceTagAdapter.notifyItemRangeChanged(0, serviceTagList.size)
                     Log.d(TAG, "Service Tags Updated: $newServiceTags")
+                }
+            }
+
+            servicePortofolio.observe(this@CreateServiceActivity) { newServicePortofolio ->
+                newServicePortofolio?.let {
+                    portfolioServiceList.clear()
+                    portfolioServiceList.addAll(newServicePortofolio)
+                    portfolioServiceAdapter.notifyDataSetChanged()
+                    Log.d(TAG, "Service Portofolio Updated: $newServicePortofolio")
+                }
+            }
+
+            ownerServiceId.observe(this@CreateServiceActivity) { ownerId ->
+                Log.d(TAG, "Owner Service ID: $ownerId")
+                binding.llPortfolio.setOnClickListener {
+                    val intent = Intent(this@CreateServiceActivity, PortfolioActivity::class.java)
+                    intent.putExtra(PortfolioActivity.SOURCE_INTENT, "createServiceActivity")
+                    intent.putExtra(PortfolioActivity.USER_ID, ownerId)
+                    launcherPortfolio.launch(intent)
                 }
             }
         }

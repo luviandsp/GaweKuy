@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    tools:context=".ui.profile.CreateServiceActivity">
+    tools:context=".ui.service.CreateServiceActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -78,12 +78,12 @@
                             style="@style/InputText"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:textSize="14sp"
                             android:maxLines="1"
                             android:ellipsize="end"
-                            android:textSize="14sp"
                             android:hint="@string/no_file_selected"
                             android:enabled="false"
-                            android:inputType="textMultiLine" />
+                            android:inputType="text" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -238,35 +238,50 @@
             style="@style/CardViewApp">
 
             <LinearLayout
-                android:id="@+id/ll_portfolio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="12dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:weightSum="4"
-                android:orientation="horizontal" >
+                android:orientation="vertical">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_portofolio"
-                    style="@style/BottomSheetDialogText.Label"
-                    android:layout_height="match_parent"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:id="@+id/ll_portfolio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="4"
+                    android:orientation="horizontal" >
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv_portofolio"
+                        style="@style/BottomSheetDialogText.Label"
+                        android:layout_height="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginBottom="0dp"
+                        android:layout_weight="4"
+                        android:text="@string/add_portfolio" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="@string/add_portfolio"
+                        android:src="@drawable/baseline_arrow_forward_ios_24"/>
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_portfolio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_portfolio_service"
+                    android:layout_marginBottom="16dp"
                     android:layout_marginStart="16dp"
-                    android:layout_marginTop="0dp"
-                    android:layout_marginBottom="0dp"
-                    android:layout_weight="4"
-                    android:text="@string/add_portfolio" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
                     android:layout_marginEnd="16dp"
-                    android:contentDescription="@string/add_portfolio"
-                    android:src="@drawable/baseline_arrow_forward_ios_24"/>
-
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

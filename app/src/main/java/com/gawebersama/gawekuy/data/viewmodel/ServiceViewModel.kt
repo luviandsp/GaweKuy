@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gawebersama.gawekuy.data.datamodel.PortfolioModel
 import com.gawebersama.gawekuy.data.datamodel.ServiceModel
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
 import com.gawebersama.gawekuy.data.datamodel.ServiceWithUserModel
@@ -47,8 +48,14 @@ class ServiceViewModel : ViewModel() {
     private val _serviceTags = MutableLiveData<List<String>?>()
     val serviceTags: LiveData<List<String>?> get() = _serviceTags
 
+    private val _servicePortofolio = MutableLiveData<List<Map<String, String>>>()
+    val servicePortofolio: LiveData<List<Map<String, String>>> get() = _servicePortofolio
+
     private val _operationResult = MutableLiveData<Pair<Boolean, String?>>()
     val operationResult: LiveData<Pair<Boolean, String?>> get() = _operationResult
+
+    private val _ownerServiceId = MutableLiveData<String?>()
+    val ownerServiceId: LiveData<String?> get() = _ownerServiceId
 
     private val _ownerServiceName = MutableLiveData<String?>()
     val ownerServiceName: LiveData<String?> get() = _ownerServiceName
@@ -62,8 +69,25 @@ class ServiceViewModel : ViewModel() {
     private val _ownerServiceAccountStatus = MutableLiveData<Boolean?>()
     val ownerServiceAccountStatus: LiveData<Boolean?> get() = _ownerServiceAccountStatus
 
+    private val _ownerServiceBio = MutableLiveData<String?>()
+    val ownerServiceBio: LiveData<String?> get() = _ownerServiceBio
+
+    private val _ownerStatus = MutableLiveData<String?>()
+    val ownerStatus: LiveData<String?> get() = _ownerStatus
+
+    private val _selectedPortfolio = MutableLiveData<List<PortfolioModel>>()
+    val selectedPortfolio: LiveData<List<PortfolioModel>> get() = _selectedPortfolio
+
     // Buat jasa baru
-    fun createService(serviceName: String, serviceDesc: String, imageBannerUrl: String, serviceCategory: String, serviceTypes: List<ServiceSelectionModel>, serviceTags: List<String>) {
+    fun createService(
+        serviceName: String,
+        serviceDesc: String,
+        imageBannerUrl: String,
+        serviceCategory: String,
+        serviceTypes: List<ServiceSelectionModel>,
+        serviceTags: List<String>,
+        portfolio: List<Map<String, String>>
+    ) {
         viewModelScope.launch {
             val result = serviceRepository.createService(
                 serviceName = serviceName,
@@ -71,7 +95,8 @@ class ServiceViewModel : ViewModel() {
                 imageBannerUrl = imageBannerUrl,
                 serviceCategory = serviceCategory,
                 serviceTypes = serviceTypes,
-                serviceTags = serviceTags
+                serviceTags = serviceTags,
+                portfolio = portfolio
             )
 
             if (result.first) {
@@ -83,6 +108,7 @@ class ServiceViewModel : ViewModel() {
                 _serviceCategory.postValue(serviceCategory)
                 _minPrice.postValue(serviceTypes.minOfOrNull { it.price })
                 _serviceTags.postValue(serviceTags)
+                _servicePortofolio.postValue(portfolio)
             }
         }
     }
@@ -91,8 +117,8 @@ class ServiceViewModel : ViewModel() {
     fun fetchUserServices() {
         viewModelScope.launch {
             val servicesWithUser = serviceRepository.getUserServices()
-            val serviceList = servicesWithUser.map { (service, user) ->
-                ServiceWithUserModel(service, user)
+            val serviceList = servicesWithUser.map { (service, user, portfolio) ->
+                ServiceWithUserModel(service, user, portfolio)
             }
             Log.d(TAG, "Fetched Services: $servicesWithUser")
 
@@ -124,10 +150,14 @@ class ServiceViewModel : ViewModel() {
                 _serviceCategory.postValue(service.service.serviceCategory)
                 _minPrice.postValue(service.service.serviceTypes.minOfOrNull { it.price })
                 _serviceTags.postValue(service.service.serviceTags)
+                _ownerServiceId.postValue(service.user.userId)
                 _ownerServiceName.postValue(service.user.name)
                 _ownerServicePhone.postValue(service.user.phone)
                 _ownerServiceImage.postValue(service.user.profileImageUrl)
                 _ownerServiceAccountStatus.postValue(service.user.accountStatus)
+                _ownerServiceBio.postValue(service.user.biography)
+                _ownerStatus.postValue(service.user.userStatus)
+                _servicePortofolio.postValue(service.service.portfolio)
                 Log.d(TAG, "Fetched Service: $service")
             } else {
                 Log.e(TAG, "Service not found: $serviceId")
@@ -135,8 +165,24 @@ class ServiceViewModel : ViewModel() {
         }
     }
 
+    fun fetchPortfolioByServiceId(serviceId: String) {
+        viewModelScope.launch {
+            val portfolio = serviceRepository.getPortfolioByServiceId(serviceId)
+            _selectedPortfolio.postValue(portfolio)
+        }
+    }
+
     // Update jasa berdasarkan serviceId
-    fun updateService(serviceId: String, serviceName: String, serviceDesc: String, imageBannerUrl: String, serviceCategory: String, serviceTypes: List<ServiceSelectionModel>, serviceTags: List<String>) {
+    fun updateService(
+        serviceId: String,
+        serviceName: String,
+        serviceDesc: String,
+        imageBannerUrl: String,
+        serviceCategory: String,
+        serviceTypes: List<ServiceSelectionModel>,
+        serviceTags: List<String>,
+        portfolio: List<Map<String, String>>
+    ) {
         viewModelScope.launch {
             val result = serviceRepository.updateService(
                 serviceId = serviceId,
@@ -145,7 +191,8 @@ class ServiceViewModel : ViewModel() {
                 imageBannerUrl = imageBannerUrl,
                 serviceCategory = serviceCategory,
                 serviceTypes = serviceTypes,
-                serviceTags = serviceTags
+                serviceTags = serviceTags,
+                portfolio = portfolio
             )
 
             _operationResult.postValue(result)
@@ -158,6 +205,7 @@ class ServiceViewModel : ViewModel() {
                 _serviceCategory.postValue(serviceCategory)
                 _minPrice.postValue(serviceTypes.minOfOrNull { it.price })
                 _serviceTags.postValue(serviceTags)
+                _servicePortofolio.postValue(portfolio)
             }
         }
     }

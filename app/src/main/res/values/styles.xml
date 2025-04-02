@@ -35,6 +35,21 @@
         <item name="cornerRadius">8dp</item>
     </style>
 
+    <style name="ButtonAuth.Chat" >
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="android:layout_marginTop">24dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="fontFamily">@font/urbanist_semibold</item>
+        <item name="icon">@drawable/chat_icon</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconTint">@color/blue</item>
+        <item name="strokeColor">@color/blue</item>
+        <item name="strokeWidth">2dp</item>
+    </style>
+
     <style name="ButtonSelection" >
         <item name="fontFamily">@font/urbanist_medium</item>
         <item name="android:textSize">14sp</item>
@@ -180,5 +195,23 @@
         <item name="ccp_showArrow">true</item>
         <item name="ccp_showFullName">false</item>
         <item name="ccp_textSize">12sp</item>
+    </style>
+
+    <style name="FloatingActionButtonApp" >
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">24dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="elevation">1dp</item>
+        <item name="fontFamily">@font/urbanist_semibold</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="rippleColor">@color/light_blue</item>
+        <item name="iconTint">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="ColorTheme">
+        <item name="android:background">@color/white</item>
     </style>
 </resources>
