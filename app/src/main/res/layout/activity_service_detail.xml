@@ -201,6 +201,7 @@
                     tools:listitem="@layout/item_service_selected"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="16dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
                 <com.google.android.material.button.MaterialButton
@@ -208,7 +209,6 @@
                     style="@style/ButtonAuth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
                     android:layout_marginBottom="12dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"

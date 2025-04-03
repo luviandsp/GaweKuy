@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.gawebersama.gawekuy.data.adapter.ServiceAdapter
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.databinding.ActivityMyServiceBinding
@@ -48,6 +49,9 @@ class MyServiceActivity : AppCompatActivity() {
 
         initViews()
         observeViewModel()
+
+        // Load data pertama kali
+        serviceViewModel.fetchUserServices(resetPaging = true)
     }
 
     private fun initViews() {
@@ -75,6 +79,20 @@ class MyServiceActivity : AppCompatActivity() {
                 layoutManager = LinearLayoutManager(this@MyServiceActivity)
                 adapter = serviceAdapter
             }
+
+            rvFreelancer.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val totalItemCount = layoutManager.itemCount
+                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                    // Cek apakah masih ada data sebelum request lagi
+                    if (lastVisibleItem >= totalItemCount - 3 && serviceViewModel.hasMoreData()) {
+                        serviceViewModel.fetchUserServices()
+                    }
+                }
+            })
         }
     }
 
@@ -96,15 +114,10 @@ class MyServiceActivity : AppCompatActivity() {
 
     private fun refreshMyServiceData() {
         binding.srlMyService.isRefreshing = true
-        serviceViewModel.fetchUserServices()
+        serviceViewModel.fetchUserServices(resetPaging = true)
 
         lifecycleScope.launch {
             binding.srlMyService.isRefreshing = false
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        refreshMyServiceData()
     }
 }

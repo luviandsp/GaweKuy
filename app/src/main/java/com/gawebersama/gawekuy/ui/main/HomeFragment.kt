@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +19,9 @@ import com.gawebersama.gawekuy.data.enum.FilterAndOrderService
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.FragmentHomeBinding
+import com.gawebersama.gawekuy.ui.service.SearchServiceActivity
 import com.gawebersama.gawekuy.ui.service.ServiceDetailActivity
+import com.gawebersama.gawekuy.ui.service.ServiceSearchCategoryActivity
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -30,7 +31,6 @@ class HomeFragment : Fragment() {
     private val userViewModel by viewModels<UserViewModel>()
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private lateinit var serviceAdapter: ServiceAdapter
-
 
     companion object {
         const val TAG = "HomeFragment"
@@ -53,10 +53,13 @@ class HomeFragment : Fragment() {
 
         initViews()
         observeViewModel()
+
+        // Load data pertama kali
+        serviceViewModel.fetchAllServices(FilterAndOrderService.RATING, resetPaging = true)
     }
 
     private fun initViews() {
-        with (binding) {
+        with(binding) {
             serviceAdapter = ServiceAdapter(
                 onItemClick = { service ->
                     val intent = Intent(requireContext(), ServiceDetailActivity::class.java)
@@ -70,6 +73,21 @@ class HomeFragment : Fragment() {
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = serviceAdapter
             }
+
+            binding.btnLoadMore.setOnClickListener {
+                serviceViewModel.fetchAllServices(FilterAndOrderService.RATING)
+            }
+
+            tvSeeAll.setOnClickListener {
+                val intent = Intent(requireContext(), ServiceSearchCategoryActivity::class.java)
+                intent.putExtra(ServiceSearchCategoryActivity.CATEGORY, "Freelancer Populer")
+                startActivity(intent)
+            }
+
+            sbHome.setOnClickListener {
+                val intent = Intent(requireContext(), SearchServiceActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         categoryRV()
@@ -77,16 +95,14 @@ class HomeFragment : Fragment() {
 
     private fun observeViewModel() {
         userViewModel.userName.observe(viewLifecycleOwner) { name ->
-            if (name != null) {
-                binding.tvName.text = name
-            } else {
-                binding.tvName.setText(R.string.user)
-            }
+            binding.tvName.text = name ?: getString(R.string.user)
         }
 
         serviceViewModel.serviceWithUser.observe(viewLifecycleOwner) { services ->
             Log.d(TAG, "Fetched Services: $services")
             serviceAdapter.submitList(services)
+            serviceAdapter.notifyDataSetChanged()  // Mencegah flickering
+            binding.btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
             binding.srlHome.isRefreshing = false
         }
     }
@@ -104,7 +120,9 @@ class HomeFragment : Fragment() {
             val rvAdapter = CategoryAdapter(daftarCategoryModels).apply {
                 setOnItemClickListener(object : CategoryAdapter.OnItemClickListener {
                     override fun onItemClick(categoryModel: CategoryModel) {
-                        Toast.makeText(requireContext(), "Kategori: ${categoryModel.name}", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(requireContext(), ServiceSearchCategoryActivity::class.java)
+                        intent.putExtra(ServiceSearchCategoryActivity.CATEGORY, categoryModel.name)
+                        startActivity(intent)
                     }
                 })
             }
@@ -119,20 +137,11 @@ class HomeFragment : Fragment() {
 
     private fun refreshHomeData() {
         binding.srlHome.isRefreshing = true
-        viewLifecycleOwner.lifecycleScope.launch {
-            try {
-                serviceViewModel.fetchAllServices(FilterAndOrderService.RATING)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error fetching services: ${e.message}")
-            } finally {
-                binding.srlHome.isRefreshing = false
-            }
-        }
-    }
+        serviceViewModel.fetchAllServices(FilterAndOrderService.RATING, resetPaging = true)
 
-    override fun onResume() {
-        super.onResume()
-        refreshHomeData()
+        lifecycleScope.launch {
+            binding.srlHome.isRefreshing = false
+        }
     }
 
     override fun onDestroyView() {

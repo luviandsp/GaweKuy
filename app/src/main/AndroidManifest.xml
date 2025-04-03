@@ -15,6 +15,15 @@
         android:theme="@style/Theme.GaweKuy"
         tools:targetApi="31">
         <activity
+            android:name=".ui.service.SearchServiceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.profile.OrderHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.service.ServiceSearchCategoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.profile.FreelancerProfileActivity"
             android:exported="false" />
         <activity
@@ -40,9 +49,6 @@
             android:exported="false" />
         <activity
             android:name=".ui.profile.FavoriteFreelancerActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.profile.ProjectHistoryActivity"
             android:exported="false" />
         <activity
             android:name=".ui.service.MyServiceActivity"

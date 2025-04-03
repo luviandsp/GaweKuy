@@ -2,12 +2,13 @@
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/srl_home"
+    android:id="@+id/srl_search_category"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.HomeFragment">
+    tools:context=".ui.service.ServiceSearchCategoryActivity">
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -21,33 +22,40 @@
                 android:id="@+id/toolbar"
                 style="@style/Toolbar">
 
-                <ImageView
-                    android:layout_width="150dp"
-                    android:layout_height="35dp"
-                    android:src="@drawable/logo_text"/>
-
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    style="@style/BackButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="@string/back_arrow_image" />
             </androidx.appcompat.widget.Toolbar>
 
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="12dp"
-                android:textSize="16sp"
-                app:fontFamily="@font/urbanist_semibold"
-                android:text="@string/welcome" />
-
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/user"
+                android:layout_marginTop="16sp"
+                android:layout_marginStart="16sp"
+                android:layout_marginEnd="16sp"
                 android:textSize="20sp"
                 app:fontFamily="@font/urbanist_bold"
-                android:layout_marginStart="16dp" />
+                android:text="@string/service_category"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12sp"
+                android:layout_marginStart="16sp"
+                android:layout_marginEnd="16sp"
+                android:textSize="14sp"
+                android:justificationMode="inter_word"
+                app:fontFamily="@font/urbanist_semibold"
+                android:text="@string/service_category"/>
 
             <com.google.android.material.search.SearchBar
-                android:id="@+id/sb_home"
+                android:id="@+id/sb_search_service"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
@@ -55,52 +63,45 @@
                 android:layout_gravity="center"
                 android:hint="@string/search_service" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/category"
-                android:textSize="20sp"
-                app:fontFamily="@font/urbanist_bold" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_category"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                app:spanCount="2"
-                android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                tools:listitem="@layout/item_category" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cheap"
+                    style="@style/ButtonAuth.Register"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_gravity="center"
-                    android:text="@string/popular_freelancer"
-                    android:textSize="20sp"
-                    app:fontFamily="@font/urbanist_bold" />
-
-                <TextView
-                    android:id="@+id/tv_see_all"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="end"
+                    app:strokeColor="@color/blue"
+                    app:strokeWidth="1dp"
+                    android:textSize="12sp"
                     android:textColor="@color/blue"
-                    android:text="@string/see_all"
-                    android:textSize="16sp"
-                    app:fontFamily="@font/urbanist_semibold" />
+                    android:backgroundTint="@color/white"
+                    android:text="@string/order_cheap" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_expensive"
+                    style="@style/ButtonAuth.Register"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="0dp"
+                    app:strokeColor="@color/blue"
+                    app:strokeWidth="1dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/blue"
+                    android:backgroundTint="@color/white"
+                    android:text="@string/order_expensive" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -125,8 +126,6 @@
                 android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

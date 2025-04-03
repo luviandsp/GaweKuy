@@ -81,7 +81,7 @@ class ProfileFragment : Fragment() {
             }
 
             trHistory.setOnClickListener {
-                startActivity(Intent(requireActivity(), ProjectHistoryActivity::class.java))
+                startActivity(Intent(requireActivity(), OrderHistoryActivity::class.java))
             }
 
             trFavorites.setOnClickListener {
@@ -116,10 +116,20 @@ class ProfileFragment : Fragment() {
             }
 
             userRole.observe(viewLifecycleOwner) { role ->
-                if (role == UserRole.FREELANCER.toString()) {
-                    binding.btnBecomeFreelance.visibility = View.GONE
-                } else {
-                    binding.btnBecomeFreelance.visibility = View.VISIBLE
+                with(binding) {
+                    if (role == UserRole.FREELANCER.toString()) {
+                        btnBecomeFreelance.visibility = View.GONE
+                        trMyPortfolio.visibility = View.VISIBLE
+                        trMyService.visibility = View.VISIBLE
+                        dividerFreelancerService.visibility = View.VISIBLE
+                        dividerFreelancerPortfolio.visibility = View.VISIBLE
+                    } else {
+                        btnBecomeFreelance.visibility = View.VISIBLE
+                        trMyPortfolio.visibility = View.GONE
+                        trMyService.visibility = View.GONE
+                        dividerFreelancerService.visibility = View.GONE
+                        dividerFreelancerPortfolio.visibility = View.GONE
+                    }
                 }
             }
 

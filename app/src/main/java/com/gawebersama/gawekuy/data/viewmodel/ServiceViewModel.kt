@@ -78,6 +78,12 @@ class ServiceViewModel : ViewModel() {
     private val _selectedPortfolio = MutableLiveData<List<PortfolioModel>>()
     val selectedPortfolio: LiveData<List<PortfolioModel>> get() = _selectedPortfolio
 
+    private var currentList = mutableListOf<ServiceWithUserModel>()
+
+    fun hasMoreData(): Boolean {
+        return !serviceRepository.isLastPage()
+    }
+
     // Buat jasa baru
     fun createService(
         serviceName: String,
@@ -113,27 +119,49 @@ class ServiceViewModel : ViewModel() {
         }
     }
 
-    // Ambil semua jasa user
-    fun fetchUserServices() {
+    fun searchService(filter: FilterAndOrderService?, query: String, resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val servicesWithUser = serviceRepository.getUserServices()
-            val serviceList = servicesWithUser.map { (service, user, portfolio) ->
-                ServiceWithUserModel(service, user, portfolio)
-            }
-            Log.d(TAG, "Fetched Services: $servicesWithUser")
+            val result = serviceRepository.searchService(filter, query, resetPaging)
 
-            _serviceWithUser.postValue(serviceList)
+            if (resetPaging) {
+                currentList.clear()
+            }
+
+            currentList.addAll(result)
+            _serviceWithUser.postValue(currentList)
+
+            Log.d(TAG, "Query: $query, Result Count: ${result.size}")
+        }
+    }
+
+
+    // Ambil semua jasa user
+    fun fetchUserServices(resetPaging: Boolean = false) {
+        viewModelScope.launch {
+            val servicesWithUser = serviceRepository.getUserServices(resetPaging)
+
+            if (resetPaging) {
+                currentList.clear()
+            }
+
+            currentList.addAll(servicesWithUser)
+            _serviceWithUser.postValue(currentList)
+            Log.d(TAG, "Fetched Services: ${currentList.size}")
         }
     }
 
     // Ambil semua jasa
-    fun fetchAllServices(filter: FilterAndOrderService? = null) {
+    fun fetchAllServices(filter: FilterAndOrderService?, resetPaging: Boolean = false) {
         viewModelScope.launch {
-            val servicesWithUser = serviceRepository.getAllService(filter)
-            val serviceList = servicesWithUser.map { (service, user) ->
-                ServiceWithUserModel(service, user)
+            val newServices = serviceRepository.getAllService(filter, resetPaging)
+
+            if (resetPaging) {
+                currentList.clear()
             }
-            _serviceWithUser.postValue(serviceList)
+
+            currentList.addAll(newServices) // Tambahkan data baru ke daftar lama
+            _serviceWithUser.postValue(currentList) // Update UI
+            Log.d(TAG, "Current list size: ${currentList.size}")
         }
     }
 

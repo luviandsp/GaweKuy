@@ -9,20 +9,29 @@ import com.gawebersama.gawekuy.data.datamodel.UserModel
 import com.gawebersama.gawekuy.data.enum.FilterAndOrderService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.Query.Direction.ASCENDING
 import com.google.firebase.firestore.Query.Direction.DESCENDING
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
-class ServiceRepository {
+class ServiceRepository() {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
     companion object {
         const val TAG = "ServiceRepository"
+        private const val PAGE_SIZE = 10
     }
+
+    private var lastDocument: DocumentSnapshot? = null
+    private var isLastPage = false
+
+    private val serviceCollection = firestore.collection("services")
+    private val userCollection = firestore.collection("users")
 
     private fun ServiceModel.toHashMap(): HashMap<String, Any?> {
         return hashMapOf(
@@ -43,23 +52,23 @@ class ServiceRepository {
 
     private fun Map<String, Any>.toService(): ServiceModel {
         return ServiceModel(
-            serviceId = this["serviceId"] as String,
-            userId = this["userId"] as String,
-            serviceName = this["serviceName"] as String,
+            serviceId = this["serviceId"] as? String ?: "",
+            userId = this["userId"] as? String ?: "",
+            serviceName = this["serviceName"] as? String ?: "",
             serviceDesc = this["serviceDesc"] as? String,
             imageBannerUrl = this["imageBannerUrl"] as? String,
-            serviceRating = (this["serviceRating"] as Number).toDouble(),
-            serviceTypes = (this["serviceTypes"] as List<*>?)?.mapNotNull { it as? Map<*, *> }?.map {
+            serviceRating = (this["serviceRating"] as? Number)?.toDouble() ?: 0.0,
+            serviceTypes = (this["serviceTypes"] as? List<*>?)?.mapNotNull { it as? Map<*, *> }?.map {
                 ServiceSelectionModel(
-                    name = it["name"] as String,
-                    price = (it["price"] as Number).toDouble()
+                    name = it["name"] as? String ?: "",
+                    price = (it["price"] as? Number)?.toDouble() ?: 0.0
                 )
             } ?: emptyList(),
-            minPrice = (this["minPrice"] as Number).toDouble(),
-            serviceCategory = this["serviceCategory"] as String,
+            minPrice = (this["minPrice"] as? Number)?.toDouble() ?: 0.0,
+            serviceCategory = this["serviceCategory"] as? String ?: "",
             serviceTags = (this["serviceTags"] as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
             portfolio = (this["portfolio"] as? List<*>)?.filterIsInstance<Map<String, String>>() ?: emptyList(),
-            createdAt = this["createdAt"] as Timestamp
+            createdAt = this["createdAt"] as? Timestamp ?: Timestamp.now()
         )
     }
 
@@ -74,7 +83,7 @@ class ServiceRepository {
     ): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val serviceId = firestore.collection("services").document().id // Auto-generate ID
+            val serviceId = serviceCollection.document().id // Auto-generate ID
 
             val minPrice = serviceTypes.minOfOrNull { it.price.toDouble() } ?: 0.0
 
@@ -93,7 +102,7 @@ class ServiceRepository {
                 createdAt = Timestamp.now()
             ).toHashMap()
 
-            firestore.collection("services").document(serviceId).set(serviceModelData).await()
+            serviceCollection.document(serviceId).set(serviceModelData).await()
             Log.d(TAG, "Service created with ID: $serviceId")
             Pair(true, "Jasa berhasil dibuat")
         } catch (e: Exception) {
@@ -103,20 +112,41 @@ class ServiceRepository {
         }
     }
 
-    suspend fun getUserServices(): List<ServiceWithUserModel> {
+
+    suspend fun getUserServices(resetPaging: Boolean = false): List<ServiceWithUserModel> {
         return try {
+            if (resetPaging) {
+                lastDocument = null
+                isLastPage = false
+            }
+
             val userId = firebaseAuth.currentUser?.uid ?: return emptyList()
 
-            // Ambil semua layanan milik user yang sedang login
-            val serviceSnapshot = firestore.collection("services")
-                .whereEqualTo("userId", userId)
-                .get()
-                .await()
+            if (isLastPage) return emptyList()
 
+            var query: Query = serviceCollection
+                .whereEqualTo("userId", userId)
+                .limit(PAGE_SIZE.toLong())
+
+            // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
+            lastDocument?.let {
+                query = query.startAfter(it)
+            }
+
+            // Ambil data layanan milik user
+            val serviceSnapshot = query.get().await()
             val services = serviceSnapshot.documents.mapNotNull { it.data?.toService() }
 
+            // Simpan dokumen terakhir untuk paginasi berikutnya
+            lastDocument = serviceSnapshot.documents.lastOrNull()
+
+            // Cek apakah ini halaman terakhir
+            if (serviceSnapshot.documents.size < PAGE_SIZE) {
+                isLastPage = true
+            }
+
             // Ambil data user yang sedang login
-            val userSnapshot = firestore.collection("users")
+            val userSnapshot = userCollection
                 .document(userId)
                 .get()
                 .await()
@@ -137,13 +167,89 @@ class ServiceRepository {
         }
     }
 
+    suspend fun searchService(filter: FilterAndOrderService? = null, query: String, resetPaging: Boolean = false): List<ServiceWithUserModel> {
+        return try {
+            if (resetPaging) {
+                lastDocument = null
+                isLastPage = false
+            }
+
+            if (isLastPage || query.isBlank()) return emptyList()
+
+            // Apply filter for service category
+            var collectionService = when (filter) {
+                FilterAndOrderService.ACADEMIC_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Penulisan & Akademik")
+                FilterAndOrderService.ACADEMIC_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Penulisan & Akademik")
+                FilterAndOrderService.TECH_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Pengembangan Teknologi")
+                FilterAndOrderService.TECH_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Pengembangan Teknologi")
+                FilterAndOrderService.DESIGN_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Desain & Multimedia")
+                FilterAndOrderService.DESIGN_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Desain & Multimedia")
+                FilterAndOrderService.MARKETING_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Pemasaran & Media Sosial")
+                FilterAndOrderService.MARKETING_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Pemasaran & Media Sosial")
+                FilterAndOrderService.OTHERS_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Lainnya")
+                FilterAndOrderService.OTHERS_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Lainnya")
+                else -> serviceCollection
+            }.limit(PAGE_SIZE.toLong())
+
+            // Build search query
+            var serviceQuery = collectionService
+                .orderBy("serviceName")  // Only works for exact matches on prefixes
+                .startAt(query)          // Start from the query text
+                .endAt(query + "\uf8ff") // End with all possible characters after query text
+
+            // Apply pagination if lastDocument exists
+            lastDocument?.let {
+                serviceQuery = serviceQuery.startAfter(it)
+            }
+
+            // Execute query to get the data
+            val serviceSnapshot = serviceQuery.get().await()
+
+            if (serviceSnapshot.isEmpty) {
+                isLastPage = true
+                return emptyList()
+            }
+
+            // Extract service data
+            val services = serviceSnapshot.documents.mapNotNull { it.data?.toService() }
+
+            // Set the last document for pagination
+            lastDocument = serviceSnapshot.documents.lastOrNull()
+
+            // Check if this is the last page
+            isLastPage = serviceSnapshot.documents.size < PAGE_SIZE
+
+            val userIds = services.map { it.userId }.toSet()
+            if (userIds.isEmpty()) return emptyList()
+
+            // Fetch the users in a single request
+            val userSnapshots = firestore.collection("users")
+                .whereIn("userId", userIds.toList())
+                .get()
+                .await()
+
+            val userMap = userSnapshots.documents.associate { it.id to it.toObject(UserModel::class.java) }
+
+            Log.d(TAG, "Last document: ${lastDocument?.id}")
+            Log.d(TAG, "Total fetched services: ${services.size}")
+
+            // Combine services with user data
+            return services.mapNotNull { service ->
+                val user = userMap[service.userId]
+                user?.let { ServiceWithUserModel(service, it) }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error searching services: ${e.message}", e)
+            return emptyList()
+        }
+    }
 
     suspend fun getServiceById(serviceId: String): ServiceWithUserModel? {
         return try {
-            val serviceSnapshot = firestore.collection("services").document(serviceId).get().await()
+            val serviceSnapshot = serviceCollection.document(serviceId).get().await()
             val service = serviceSnapshot.toObject(ServiceModel::class.java) ?: return null
 
-            val userSnapshot = firestore.collection("users").document(service.userId).get().await()
+            val userSnapshot = userCollection.document(service.userId).get().await()
             val user = userSnapshot.toObject(UserModel::class.java) ?: return null
 
             val portfolios = if (service.portfolio.isNotEmpty()) {
@@ -162,32 +268,80 @@ class ServiceRepository {
         }
     }
 
-    suspend fun getAllService(filter: FilterAndOrderService? = null): List<ServiceWithUserModel> {
+    suspend fun getAllService(
+        filter: FilterAndOrderService? = null,
+        resetPaging: Boolean = false
+    ): List<ServiceWithUserModel> {
         return try {
-            val query = when (filter) {
-                FilterAndOrderService.CHEAP -> firestore.collection("services").orderBy("minPrice", ASCENDING)
-                FilterAndOrderService.EXPENSIVE -> firestore.collection("services").orderBy("minPrice", DESCENDING)
-                FilterAndOrderService.RATING -> firestore.collection("services").orderBy("serviceRating", DESCENDING)
-                null -> firestore.collection("services")
+            if (resetPaging) {
+                lastDocument = null
+                isLastPage = false
+            }
+
+            if (isLastPage) return emptyList()
+
+            var query: Query = when (filter) {
+                FilterAndOrderService.CHEAP -> serviceCollection.orderBy("minPrice", ASCENDING)
+                FilterAndOrderService.EXPENSIVE -> serviceCollection.orderBy("minPrice", DESCENDING)
+                FilterAndOrderService.RATING_CHEAP -> serviceCollection.orderBy("serviceRating", DESCENDING)
+                FilterAndOrderService.RATING_EXPENSIVE -> serviceCollection.orderBy("serviceRating", DESCENDING)
+                FilterAndOrderService.RATING -> serviceCollection.orderBy("serviceRating", DESCENDING)
+                FilterAndOrderService.ACADEMIC_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Penulisan & Akademik").orderBy("minPrice", ASCENDING)
+                FilterAndOrderService.ACADEMIC_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Penulisan & Akademik").orderBy("minPrice", DESCENDING)
+                FilterAndOrderService.TECH_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Pengembangan Teknologi").orderBy("minPrice", ASCENDING)
+                FilterAndOrderService.TECH_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Pengembangan Teknologi").orderBy("minPrice", DESCENDING)
+                FilterAndOrderService.DESIGN_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Desain & Multimedia").orderBy("minPrice", ASCENDING)
+                FilterAndOrderService.DESIGN_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Desain & Multimedia").orderBy("minPrice", DESCENDING)
+                FilterAndOrderService.MARKETING_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Pemasaran & Media Sosial").orderBy("minPrice", ASCENDING)
+                FilterAndOrderService.MARKETING_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Pemasaran & Media Sosial").orderBy("minPrice", DESCENDING)
+                FilterAndOrderService.OTHERS_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Lainnya").orderBy("minPrice", ASCENDING)
+                FilterAndOrderService.OTHERS_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Lainnya").orderBy("minPrice", DESCENDING)
+                null -> serviceCollection
+            }.limit(PAGE_SIZE.toLong())
+
+            // Jika ada lastDocument, gunakan startAfter untuk melanjutkan paging
+            lastDocument?.let {
+                query = query.startAfter(it)
             }
 
             val serviceSnapshot = query.get().await()
+
+            // Jika tidak ada data, langsung set isLastPage = true
+            if (serviceSnapshot.isEmpty) {
+                isLastPage = true
+                return emptyList()
+            }
+
             val services = serviceSnapshot.documents.mapNotNull { it.data?.toService() }
 
-            val userIds = services.map { it.userId }.toSet()
+            // Simpan dokumen terakhir untuk paginasi berikutnya
+            if (serviceSnapshot.documents.isNotEmpty()) {
+                lastDocument = serviceSnapshot.documents.last()
+            } else {
+                isLastPage = true // Jika tidak ada dokumen lagi, tandai sebagai halaman terakhir
+            }
 
+            // Cek apakah ini halaman terakhir
+            if (serviceSnapshot.documents.size < PAGE_SIZE) {
+                isLastPage = true
+            }
+
+            val userIds = services.map { it.userId }.toSet()
             if (userIds.isEmpty()) return emptyList()
 
-            // Ambil semua data pengguna dalam satu permintaan
-            val userSnapshots = firestore.collection("users")
+            // Ambil data pengguna dalam satu permintaan
+            val userSnapshots = userCollection
                 .whereIn("userId", userIds.toList())
                 .get()
                 .await()
 
             val userMap = userSnapshots.documents.associate { it.id to it.toObject(UserModel::class.java) }
 
+            Log.d(TAG, "Last document: ${lastDocument?.id}")
+            Log.d(TAG, "Total fetched services: ${services.size}")
+
             // Gabungkan layanan dengan data pengguna
-            services.mapNotNull { service ->
+            return services.mapNotNull { service ->
                 val user = userMap[service.userId]
                 if (user != null) {
                     ServiceWithUserModel(service, user)
@@ -197,14 +351,14 @@ class ServiceRepository {
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            Log.e(TAG, "Error fetching all services: ${e.message}")
+            Log.e("FirestorePaging", "Error fetching paged services: ${e.message}")
             emptyList()
         }
     }
 
     suspend fun getPortfolioByServiceId(serviceId: String): List<PortfolioModel> {
         return try {
-            val serviceSnapshot = firestore.collection("services").document(serviceId).get().await()
+            val serviceSnapshot = serviceCollection.document(serviceId).get().await()
             val service = serviceSnapshot.toObject(ServiceModel::class.java) ?: return emptyList()
             val portfolioIds = service.portfolio.mapNotNull { it["portfolioId"] }
 
@@ -242,7 +396,7 @@ class ServiceRepository {
     ): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val serviceRef = firestore.collection("services").document(serviceId)
+            val serviceRef = serviceCollection.document(serviceId)
             val serviceSnapshot = serviceRef.get().await()
 
             if (serviceSnapshot.exists() && serviceSnapshot.getString("userId") == userId) {
@@ -271,7 +425,7 @@ class ServiceRepository {
     suspend fun deleteService(serviceId: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val serviceRef = firestore.collection("services").document(serviceId)
+            val serviceRef = serviceCollection.document(serviceId)
             val serviceSnapshot = serviceRef.get().await()
 
             if (serviceSnapshot.exists() && serviceSnapshot.getString("userId") == userId) {
@@ -287,6 +441,10 @@ class ServiceRepository {
             Log.e(TAG, "Error deleting service: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
+    }
+
+    fun isLastPage(): Boolean {
+        return isLastPage
     }
 
     private fun getErrorMessage(e: Exception): String {

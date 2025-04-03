@@ -101,8 +101,6 @@ dependencies {
     // Country Code Picker for Phone Number
     implementation (libs.ccp)
 
-    implementation ("com.facebook.shimmer:shimmer:0.5.0")
-
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)

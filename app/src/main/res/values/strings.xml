@@ -56,12 +56,12 @@
     <string name="exit">Keluar</string>
     <string name="sure">Yakin</string>
     <string name="not_sure">Tidak Yakin</string>
-    <string name="project">Proyek</string>
+    <string name="order">Pesanan</string>
     <string name="profile">Profile</string>
     <string name="guest">Guest</string>
     <string name="user">User</string>
     <string name="become_freelancer_opt">Jadi Freelancer?</string>
-    <string name="project_history">Riwayat Proyek</string>
+    <string name="order_history">Riwayat Pesanan</string>
     <string name="favorite_freelancer">Freelancer Favorit</string>
     <string name="app_review">Ulasan Aplikasi</string>
     <string name="minimal_char">Minimal 8 karakter</string>
@@ -122,4 +122,12 @@
     <string name="add_documentation_images">Tambahkan Dokumentasi</string>
     <string name="portfolio_photo">Foto Portofolio</string>
     <string name="profil_freelancer">Profil Freelancer</string>
+    <string name="order_cheap">Dari Termurah</string>
+    <string name="order_expensive">Dari Termahal</string>
+    <string name="design_desc">Buat desain, ilustrasi, dan video menarik untuk keperluan pribadi, bisnis, atau promosi. Dari logo hingga animasi profesional.</string>
+    <string name="academic_desc">Jasa penulisan berkualitas untuk berbagai kebutuhan, mulai dari artikel, atau esai akademik.</string>
+    <string name="marketing_desc">Optimalkan strategi pemasaran dan tingkatkan visibilitas bisnis Anda. Dari manajemen media sosial, pembuatan konten, hingga strategi iklan digital.</string>
+    <string name="tech_desc">Dapatkan solusi digital inovatif untuk proyek Anda. Mulai dari pengembangan website, aplikasi, hingga kecerdasan buatan dan keamanan siber.</string>
+    <string name="others_desc">Jelajahi berbagai layanan unik, fleksibel, dan beragam yang tidak termasuk dalam kategori lain, sesuai dengan kebutuhan Anda.</string>
+    <string name="load_more">Load More</string>
 </resources>

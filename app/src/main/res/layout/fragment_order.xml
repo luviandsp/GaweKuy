@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/project"
+            android:text="@string/order"
             android:textSize="28sp"
             app:fontFamily="@font/urbanist_bold" />
 

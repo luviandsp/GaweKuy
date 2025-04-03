@@ -4,15 +4,15 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.gawebersama.gawekuy.databinding.ActivityProjectHistoryBinding
+import com.gawebersama.gawekuy.databinding.ActivityOrderHistoryBinding
 
-class ProjectHistoryActivity : AppCompatActivity() {
+class OrderHistoryActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityProjectHistoryBinding
+    private lateinit var binding: ActivityOrderHistoryBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityProjectHistoryBinding.inflate(layoutInflater)
+        binding = ActivityOrderHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -25,9 +25,7 @@ class ProjectHistoryActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
-            btnBack.setOnClickListener {
-                finish()
-            }
+            btnBack.setOnClickListener { finish() }
         }
     }
 }

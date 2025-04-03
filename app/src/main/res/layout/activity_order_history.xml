@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.profile.ProjectHistoryActivity">
+    tools:context=".ui.profile.OrderHistoryActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -25,7 +25,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/project_history"
+            android:text="@string/order_history"
             android:textSize="20sp"
             app:fontFamily="@font/urbanist_bold" />
 

@@ -10,7 +10,7 @@
         android:id="@+id/tv_service_name"
         android:layout_width="0dp"
         android:layout_weight="6"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center|start"
         app:fontFamily="@font/urbanist_semibold"
@@ -24,6 +24,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_marginEnd="4dp"
+        android:layout_marginStart="12dp"
         android:text="@string/price"
         app:fontFamily="@font/urbanist_semibold"
         android:textSize="14sp" />
