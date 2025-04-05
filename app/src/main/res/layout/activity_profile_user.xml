@@ -154,7 +154,7 @@
         <com.google.android.material.button.MaterialButton
             style="@style/ButtonAuth.Chat"
             android:id="@+id/btn_chat"
-            android:text="@string/chat" />
+            android:text="@string/chat_freelancer" />
 
     </LinearLayout>
 

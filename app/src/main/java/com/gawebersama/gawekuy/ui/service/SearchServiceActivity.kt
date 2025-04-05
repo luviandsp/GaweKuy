@@ -116,23 +116,35 @@ class SearchServiceActivity : AppCompatActivity() {
         serviceViewModel.searchService(filter, query, resetPaging)
     }
 
-    private fun getCategoryFilter(category: String?): FilterAndOrderService {
+    private fun getCategoryFilter(category: String?): FilterAndOrderService? {
         return when (category) {
             "Penulisan & Akademik" -> FilterAndOrderService.ACADEMIC_CHEAP
             "Desain & Multimedia" -> FilterAndOrderService.DESIGN_CHEAP
             "Pemasaran & Media Sosial" -> FilterAndOrderService.MARKETING_CHEAP
             "Pengembangan Teknologi" -> FilterAndOrderService.TECH_CHEAP
             "Lainnya" -> FilterAndOrderService.OTHERS_CHEAP
-            else -> FilterAndOrderService.RATING // Default filter if no category
+            else -> null
         }
     }
 
     private fun observeViewModel() {
         serviceViewModel.serviceWithUser.observe(this@SearchServiceActivity) { services ->
             Log.d(TAG, "Fetched Services: $services")
-            serviceAdapter.submitList(services)
-            serviceAdapter.notifyDataSetChanged()
-            binding.btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
+
+            with(binding) {
+                if (services?.isEmpty() == true) {
+                    ivPlaceholderEmpty.visibility = View.VISIBLE
+                    rvFreelancer.visibility = View.GONE
+                    return@observe
+                } else {
+                    ivPlaceholderEmpty.visibility = View.GONE
+                    rvFreelancer.visibility = View.VISIBLE
+                }
+
+                serviceAdapter.submitList(services)
+                serviceAdapter.notifyDataSetChanged()
+                btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
+            }
         }
     }
 }

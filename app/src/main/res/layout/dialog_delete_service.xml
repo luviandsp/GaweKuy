@@ -18,26 +18,13 @@
 
         <TextView
             android:id="@+id/tvDialogTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/delete_service"
-            app:fontFamily="@font/urbanist_bold"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:gravity="center"
-            android:paddingBottom="10dp"/>
+            style="@style/Dialog.Title"
+            android:text="@string/delete_service" />
 
         <TextView
             android:id="@+id/tvDialogMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fontFamily="@font/urbanist_semibold"
-            android:text="@string/are_you_sure_to_delete_this_service"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:gravity="center"
-            android:paddingBottom="15dp"/>
+            style="@style/Dialog.Message"
+            android:text="@string/are_you_sure_to_delete_this_service" />
 
         <LinearLayout
             android:layout_width="match_parent"

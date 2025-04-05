@@ -18,26 +18,13 @@
 
         <TextView
             android:id="@+id/tvDialogTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/become_freelancer"
-            app:fontFamily="@font/urbanist_bold"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:gravity="center"
-            android:paddingBottom="10dp"/>
+            style="@style/Dialog.Title"
+            android:text="@string/become_freelancer" />
 
         <TextView
             android:id="@+id/tvDialogMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fontFamily="@font/urbanist_semibold"
-            android:text="@string/are_you_sure_to_become_a_freelancer"
-            android:textSize="14sp"
-            android:textColor="@color/black"
-            android:gravity="center"
-            android:paddingBottom="15dp"/>
+            style="@style/Dialog.Message"
+            android:text="@string/are_you_sure_to_become_a_freelancer" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,13 +47,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancel"
-                style="@style/ButtonAuth"
-                android:backgroundTint="@color/red"
+                style="@style/ButtonAuth.Register"
+                app:strokeColor="@color/red"
+                app:strokeWidth="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/not_sure"
-                android:textColor="@color/white"
+                android:textColor="@color/red"
                 android:layout_marginEnd="0dp"
                 android:layout_marginStart="8dp" />
         </LinearLayout>

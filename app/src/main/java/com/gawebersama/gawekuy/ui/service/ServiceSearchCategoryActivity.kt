@@ -12,9 +12,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.adapter.ServiceAdapter
+import com.gawebersama.gawekuy.data.datastore.UserPreferences
 import com.gawebersama.gawekuy.data.enum.FilterAndOrderService
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.databinding.ActivityServiceSearchCategoryBinding
+import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ServiceSearchCategoryActivity : AppCompatActivity() {
@@ -22,6 +25,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityServiceSearchCategoryBinding
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private lateinit var serviceAdapter: ServiceAdapter
+    private lateinit var userPreferences: UserPreferences
 
     private var isExpensive : Boolean = false
 
@@ -32,6 +36,9 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        userPreferences = UserPreferences(this)
+
         binding = ActivityServiceSearchCategoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
@@ -52,6 +59,9 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
 
         initViews()
         observeViewModel()
+        lifecycleScope.launch {
+            visibilityButton()
+        }
         getServiceCheap()
     }
 
@@ -80,28 +90,20 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
 
             btnCheap.setOnClickListener {
                 getServiceCheap()
+
                 isExpensive = false
-
-                btnCheap.setTextColor(getColor(R.color.blue))
-                btnCheap.setBackgroundColor(getColor(R.color.white))
-                btnCheap.setStrokeColorResource(R.color.blue)
-
-                btnExpensive.setTextColor(getColor(R.color.inactive_color_text))
-                btnExpensive.setBackgroundColor(getColor(R.color.inactive_color))
-                btnExpensive.setStrokeColorResource(R.color.inactive_color)
+                lifecycleScope.launch {
+                    visibilityButton()
+                }
             }
 
             btnExpensive.setOnClickListener {
                 getServiceExpensive()
+
                 isExpensive = true
-
-                btnExpensive.setTextColor(getColor(R.color.blue))
-                btnExpensive.setBackgroundColor(getColor(R.color.white))
-                btnExpensive.setStrokeColorResource(R.color.blue)
-
-                btnCheap.setTextColor(getColor(R.color.inactive_color_text))
-                btnCheap.setBackgroundColor(getColor(R.color.inactive_color))
-                btnCheap.setStrokeColorResource(R.color.inactive_color)
+                lifecycleScope.launch {
+                    visibilityButton()
+                }
             }
 
             serviceAdapter = ServiceAdapter(
@@ -120,6 +122,53 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
         }
     }
 
+    private suspend fun visibilityButton() {
+        val category = intent.getStringExtra(CATEGORY)
+
+        with(binding) {
+            if (category == "Jasa Populer") {
+                btnCheap.visibility = View.GONE
+                btnExpensive.visibility = View.GONE
+                return
+            }
+
+            val isDarkMode = userPreferences.darkModeFlow.first()
+            Log.d(TAG, "isDarkMode: $isDarkMode")
+
+            fun setActive(btn: MaterialButton) {
+                btn.apply {
+                    setTextColor(getColor(R.color.blue))
+                    setStrokeColorResource(R.color.blue)
+                    setBackgroundColor(
+                        getColor(if (!isDarkMode) R.color.white else R.color.dark_grey)
+                    )
+                }
+            }
+
+            fun setInactive(btn: MaterialButton) {
+                btn.apply {
+                    setTextColor(
+                        getColor(if (!isDarkMode) R.color.inactive_color_text else R.color.inactive_color_text_dark)
+                    )
+                    setStrokeColorResource(
+                        if (!isDarkMode) R.color.inactive_color else R.color.inactive_color_dark
+                    )
+                    setBackgroundColor(
+                        getColor(if (!isDarkMode) R.color.inactive_color else R.color.inactive_color_dark)
+                    )
+                }
+            }
+
+            if (isExpensive == true) {
+                setActive(btnExpensive)
+                setInactive(btnCheap)
+            } else {
+                setActive(btnCheap)
+                setInactive(btnExpensive)
+            }
+        }
+    }
+
     private fun getServiceCheap() {
         val category = intent.getStringExtra(CATEGORY)
 
@@ -129,6 +178,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
             "Pemasaran & Media Sosial" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.MARKETING_CHEAP, resetPaging = true) }
             "Pengembangan Teknologi" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.TECH_CHEAP, resetPaging = true) }
             "Lainnya" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.OTHERS_CHEAP, resetPaging = true) }
+            "Jasa Populer" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED, resetPaging = true) }
         }
     }
 
@@ -141,6 +191,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
             "Pemasaran & Media Sosial" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.MARKETING_EXPENSIVE, resetPaging = true) }
             "Pengembangan Teknologi" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.TECH_EXPENSIVE, resetPaging = true) }
             "Lainnya" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.OTHERS_EXPENSIVE, resetPaging = true) }
+            "Jasa Populer" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED, resetPaging = true) }
         }
     }
 
@@ -153,6 +204,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
             "Pemasaran & Media Sosial" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.MARKETING_CHEAP) }
             "Pengembangan Teknologi" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.TECH_CHEAP) }
             "Lainnya" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.OTHERS_CHEAP) }
+            "Jasa Populer" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED) }
         }
     }
 
@@ -165,6 +217,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
             "Pemasaran & Media Sosial" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.MARKETING_EXPENSIVE) }
             "Pengembangan Teknologi" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.TECH_EXPENSIVE) }
             "Lainnya" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.OTHERS_EXPENSIVE) }
+            "Jasa Populer" -> { serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED) }
         }
     }
 
@@ -177,16 +230,29 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
             "Pemasaran & Media Sosial" -> { binding.tvDesc.text = getString(R.string.marketing_desc) }
             "Pengembangan Teknologi" -> { binding.tvDesc.text = getString(R.string.tech_desc) }
             "Lainnya" -> { binding.tvDesc.text = getString(R.string.others_desc) }
+            "Jasa Populer" -> { binding.tvDesc.text = getString(R.string.popular_desc) }
         }
     }
 
     private fun observeViewModel() {
         serviceViewModel.serviceWithUser.observe(this@ServiceSearchCategoryActivity) { services ->
             Log.d(TAG, "Fetched Services: $services")
-            serviceAdapter.submitList(services)
-            serviceAdapter.notifyDataSetChanged()  // Mencegah flickering
-            binding.btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
-            binding.srlSearchCategory.isRefreshing = false
+
+            with(binding) {
+                if (services?.isEmpty() == true) {
+                    ivPlaceholderEmpty.visibility = View.VISIBLE
+                    rvFreelancer.visibility = View.GONE
+                    return@observe
+                } else {
+                    ivPlaceholderEmpty.visibility = View.GONE
+                    rvFreelancer.visibility = View.VISIBLE
+                }
+
+                serviceAdapter.submitList(services)
+                serviceAdapter.notifyDataSetChanged()
+                btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
+                srlSearchCategory.isRefreshing = false
+            }
         }
     }
 

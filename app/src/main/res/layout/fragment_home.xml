@@ -48,9 +48,9 @@
 
             <com.google.android.material.search.SearchBar
                 android:id="@+id/sb_home"
+                style="@style/ColorTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
                 android:layout_marginTop="16dp"
                 android:layout_gravity="center"
                 android:hint="@string/search_service" />
@@ -81,22 +81,26 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
+                android:weightSum="3"
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="2"
                     android:layout_gravity="center"
-                    android:text="@string/popular_freelancer"
+                    android:gravity="start|center"
+                    android:text="@string/popular_service"
                     android:textSize="20sp"
                     app:fontFamily="@font/urbanist_bold" />
 
                 <TextView
                     android:id="@+id/tv_see_all"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_gravity="center"
-                    android:gravity="end"
+                    android:gravity="end|center"
                     android:textColor="@color/blue"
                     android:text="@string/see_all"
                     android:textSize="16sp"
@@ -114,6 +118,13 @@
                 android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_freelancer_service" />
+
+            <ImageView
+                android:id="@+id/iv_placeholder_empty"
+                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/placeholder_empty_service"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_load_more"

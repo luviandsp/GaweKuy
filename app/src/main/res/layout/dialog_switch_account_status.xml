@@ -19,12 +19,12 @@
         <TextView
             android:id="@+id/tvDialogTitle"
             style="@style/Dialog.Title"
-            android:text="@string/delete_portfolio" />
+            android:text="@string/switch_off_account" />
 
         <TextView
             android:id="@+id/tvDialogMessage"
             style="@style/Dialog.Message"
-            android:text="@string/are_you_sure_to_delete_this_portfolio" />
+            android:text="@string/are_you_sure_to_switch_off_account" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -34,13 +34,13 @@
             android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_delete"
+                android:id="@+id/btn_off"
                 style="@style/ButtonAuth"
                 android:backgroundTint="@color/red"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/delete"
+                android:text="@string/sure"
                 android:textColor="@color/white"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="0dp"/>

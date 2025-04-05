@@ -114,7 +114,7 @@
 
                     <ImageView
                         style="@style/optionProfileImage"
-                        android:src="@drawable/edit"/>
+                        android:src="@drawable/edit_user"/>
 
                     <TextView
                         style="@style/optionProfileDesc"
@@ -203,22 +203,22 @@
                 <com.google.android.material.divider.MaterialDivider
                     style="@style/optionProfileDivider" />
 
-                <TableRow
-                    android:id="@+id/tr_favorites"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+<!--                <TableRow-->
+<!--                    android:id="@+id/tr_favorites"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content">-->
 
-                    <ImageView
-                        style="@style/optionProfileImage"
-                        android:src="@drawable/favorites"/>
+<!--                    <ImageView-->
+<!--                        style="@style/optionProfileImage"-->
+<!--                        android:src="@drawable/favorites"/>-->
 
-                    <TextView
-                        style="@style/optionProfileDesc"
-                        android:text="@string/favorite_freelancer"/>
-                </TableRow>
+<!--                    <TextView-->
+<!--                        style="@style/optionProfileDesc"-->
+<!--                        android:text="@string/favorite_freelancer"/>-->
+<!--                </TableRow>-->
 
-                <com.google.android.material.divider.MaterialDivider
-                    style="@style/optionProfileDivider" />
+<!--                <com.google.android.material.divider.MaterialDivider-->
+<!--                    style="@style/optionProfileDivider" />-->
 
                 <TableRow
                     android:id="@+id/tr_review"

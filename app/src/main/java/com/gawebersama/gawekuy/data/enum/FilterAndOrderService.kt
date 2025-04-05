@@ -3,9 +3,7 @@ package com.gawebersama.gawekuy.data.enum
 enum class FilterAndOrderService {
     CHEAP,
     EXPENSIVE,
-    RATING,
-    RATING_CHEAP,
-    RATING_EXPENSIVE,
+    ORDERED,
     ACADEMIC_CHEAP,
     ACADEMIC_EXPENSIVE,
     TECH_CHEAP,

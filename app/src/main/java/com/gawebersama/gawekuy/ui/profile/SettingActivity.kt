@@ -1,5 +1,6 @@
 package com.gawebersama.gawekuy.ui.profile
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -14,10 +15,10 @@ import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.datastore.UserPreferences
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivitySettingBinding
+import com.gawebersama.gawekuy.databinding.DialogSwitchAccountStatusBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlin.getValue
 
 class SettingActivity : AppCompatActivity() {
 
@@ -97,7 +98,31 @@ class SettingActivity : AppCompatActivity() {
     }
 
     private fun saveAccountStatus(isActive: Boolean) {
-        userViewModel.updateAccountStatus(isActive)
+        if (isActive == false) {
+            showSwitchOffDialog()
+        } else {
+            userViewModel.updateAccountStatus(true)
+        }
+    }
+
+    private fun showSwitchOffDialog() {
+        val dialogBinding = DialogSwitchAccountStatusBinding.inflate(layoutInflater)
+        val switchDialog = AlertDialog.Builder(this@SettingActivity).setView(dialogBinding.root).create()
+
+        with(dialogBinding) {
+            btnCancel.setOnClickListener {
+                binding.switchAccountStatus.isChecked = true
+                switchDialog.dismiss()
+            }
+
+            btnOff.setOnClickListener {
+                userViewModel.updateAccountStatus(false)
+                switchDialog.dismiss()
+            }
+
+            switchDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            switchDialog.show()
+        }
     }
 
     private fun applySavedTheme() {

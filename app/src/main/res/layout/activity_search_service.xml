@@ -51,6 +51,13 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_freelancer_service" />
 
+        <ImageView
+            android:id="@+id/iv_placeholder_empty"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/placeholder_empty_service"/>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_load_more"
             style="@style/ButtonAuth.Register"

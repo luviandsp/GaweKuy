@@ -54,7 +54,7 @@ class ServiceAdapter(
                     .into(ivFreelancer)
                 tvName.text = ownerName
                 tvPrice.text = cheapPrice
-                tvRating.text = serviceModel.serviceRating.toString()
+                tvOrdered.text = serviceModel.serviceOrdered.toString()
 
                 root.setOnClickListener { onItemClick(serviceModel) }
                 root.setOnLongClickListener {

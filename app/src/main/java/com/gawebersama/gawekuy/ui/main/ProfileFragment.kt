@@ -84,9 +84,9 @@ class ProfileFragment : Fragment() {
                 startActivity(Intent(requireActivity(), OrderHistoryActivity::class.java))
             }
 
-            trFavorites.setOnClickListener {
-                startActivity(Intent(requireActivity(), FavoriteFreelancerActivity::class.java))
-            }
+//            trFavorites.setOnClickListener {
+//                startActivity(Intent(requireActivity(), FavoriteFreelancerActivity::class.java))
+//            }
 
             trLogout.setOnClickListener {
                 showLogoutDialog()

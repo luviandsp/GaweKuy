@@ -55,7 +55,7 @@ class HomeFragment : Fragment() {
         observeViewModel()
 
         // Load data pertama kali
-        serviceViewModel.fetchAllServices(FilterAndOrderService.RATING, resetPaging = true)
+        serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED, resetPaging = true)
     }
 
     private fun initViews() {
@@ -75,12 +75,12 @@ class HomeFragment : Fragment() {
             }
 
             binding.btnLoadMore.setOnClickListener {
-                serviceViewModel.fetchAllServices(FilterAndOrderService.RATING)
+                serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED)
             }
 
             tvSeeAll.setOnClickListener {
                 val intent = Intent(requireContext(), ServiceSearchCategoryActivity::class.java)
-                intent.putExtra(ServiceSearchCategoryActivity.CATEGORY, "Freelancer Populer")
+                intent.putExtra(ServiceSearchCategoryActivity.CATEGORY, "Jasa Populer")
                 startActivity(intent)
             }
 
@@ -100,10 +100,22 @@ class HomeFragment : Fragment() {
 
         serviceViewModel.serviceWithUser.observe(viewLifecycleOwner) { services ->
             Log.d(TAG, "Fetched Services: $services")
-            serviceAdapter.submitList(services)
-            serviceAdapter.notifyDataSetChanged()  // Mencegah flickering
-            binding.btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
-            binding.srlHome.isRefreshing = false
+
+            with(binding) {
+                if (services?.isEmpty() == true) {
+                    ivPlaceholderEmpty.visibility = View.VISIBLE
+                    rvFreelancer.visibility = View.GONE
+                    return@observe
+                } else {
+                    ivPlaceholderEmpty.visibility = View.GONE
+                    rvFreelancer.visibility = View.VISIBLE
+                }
+
+                serviceAdapter.submitList(services)
+                serviceAdapter.notifyDataSetChanged()
+                btnLoadMore.visibility = if (serviceViewModel.hasMoreData()) View.VISIBLE else View.GONE
+                srlHome.isRefreshing = false
+            }
         }
     }
 
@@ -137,7 +149,7 @@ class HomeFragment : Fragment() {
 
     private fun refreshHomeData() {
         binding.srlHome.isRefreshing = true
-        serviceViewModel.fetchAllServices(FilterAndOrderService.RATING, resetPaging = true)
+        serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED, resetPaging = true)
 
         lifecycleScope.launch {
             binding.srlHome.isRefreshing = false

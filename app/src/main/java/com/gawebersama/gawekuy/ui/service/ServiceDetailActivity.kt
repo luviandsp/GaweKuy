@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -149,6 +150,12 @@ class ServiceDetailActivity : AppCompatActivity() {
                         tvStatusAccount.setTextColor(ContextCompat.getColor(this@ServiceDetailActivity, R.color.inactive_color_text))
                         cvStatusAccount.setCardBackgroundColor(ContextCompat.getColor(this@ServiceDetailActivity, R.color.inactive_color))
                     }
+                }
+            }
+
+            ownerServicePhone.observe(this@ServiceDetailActivity) { phone ->
+                binding.btnChatFreelancer.setOnClickListener {
+                    startActivity(Intent(Intent.ACTION_VIEW, "https://wa.me/$phone".toUri()))
                 }
             }
 

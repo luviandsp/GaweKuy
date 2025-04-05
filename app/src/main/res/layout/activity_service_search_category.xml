@@ -56,9 +56,9 @@
 
             <com.google.android.material.search.SearchBar
                 android:id="@+id/sb_search_service"
+                style="@style/ColorTheme"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/white"
                 android:layout_marginTop="16dp"
                 android:layout_gravity="center"
                 android:hint="@string/search_service" />
@@ -115,6 +115,13 @@
                 android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_freelancer_service" />
+
+            <ImageView
+                android:id="@+id/iv_placeholder_empty"
+                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/placeholder_empty_service"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_load_more"

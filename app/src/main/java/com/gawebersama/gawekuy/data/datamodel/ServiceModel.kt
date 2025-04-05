@@ -13,7 +13,7 @@ data class ServiceModel(
     @PropertyName("serviceName") val serviceName: String = "",
     @PropertyName("serviceDesc") val serviceDesc: String? = null,
     @PropertyName("imageBannerUrl") val imageBannerUrl: String? = null,
-    @PropertyName("serviceRating") val serviceRating: Double = 0.0,
+    @PropertyName("serviceOrdered") val serviceOrdered: Int = 0,
     @PropertyName("serviceTypes") val serviceTypes : List<ServiceSelectionModel> = emptyList(),
     @PropertyName("portfolio") val portfolio: List<Map<String, String>> = emptyList(),
     @PropertyName("minPrice") val minPrice: Double = 0.0,

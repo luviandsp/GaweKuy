@@ -39,6 +39,9 @@ class ServiceViewModel : ViewModel() {
     private val _serviceCategory = MutableLiveData<String?>()
     val serviceCategory: LiveData<String?> get() = _serviceCategory
 
+    private val _serviceOrdered = MutableLiveData<Int?>()
+    val serviceOrdered: LiveData<Int?> get() = _serviceOrdered
+
     private val _minPrice = MutableLiveData<Double?>()
     val minPrice: LiveData<Double?> get() = _minPrice
 
@@ -176,6 +179,7 @@ class ServiceViewModel : ViewModel() {
                 _serviceDesc.postValue(service.service.serviceDesc)
                 _serviceTypes.postValue(service.service.serviceTypes)
                 _serviceCategory.postValue(service.service.serviceCategory)
+                _serviceOrdered.postValue(service.service.serviceOrdered)
                 _minPrice.postValue(service.service.serviceTypes.minOfOrNull { it.price })
                 _serviceTags.postValue(service.service.serviceTags)
                 _ownerServiceId.postValue(service.user.userId)
@@ -235,6 +239,23 @@ class ServiceViewModel : ViewModel() {
                 _serviceTags.postValue(serviceTags)
                 _servicePortofolio.postValue(portfolio)
             }
+        }
+    }
+
+    fun updateServiceOrdered(serviceId: String, serviceOrdered: Int) {
+        viewModelScope.launch {
+            val result = serviceRepository.updateServiceOrdered(
+                serviceId = serviceId,
+                serviceOrdered = serviceOrdered
+            )
+
+            _operationResult.postValue(result)
+
+            if (result.first) {
+                _serviceOrdered.postValue(serviceOrdered)
+            }
+
+            Log.d(TAG, "Service ordered updated: $serviceOrdered")
         }
     }
 

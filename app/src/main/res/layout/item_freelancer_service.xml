@@ -31,23 +31,25 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <ImageView
+                <TextView
+                    android:id="@+id/tv_ordered"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:src="@drawable/star"/>
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    app:fontFamily="@font/urbanist_medium"
+                    android:text="0" />
 
                 <TextView
-                    android:id="@+id/tv_rating"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textColor="@color/orange"
                     android:layout_marginStart="4dp"
                     android:textSize="14sp"
                     app:fontFamily="@font/urbanist_medium"
-                    android:text="5.0" />
+                    android:text="terpesan" />
 
             </LinearLayout>
 

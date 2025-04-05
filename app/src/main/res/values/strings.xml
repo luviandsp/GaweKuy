@@ -96,6 +96,7 @@
     <string name="example">Contoh</string>
     <string name="are_you_sure_to_delete_this_service">Apakah anda yakin ingin menghapus jasa ini?</string>
     <string name="are_you_sure_to_delete_this_portfolio">Apakah anda yakin ingin menghapus portofolio ini?</string>
+    <string name="are_you_sure_to_switch_off_account">Apakah anda yakin ingin menonaktifkan akun? Semua jasamu tidak akan tampil di pencarian</string>
     <string name="delete">Hapus</string>
     <string name="order_service">Pesan Jasa</string>
     <string name="price_format">Rp.%s</string>
@@ -106,10 +107,11 @@
     <string name="placeholder_portfolio_freelancer">Pengguna belum menambahkan portfolio untuk jasa ini</string>
     <string name="search_service">Cari Layanan</string>
     <string name="category">Kategori</string>
-    <string name="popular_freelancer">Freelancer Populer</string>
+    <string name="popular_service">Jasa Populer</string>
     <string name="see_all">Lihat Semua</string>
     <string name="user_profile">Profil Pengguna</string>
     <string name="chat">Chat</string>
+    <string name="chat_freelancer">Chat Freelancer</string>
     <string name="my_portfolio">Portofolio Saya</string>
     <string name="title_portfolio">Judul Portofolio</string>
     <string name="detail_portfolio">Detail Portofolio</string>
@@ -129,5 +131,7 @@
     <string name="marketing_desc">Optimalkan strategi pemasaran dan tingkatkan visibilitas bisnis Anda. Dari manajemen media sosial, pembuatan konten, hingga strategi iklan digital.</string>
     <string name="tech_desc">Dapatkan solusi digital inovatif untuk proyek Anda. Mulai dari pengembangan website, aplikasi, hingga kecerdasan buatan dan keamanan siber.</string>
     <string name="others_desc">Jelajahi berbagai layanan unik, fleksibel, dan beragam yang tidak termasuk dalam kategori lain, sesuai dengan kebutuhan Anda.</string>
+    <string name="popular_desc">Temukan berbagai jasa terpopuler yang paling diminati oleh pengguna. Dari desain kreatif hingga teknologi mutakhir, semua layanan terbaik ada di sini.</string>
     <string name="load_more">Load More</string>
+    <string name="switch_off_account">Menonaktifkan Akun</string>
 </resources>

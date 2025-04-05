@@ -40,7 +40,7 @@ class ServiceRepository() {
             "serviceName" to serviceName,
             "serviceDesc" to serviceDesc,
             "imageBannerUrl" to imageBannerUrl,
-            "serviceRating" to serviceRating,
+            "serviceOrdered" to serviceOrdered,
             "serviceTypes" to serviceTypes,
             "minPrice" to minPrice,
             "serviceCategory" to serviceCategory,
@@ -57,7 +57,7 @@ class ServiceRepository() {
             serviceName = this["serviceName"] as? String ?: "",
             serviceDesc = this["serviceDesc"] as? String,
             imageBannerUrl = this["imageBannerUrl"] as? String,
-            serviceRating = (this["serviceRating"] as? Number)?.toDouble() ?: 0.0,
+            serviceOrdered = (this["serviceOrdered"] as? Number)?.toInt() ?: 0,
             serviceTypes = (this["serviceTypes"] as? List<*>?)?.mapNotNull { it as? Map<*, *> }?.map {
                 ServiceSelectionModel(
                     name = it["name"] as? String ?: "",
@@ -93,7 +93,7 @@ class ServiceRepository() {
                 serviceName = serviceName,
                 serviceDesc = serviceDesc,
                 imageBannerUrl = imageBannerUrl,
-                serviceRating = 0.0,
+                serviceOrdered = 0,
                 serviceTypes = serviceTypes,
                 minPrice = minPrice,
                 serviceCategory = serviceCategory,
@@ -228,7 +228,10 @@ class ServiceRepository() {
                 .get()
                 .await()
 
-            val userMap = userSnapshots.documents.associate { it.id to it.toObject(UserModel::class.java) }
+            val userMap = userSnapshots.documents
+                .mapNotNull { it.toObject(UserModel::class.java) }
+                .filter { it.accountStatus == true }
+                .associateBy { it.userId }
 
             Log.d(TAG, "Last document: ${lastDocument?.id}")
             Log.d(TAG, "Total fetched services: ${services.size}")
@@ -283,9 +286,7 @@ class ServiceRepository() {
             var query: Query = when (filter) {
                 FilterAndOrderService.CHEAP -> serviceCollection.orderBy("minPrice", ASCENDING)
                 FilterAndOrderService.EXPENSIVE -> serviceCollection.orderBy("minPrice", DESCENDING)
-                FilterAndOrderService.RATING_CHEAP -> serviceCollection.orderBy("serviceRating", DESCENDING)
-                FilterAndOrderService.RATING_EXPENSIVE -> serviceCollection.orderBy("serviceRating", DESCENDING)
-                FilterAndOrderService.RATING -> serviceCollection.orderBy("serviceRating", DESCENDING)
+                FilterAndOrderService.ORDERED -> serviceCollection.orderBy("serviceOrdered", DESCENDING)
                 FilterAndOrderService.ACADEMIC_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Penulisan & Akademik").orderBy("minPrice", ASCENDING)
                 FilterAndOrderService.ACADEMIC_EXPENSIVE -> serviceCollection.whereEqualTo("serviceCategory", "Penulisan & Akademik").orderBy("minPrice", DESCENDING)
                 FilterAndOrderService.TECH_CHEAP -> serviceCollection.whereEqualTo("serviceCategory", "Pengembangan Teknologi").orderBy("minPrice", ASCENDING)
@@ -335,7 +336,10 @@ class ServiceRepository() {
                 .get()
                 .await()
 
-            val userMap = userSnapshots.documents.associate { it.id to it.toObject(UserModel::class.java) }
+            val userMap = userSnapshots.documents
+                .mapNotNull { it.toObject(UserModel::class.java) }
+                .filter { it.accountStatus == true }
+                .associateBy { it.userId }
 
             Log.d(TAG, "Last document: ${lastDocument?.id}")
             Log.d(TAG, "Total fetched services: ${services.size}")
@@ -416,6 +420,24 @@ class ServiceRepository() {
             } else {
                 Pair(false, "Anda tidak berhak mengupdate jasa ini")
             }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun updateServiceOrdered(serviceId: String, serviceOrdered: Int): Pair<Boolean, String?> {
+        return try {
+            val serviceRef = serviceCollection.document(serviceId)
+            val serviceSnapshot = serviceRef.get().await()
+
+            if (serviceSnapshot.exists()) {
+                serviceRef.update("serviceOrdered", serviceOrdered).await()
+            } else {
+                return Pair(false, "Jasa tidak ditemukan")
+            }
+
+            Pair(true, "Jasa berhasil diperbarui")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))

@@ -159,6 +159,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/BottomSheetDialogText.Label"
                     android:id="@+id/tv_category"
+                    android:layout_marginTop="8dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:text="@string/description" />
@@ -189,6 +190,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/BottomSheetDialogText.Label"
                     android:id="@+id/tv_service_selection"
+                    android:layout_marginTop="8dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:text="@string/service_selection" />
@@ -209,11 +211,22 @@
                     style="@style/ButtonAuth"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:backgroundTint="@color/blue"
                     android:text="@string/order_service" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_chat_freelancer"
+                    style="@style/ButtonAuth.Chat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:textSize="14sp"
+                    android:text="@string/chat_freelancer" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -230,6 +243,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/BottomSheetDialogText.Label"
                     android:id="@+id/tv_tags"
+                    android:layout_marginTop="8dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:text="@string/tags" />
