@@ -134,4 +134,5 @@
     <string name="switch_off_account">Menonaktifkan Akun</string>
     <string name="order_detail">Detail Pesanan</string>
     <string name="user_status">Status User</string>
+    <string name="resend_verification">Kirim ulang email verifikasi</string>
 </resources>

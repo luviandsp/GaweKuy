@@ -39,9 +39,6 @@ class UserViewModel : ViewModel() {
     private val _userImageUrl = MutableLiveData<String?>()
     val userImageUrl: LiveData<String?> get() = _userImageUrl
 
-    private val _isLoggedIn = MutableLiveData<Boolean>()
-    val isLoggedIn: LiveData<Boolean> get() = _isLoggedIn
-
     private val _userBiography = MutableLiveData<String?>()
     val userBiography: LiveData<String?> get() = _userBiography
 
@@ -52,16 +49,20 @@ class UserViewModel : ViewModel() {
     val errorMessage: LiveData<String?> get() = _errorMessage
 
     init {
-        _isLoggedIn.value = userRepository.isLoggedIn()
-        if (_isLoggedIn.value == true) {
-            getUser()
-        }
+        getUser()
     }
 
     fun registerAccountOnly(email: String, password: String) {
         viewModelScope.launch {
             val result = userRepository.registerAccountOnly(email, password)
             _authRegister.postValue(result)
+        }
+    }
+
+    fun resendVerificationEmail() {
+        viewModelScope.launch {
+            val result = userRepository.resendVerificationEmail()
+            _authStatus.postValue(result)
         }
     }
 
@@ -76,10 +77,6 @@ class UserViewModel : ViewModel() {
         viewModelScope.launch {
             val result = userRepository.login(email, password)
             _authLogin.postValue(result)
-
-            if (result.first) {
-                _isLoggedIn.postValue(true)
-            }
         }
     }
 
@@ -150,7 +147,6 @@ class UserViewModel : ViewModel() {
     fun logoutUser() {
         viewModelScope.launch {
             userRepository.logout()
-            _isLoggedIn.postValue(false)
             _userId.postValue(null)
             _userName.postValue(null)
             _userRole.postValue(null)

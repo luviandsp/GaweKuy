@@ -2,6 +2,7 @@ package com.gawebersama.gawekuy.data.datastore
 
 import android.content.Context
 import android.util.Log
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -10,14 +11,26 @@ import kotlinx.coroutines.flow.first
 
 private val Context.datastore by preferencesDataStore(name = "user_account_temp_preferences")
 
-class UserAccountTempPreferences(private val context: Context) {
+class UserAccountPreferences(private val context: Context) {
 
     companion object {
         private val EMAIL_KEY = stringPreferencesKey("email")
         private val NAME_KEY = stringPreferencesKey("name")
         private val PHONE_KEY = stringPreferencesKey("phone")
         private val ROLE_KEY = stringPreferencesKey("role")
+        private val REGISTERED_KEY = booleanPreferencesKey("registered")
         const val TAG = "UserAccountTempPreferences"
+    }
+
+    suspend fun setRegistered(isRegistered: Boolean) {
+        context.datastore.edit { preferences ->
+            preferences[REGISTERED_KEY] = isRegistered
+        }
+    }
+
+    suspend fun isRegistered(): Boolean {
+        val preferences = context.datastore.data.first()
+        return preferences[REGISTERED_KEY] ?: false
     }
 
     suspend fun saveTempUser(email: String, name: String, phone: String, role: String) {

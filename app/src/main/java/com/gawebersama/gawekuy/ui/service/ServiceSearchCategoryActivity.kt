@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.adapter.ServiceAdapter
-import com.gawebersama.gawekuy.data.datastore.UserPreferences
+import com.gawebersama.gawekuy.data.datastore.AppPreferences
 import com.gawebersama.gawekuy.data.enum.FilterAndOrderService
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.databinding.ActivityServiceSearchCategoryBinding
@@ -25,7 +25,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityServiceSearchCategoryBinding
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private lateinit var serviceAdapter: ServiceAdapter
-    private lateinit var userPreferences: UserPreferences
+    private lateinit var appPreferences: AppPreferences
 
     private var isExpensive : Boolean = false
 
@@ -37,7 +37,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        userPreferences = UserPreferences(this)
+        appPreferences = AppPreferences(this)
 
         binding = ActivityServiceSearchCategoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -132,7 +132,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
                 return
             }
 
-            val isDarkMode = userPreferences.darkModeFlow.first()
+            val isDarkMode = appPreferences.darkModeFlow.first()
             Log.d(TAG, "isDarkMode: $isDarkMode")
 
             fun setActive(btn: MaterialButton) {

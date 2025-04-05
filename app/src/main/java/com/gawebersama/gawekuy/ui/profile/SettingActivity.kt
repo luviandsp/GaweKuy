@@ -12,7 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.datastore.UserPreferences
+import com.gawebersama.gawekuy.data.datastore.AppPreferences
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivitySettingBinding
 import com.gawebersama.gawekuy.databinding.DialogSwitchAccountStatusBinding
@@ -24,12 +24,12 @@ class SettingActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingBinding
     private val userViewModel by viewModels<UserViewModel>()
-    private lateinit var userPreferences: UserPreferences
+    private lateinit var appPreferences: AppPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        userPreferences = UserPreferences(this)
+        appPreferences = AppPreferences(this)
         binding = ActivitySettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -79,7 +79,7 @@ class SettingActivity : AppCompatActivity() {
 
     private fun saveTheme(isDarkMode: Boolean) {
         lifecycleScope.launch {
-            userPreferences.saveTheme(isDarkMode)
+            appPreferences.saveTheme(isDarkMode)
 
             val currentMode = if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
@@ -93,7 +93,7 @@ class SettingActivity : AppCompatActivity() {
 
     private fun saveNotification(isEnabled: Boolean) {
         lifecycleScope.launch {
-            userPreferences.saveNotification(isEnabled)
+            appPreferences.saveNotification(isEnabled)
         }
     }
 
@@ -127,7 +127,7 @@ class SettingActivity : AppCompatActivity() {
 
     private fun applySavedTheme() {
         lifecycleScope.launch {
-            val isDarkMode = userPreferences.darkModeFlow.first()
+            val isDarkMode = appPreferences.darkModeFlow.first()
 
             val currentMode = if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
@@ -144,14 +144,14 @@ class SettingActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
                     launch {
-                        userPreferences.darkModeFlow.collectLatest { isDarkMode ->
+                        appPreferences.darkModeFlow.collectLatest { isDarkMode ->
                             rbLight.isChecked = !isDarkMode
                             rbDark.isChecked = isDarkMode
                         }
                     }
 
                     launch {
-                        userPreferences.notificationsFlow.collectLatest { isEnabled ->
+                        appPreferences.notificationsFlow.collectLatest { isEnabled ->
                             switchNotification.isChecked = isEnabled
                             switchNotification.text = getString(if (isEnabled) R.string.on else R.string.off)
                         }

@@ -1,6 +1,5 @@
 package com.gawebersama.gawekuy.ui.auth
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -14,12 +13,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.datastore.UserAccountTempPreferences
+import com.gawebersama.gawekuy.data.datastore.UserAccountPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterBinding
 import com.gawebersama.gawekuy.databinding.FragmentRegisterBinding
-import com.gawebersama.gawekuy.ui.main.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
 
@@ -28,9 +26,11 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
-    private lateinit var userAccountTempPreferences: UserAccountTempPreferences
+    private lateinit var userAccountPreferences: UserAccountPreferences
 
     val args: RegisterFragmentArgs by navArgs()
+
+    private var isRegistered : Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,8 +42,12 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        userAccountTempPreferences = UserAccountTempPreferences(requireContext())
-        showBottomSheetDialog()
+        userAccountPreferences = UserAccountPreferences(requireContext())
+
+        lifecycleScope.launch {
+            isRegistered = userAccountPreferences.isRegistered()
+            showBottomSheetDialog()
+        }
     }
 
     private fun showBottomSheetDialog() {
@@ -77,9 +81,19 @@ class RegisterFragment : Fragment() {
                 }
 
                 lifecycleScope.launch {
-                    userAccountTempPreferences.saveTempUser(email, fullName, phoneNumber, clientType)
+                    userAccountPreferences.saveTempUser(email, fullName, phoneNumber, clientType)
                     userViewModel.registerAccountOnly(email, password)
                 }
+            }
+
+            if (isRegistered) {
+                tvResendVerification.visibility = View.VISIBLE
+            } else {
+                tvResendVerification.visibility = View.GONE
+            }
+
+            tvResendVerification.setOnClickListener {
+                userViewModel.resendVerificationEmail()
             }
 
             tvLogin.setOnClickListener {
@@ -106,8 +120,20 @@ class RegisterFragment : Fragment() {
             userViewModel.authRegister.observe(viewLifecycleOwner) { result ->
                 if (result.first) {
                     Toast.makeText(activity, "Registrasi berhasil, silahkan cek email untuk verifikasi", Toast.LENGTH_SHORT).show()
-                    navigateToLogin()
-                    bottomSheetDialog.dismiss()
+
+                    lifecycleScope.launch {
+                        userAccountPreferences.setRegistered(true)
+                    }
+
+                    tvResendVerification.visibility = View.VISIBLE
+                } else {
+                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
                 }

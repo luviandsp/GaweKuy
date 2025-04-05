@@ -3,7 +3,7 @@ package com.gawebersama.gawekuy.data.repository
 import android.content.Context
 import android.util.Log
 import com.gawebersama.gawekuy.data.datamodel.UserModel
-import com.gawebersama.gawekuy.data.datastore.UserAccountTempPreferences
+import com.gawebersama.gawekuy.data.datastore.UserAccountPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -51,15 +51,30 @@ class UserRepository {
         )
     }
 
-    fun isLoggedIn(): Boolean {
-        return firebaseAuth.currentUser != null
-    }
-
     suspend fun registerAccountOnly(email: String, password: String): Pair<Boolean, String?> {
         return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             authResult.user?.sendEmailVerification()
             Pair(true, "Silakan verifikasi email Anda sebelum login.")
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun resendVerificationEmail(): Pair<Boolean, String?> {
+        return try {
+            val user = FirebaseAuth.getInstance().currentUser
+            user?.reload()
+
+            if (user != null && user.isEmailVerified) {
+                return Pair(false, "Email sudah diverifikasi")
+            }
+
+            user?.sendEmailVerification()?.await()
+            Log.d("Auth", "Verification email sent to ${user?.email}")
+
+            Pair(true, "Silakan cek email Anda untuk verifikasi akun Anda.")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))
@@ -82,7 +97,7 @@ class UserRepository {
                     return Pair(true, null)
                 }
 
-                val prefs = UserAccountTempPreferences(context)
+                val prefs = UserAccountPreferences(context)
                 val tempUser = prefs.getTempUser() ?: return Pair(false, "Data user tidak ditemukan")
 
                 val userModelData = UserModel(
@@ -258,6 +273,8 @@ class UserRepository {
                 "Terjadi kesalahan jaringan, coba lagi nanti"
             e.message?.contains("PERMISSION_DENIED: Missing or insufficient permissions.", ignoreCase = true) == true ->
                 "Anda tidak memiliki izin untuk melakukan ini"
+            e.message?.contains("We have blocked all requests from this device due to unusual activity. Try again later.", ignoreCase = true) == true ->
+                "Terlalu banyak permintaan, coba lagi nanti"
             else -> e.message ?: "Terjadi kesalahan, coba lagi nanti"
         }
     }

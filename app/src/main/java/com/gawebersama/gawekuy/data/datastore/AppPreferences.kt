@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 // Inisialisasi DataStore
 private val Context.dataStore by preferencesDataStore(name = "user_preferences")
 
-class UserPreferences(private val context: Context) {
+class AppPreferences(private val context: Context) {
 
     companion object {
         private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")

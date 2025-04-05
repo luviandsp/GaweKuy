@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.datastore.LoginPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.DialogFreelancerBinding
@@ -30,6 +31,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
+    private lateinit var loginPreferences: LoginPreferences
 
     private val launcherEditActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == EditProfileActivity.RESULT_CODE) {
@@ -52,6 +54,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        loginPreferences = LoginPreferences(requireContext())
         refreshProfileData()
 
         initViews()
@@ -178,6 +181,10 @@ class ProfileFragment : Fragment() {
             }
 
             btnLogout.setOnClickListener {
+                lifecycleScope.launch {
+                    loginPreferences.setLoginStatus(false)
+                }
+
                 logoutUser()
                 logoutDialog.dismiss()
             }

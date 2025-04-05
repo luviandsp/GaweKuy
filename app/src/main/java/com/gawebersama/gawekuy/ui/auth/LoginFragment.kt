@@ -8,26 +8,30 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.datastore.UserAccountTempPreferences
+import com.gawebersama.gawekuy.data.datastore.LoginPreferences
+import com.gawebersama.gawekuy.data.datastore.UserAccountPreferences
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
 import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
+    private lateinit var loginPreferences: LoginPreferences
 
     private var email = ""
     private var password = ""
 
-    private lateinit var userAccountTempPreferences: UserAccountTempPreferences
+    private lateinit var userAccountPreferences: UserAccountPreferences
 
     companion object {
         const val TAG = "LoginFragment"
@@ -43,8 +47,14 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        userAccountTempPreferences = UserAccountTempPreferences(requireContext())
-        showBottomSheetDialog()
+        loginPreferences = LoginPreferences(requireContext())
+        userAccountPreferences = UserAccountPreferences(requireContext())
+
+        view.post {
+            if (isAdded && !requireActivity().isFinishing) {
+                showBottomSheetDialog()
+            }
+        }
     }
 
     private fun showBottomSheetDialog() {
@@ -85,6 +95,7 @@ class LoginFragment : Fragment() {
                     return@setOnClickListener
                 }
 
+
                 userViewModel.loginUser(email, password)
             }
 
@@ -99,6 +110,10 @@ class LoginFragment : Fragment() {
             userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
                 if (result.first) {
                     Toast.makeText(requireContext(), result.second ?: "Login sukses", Toast.LENGTH_SHORT).show()
+                    lifecycleScope.launch {
+                        loginPreferences.setLoginStatus(true)
+                        userAccountPreferences.setRegistered(false)
+                    }
                     navigateToMainActivity()
                 } else {
                     Toast.makeText(requireContext(), result.second ?: "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
