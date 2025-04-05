@@ -1,7 +1,9 @@
 package com.gawebersama.gawekuy.data.repository
 
+import android.content.Context
 import android.util.Log
 import com.gawebersama.gawekuy.data.datamodel.UserModel
+import com.gawebersama.gawekuy.data.datastore.UserAccountTempPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -53,33 +55,58 @@ class UserRepository {
         return firebaseAuth.currentUser != null
     }
 
-    suspend fun register(email: String, password: String, name: String, phone: String, role: String): Pair<Boolean, String?> {
+    suspend fun registerAccountOnly(email: String, password: String): Pair<Boolean, String?> {
         return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val userId = authResult.user?.uid ?: return Pair(false, "Gagal mendapatkan ID pengguna")
-
             authResult.user?.sendEmailVerification()
-
-            val userModelData = UserModel(
-                userId = userId,
-                email = email,
-                name = name,
-                phone = phone,
-                role = role,
-                profileImageUrl = null,
-                biography = null,
-                createdAt = Timestamp.now(),
-                userStatus = null,
-                accountStatus = true
-            ).toHashMap()
-
-            firestore.collection("users").document(userId).set(userModelData).await()
-
-            Log.d(TAG, "User registered with ID: $userId")
-            Pair(true, "Silakan verifikasi email Anda sebelum login")
+            Pair(true, "Silakan verifikasi email Anda sebelum login.")
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            Log.e(TAG, "Error registering user: ${e.message}")
+            Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun completeUserRegistration(context: Context): Pair<Boolean, String?> {
+        return try {
+            val user = FirebaseAuth.getInstance().currentUser
+            user?.reload()
+            user?.getIdToken(true)?.await()
+
+            val refreshedUser = FirebaseAuth.getInstance().currentUser
+
+            if (refreshedUser != null && refreshedUser.isEmailVerified) {
+                val userDocRef = firestore.collection("users").document(refreshedUser.uid)
+                val existingUser = userDocRef.get().await()
+
+                if (existingUser.exists()) {
+                    return Pair(true, null)
+                }
+
+                val prefs = UserAccountTempPreferences(context)
+                val tempUser = prefs.getTempUser() ?: return Pair(false, "Data user tidak ditemukan")
+
+                val userModelData = UserModel(
+                    userId = refreshedUser.uid,
+                    email = refreshedUser.email ?: "",
+                    name = tempUser.name,
+                    phone = tempUser.phone,
+                    role = tempUser.role,
+                    profileImageUrl = null,
+                    biography = null,
+                    createdAt = Timestamp.now(),
+                    userStatus = null,
+                    accountStatus = true
+                ).toHashMap()
+
+                userDocRef.set(userModelData).await()
+                prefs.clearTempUser()
+
+                return Pair(true, "Akun berhasil dibuat sepenuhnya!")
+            } else {
+                return Pair(false, "Akun belum terverifikasi")
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))
         }
     }
@@ -229,6 +256,8 @@ class UserRepository {
                 "Email atau password salah"
             e.message?.contains("A network error (such as timeout, interrupted connection or unreachable host) has occurred.", ignoreCase = true) == true ->
                 "Terjadi kesalahan jaringan, coba lagi nanti"
+            e.message?.contains("PERMISSION_DENIED: Missing or insufficient permissions.", ignoreCase = true) == true ->
+                "Anda tidak memiliki izin untuk melakukan ini"
             else -> e.message ?: "Terjadi kesalahan, coba lagi nanti"
         }
     }

@@ -105,7 +105,12 @@ class ProfileFragment : Fragment() {
             }
 
             userStatus.observe(viewLifecycleOwner) { status ->
-                binding.tvStatus.text = status ?: ""
+                if (status != "") {
+                    binding.tvStatus.visibility = View.VISIBLE
+                    binding.tvStatus.text = status
+                } else {
+                    binding.tvStatus.visibility = View.GONE
+                }
             }
 
             userImageUrl.observe(viewLifecycleOwner) { imageUrl ->

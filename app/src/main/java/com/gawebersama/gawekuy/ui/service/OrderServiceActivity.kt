@@ -10,6 +10,11 @@ class OrderServiceActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityOrderServiceBinding
 
+    companion object {
+        const val TAG = "OrderServiceActivity"
+        const val SERVICE_ID = "service_id"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOrderServiceBinding.inflate(layoutInflater)
@@ -25,7 +30,9 @@ class OrderServiceActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-
+        with(binding) {
+            btnBack.setOnClickListener { finish() }
+        }
     }
 
 

@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.datastore.UserAccountTempPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogRegisterBinding
@@ -27,6 +28,7 @@ class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
+    private lateinit var userAccountTempPreferences: UserAccountTempPreferences
 
     val args: RegisterFragmentArgs by navArgs()
 
@@ -40,6 +42,7 @@ class RegisterFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        userAccountTempPreferences = UserAccountTempPreferences(requireContext())
         showBottomSheetDialog()
     }
 
@@ -74,15 +77,8 @@ class RegisterFragment : Fragment() {
                 }
 
                 lifecycleScope.launch {
-                    userViewModel.registerUser(email, password, fullName, phoneNumber, clientType)
-                }
-            }
-
-            userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
-                if (result.first) {
-                    navigateToMainActivity()
-                } else {
-                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
+                    userAccountTempPreferences.saveTempUser(email, fullName, phoneNumber, clientType)
+                    userViewModel.registerAccountOnly(email, password)
                 }
             }
 
@@ -106,6 +102,16 @@ class RegisterFragment : Fragment() {
 
                 override fun afterTextChanged(s: Editable?) {}
             })
+
+            userViewModel.authRegister.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    Toast.makeText(activity, "Registrasi berhasil, silahkan cek email untuk verifikasi", Toast.LENGTH_SHORT).show()
+                    navigateToLogin()
+                    bottomSheetDialog.dismiss()
+                } else {
+                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -150,12 +156,6 @@ class RegisterFragment : Fragment() {
             iconLowercase.setImageResource(if (password.any { it.isLowerCase() }) R.drawable.baseline_check_circle_24 else R.drawable.cross_circle)
             iconNumber.setImageResource(if (password.any { it.isDigit() }) R.drawable.baseline_check_circle_24 else R.drawable.cross_circle)
         }
-    }
-
-    private fun navigateToMainActivity() {
-        val intent = Intent(activity, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
     }
 
     private fun navigateToLogin() {

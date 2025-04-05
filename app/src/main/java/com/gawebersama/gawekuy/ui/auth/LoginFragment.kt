@@ -8,22 +8,30 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.findNavController
 import com.gawebersama.gawekuy.R
+import com.gawebersama.gawekuy.data.datastore.UserAccountTempPreferences
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
 import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val userViewModel by viewModels<UserViewModel>()
+
+    private var email = ""
+    private var password = ""
+
+    private lateinit var userAccountTempPreferences: UserAccountTempPreferences
+
+    companion object {
+        const val TAG = "LoginFragment"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,6 +43,7 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        userAccountTempPreferences = UserAccountTempPreferences(requireContext())
         showBottomSheetDialog()
     }
 
@@ -68,26 +77,34 @@ class LoginFragment : Fragment() {
             }
 
             btnLogin.setOnClickListener {
-                val email = tietEmail.text.toString().trim()
-                val password = tietPassword.text.toString().trim()
+                email = tietEmail.text.toString().trim()
+                password = tietPassword.text.toString().trim()
 
                 if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(activity, "Email dan password tidak boleh kosong", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
-                lifecycleScope.launch {
-                    userViewModel.loginUser(email, password)
+                userViewModel.loginUser(email, password)
+            }
+
+            userViewModel.authLogin.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    userViewModel.completeUserRegistration(requireContext())
+                } else {
+                    Toast.makeText(requireContext(), result.second ?: "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
                 }
             }
 
             userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
                 if (result.first) {
+                    Toast.makeText(requireContext(), result.second ?: "Login sukses", Toast.LENGTH_SHORT).show()
                     navigateToMainActivity()
                 } else {
-                    Toast.makeText(activity, result.second, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), result.second ?: "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
                 }
             }
+
         }
     }
 

@@ -103,6 +103,12 @@ class ServiceDetailActivity : AppCompatActivity() {
             }
 
             btnBack.setOnClickListener { finish() }
+
+            btnOrderService.setOnClickListener {
+                val intent = Intent(this@ServiceDetailActivity, OrderServiceActivity::class.java)
+                intent.putExtra(OrderServiceActivity.SERVICE_ID, serviceId)
+                startActivity(intent)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.gawebersama.gawekuy.data.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,12 @@ class UserViewModel : ViewModel() {
 
     private val _authStatus = MutableLiveData<Pair<Boolean, String?>>()
     val authStatus: LiveData<Pair<Boolean, String?>> get() = _authStatus
+
+    private val _authRegister = MutableLiveData<Pair<Boolean, String?>>()
+    val authRegister: LiveData<Pair<Boolean, String?>> get() = _authRegister
+
+    private val _authLogin = MutableLiveData<Pair<Boolean, String?>>()
+    val authLogin: LiveData<Pair<Boolean, String?>> get() = _authLogin
 
     private val _userId = MutableLiveData<String?>()
     val userId: LiveData<String?> get() = _userId
@@ -51,21 +58,24 @@ class UserViewModel : ViewModel() {
         }
     }
 
-    fun registerUser(email: String, password: String, name: String, phone: String, role: String) {
+    fun registerAccountOnly(email: String, password: String) {
         viewModelScope.launch {
-            val result = userRepository.register(email, password, name, phone, role)
-            _authStatus.postValue(result)
+            val result = userRepository.registerAccountOnly(email, password)
+            _authRegister.postValue(result)
+        }
+    }
 
-            if (result.first) {
-                _isLoggedIn.postValue(true)
-            }
+    fun completeUserRegistration(context: Context) {
+        viewModelScope.launch {
+            val result = userRepository.completeUserRegistration(context)
+            _authStatus.postValue(result)
         }
     }
 
     fun loginUser(email: String, password: String) {
         viewModelScope.launch {
             val result = userRepository.login(email, password)
-            _authStatus.postValue(result)
+            _authLogin.postValue(result)
 
             if (result.first) {
                 _isLoggedIn.postValue(true)

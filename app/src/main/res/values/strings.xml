@@ -58,7 +58,6 @@
     <string name="not_sure">Tidak Yakin</string>
     <string name="order">Pesanan</string>
     <string name="profile">Profile</string>
-    <string name="guest">Guest</string>
     <string name="user">User</string>
     <string name="become_freelancer_opt">Jadi Freelancer?</string>
     <string name="order_history">Riwayat Pesanan</string>
@@ -70,7 +69,6 @@
     <string name="minimal_number">Minimal 1 angka</string>
     <string name="my_service">Jasa Saya</string>
     <string name="status">Status</string>
-    <string name="worker">Pekerja</string>
     <string name="select_your_status">Pilih Status Anda</string>
     <string name="create_new_service">Buat Jasa Baru</string>
     <string name="create_service">Buat Jasa</string>
@@ -134,4 +132,6 @@
     <string name="popular_desc">Temukan berbagai jasa terpopuler yang paling diminati oleh pengguna. Dari desain kreatif hingga teknologi mutakhir, semua layanan terbaik ada di sini.</string>
     <string name="load_more">Load More</string>
     <string name="switch_off_account">Menonaktifkan Akun</string>
+    <string name="order_detail">Detail Pesanan</string>
+    <string name="user_status">Status User</string>
 </resources>
