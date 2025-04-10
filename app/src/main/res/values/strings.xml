@@ -31,7 +31,7 @@
     <string name="phone_number">Nomor Telepon</string>
     <string name="hint_phone">Masukkan Nomor Telepon</string>
     <string name="change_password">Ubah Kata Sandi</string>
-    <string name="save_profile">Simpan</string>
+    <string name="save">Simpan</string>
     <string name="setting">Pengaturan</string>
     <string name="light_mode">Mode Terang</string>
     <string name="dark_mode">Mode Gelap</string>
@@ -135,4 +135,22 @@
     <string name="order_detail">Detail Pesanan</string>
     <string name="user_status">Status User</string>
     <string name="resend_verification">Kirim ulang email verifikasi</string>
+    <string name="my_payment_option">Opsi Pembayaran Saya</string>
+    <string name="bank">Bank</string>
+    <string name="e_wallet">E-Wallet</string>
+    <string name="bank_option">Pembayaran Bank</string>
+    <string name="ewallet_option">Pembayaran E-Wallet</string>
+    <string name="bank_name">Nama Bank (contoh: BCA)</string>
+    <string name="bank_name_hint">Masukkan nama Bank</string>
+    <string name="ewallet_type_hint">Masukkan nama jenis E-Wallet</string>
+    <string name="ewallet_type">Jenis E-Wallet (contoh: DANA)</string>
+    <string name="ewallet_account_name">Nama Akun E-Wallet</string>
+    <string name="ewallet_account_name_hint">Masukkan nama di akun E-Wallet Anda</string>
+    <string name="ewallet_phone_hint">Masukkan nomor HP E-Wallet</string>
+    <string name="ewallet_phone_number">Nomor HP E-Wallet</string>
+    <string name="bank_account_number_hint">Masukkan nomor rekening</string>
+    <string name="bank_account_number">Nomor Rekening</string>
+    <string name="bank_account_name_hint">Masukkan nama di rekening Anda</string>
+    <string name="bank_account_name">Nama di Rekening</string>
+    <string name="payment_type">Jenis Pembayaran</string>
 </resources>

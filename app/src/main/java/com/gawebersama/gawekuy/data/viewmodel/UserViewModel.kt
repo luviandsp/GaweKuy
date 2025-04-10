@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gawebersama.gawekuy.data.datamodel.PaymentInfoModel
 import com.gawebersama.gawekuy.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
@@ -27,6 +28,9 @@ class UserViewModel : ViewModel() {
     private val _userName = MutableLiveData<String?>()
     val userName: LiveData<String?> get() = _userName
 
+    private val _userEmail = MutableLiveData<String?>()
+    val userEmail: LiveData<String?> get() = _userEmail
+
     private val _userRole = MutableLiveData<String?>()
     val userRole: LiveData<String?> get() = _userRole
 
@@ -44,6 +48,27 @@ class UserViewModel : ViewModel() {
 
     private val _accountStatus = MutableLiveData<Boolean?>()
     val accountStatus: LiveData<Boolean?> get() = _accountStatus
+
+    private val _paymentType = MutableLiveData<String?>()
+    val paymentType: LiveData<String?> get() = _paymentType
+
+    private val _bankName = MutableLiveData<String?>()
+    val bankName: LiveData<String?> get() = _bankName
+
+    private val _bankAccountName = MutableLiveData<String?>()
+    val bankAccountName: LiveData<String?> get() = _bankAccountName
+
+    private val _bankAccountNumber = MutableLiveData<String?>()
+    val bankAccountNumber: LiveData<String?> get() = _bankAccountNumber
+
+    private val _ewalletType = MutableLiveData<String?>()
+    val ewalletType: LiveData<String?> get() = _ewalletType
+
+    private val _ewalletAccountName = MutableLiveData<String?>()
+    val ewalletAccountName: LiveData<String?> get() = _ewalletAccountName
+
+    private val _ewalletNumber = MutableLiveData<String?>()
+    val ewalletNumber: LiveData<String?> get() = _ewalletNumber
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> get() = _errorMessage
@@ -85,14 +110,24 @@ class UserViewModel : ViewModel() {
             val userData = userRepository.getUserData()
 
             if (userData != null) {
-                _userId.postValue(userData.userId)
-                _userName.postValue(userData.name)
-                _userRole.postValue(userData.role)
-                _userPhone.postValue(userData.phone)
-                _userStatus.postValue(userData.userStatus ?: "")
-                _userBiography.postValue(userData.biography ?: "")
-                _userImageUrl.postValue(userData.profileImageUrl)
-                _accountStatus.postValue(userData.accountStatus)
+                _userId.postValue(userData.user.userId)
+                _userEmail.postValue(userData.user.email)
+                _userName.postValue(userData.user.name)
+                _userRole.postValue(userData.user.role)
+                _userPhone.postValue(userData.user.phone)
+                _userStatus.postValue(userData.user.userStatus ?: "")
+                _userBiography.postValue(userData.user.biography ?: "")
+                _userImageUrl.postValue(userData.user.profileImageUrl)
+                _accountStatus.postValue(userData.user.accountStatus)
+                _paymentType.postValue(userData.paymentInfo?.paymentType)
+                _bankName.postValue(userData.paymentInfo?.bankName)
+                _bankAccountName.postValue(userData.paymentInfo?.bankAccountName)
+                _bankAccountNumber.postValue(userData.paymentInfo?.bankAccountNumber)
+                _ewalletType.postValue(userData.paymentInfo?.ewalletType)
+                _ewalletAccountName.postValue(userData.paymentInfo?.ewalletAccountName)
+                _ewalletNumber.postValue(userData.paymentInfo?.ewalletNumber)
+            } else {
+                _errorMessage.postValue("Data user tidak ditemukan")
             }
         }
     }
@@ -144,11 +179,31 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun updatePaymentInfo(paymentInfo: PaymentInfoModel?) {
+        viewModelScope.launch {
+            val result = userRepository.updatePaymentInfo(paymentInfo)
+            _authStatus.postValue(result)
+
+            if (result.first) {
+                _paymentType.postValue(paymentInfo?.paymentType)
+                _bankName.postValue(paymentInfo?.bankName)
+                _bankAccountName.postValue(paymentInfo?.bankAccountName)
+                _bankAccountNumber.postValue(paymentInfo?.bankAccountNumber)
+                _ewalletType.postValue(paymentInfo?.ewalletType)
+                _ewalletAccountName.postValue(paymentInfo?.ewalletAccountName)
+                _ewalletNumber.postValue(paymentInfo?.ewalletNumber)
+            } else {
+                _errorMessage.postValue(result.second)
+            }
+        }
+    }
+
     fun logoutUser() {
         viewModelScope.launch {
             userRepository.logout()
             _userId.postValue(null)
             _userName.postValue(null)
+            _userEmail.postValue(null)
             _userRole.postValue(null)
             _userPhone.postValue(null)
             _userStatus.postValue(null)
@@ -156,6 +211,12 @@ class UserViewModel : ViewModel() {
             _userBiography.postValue(null)
             _accountStatus.postValue(null)
             _errorMessage.postValue(null)
+            _paymentType.postValue(null)
+            _bankName.postValue(null)
+            _bankAccountName.postValue(null)
+            _bankAccountNumber.postValue(null)
+            _ewalletType.postValue(null)
+            _ewalletAccountName.postValue(null)
             _authStatus.postValue(Pair(false, "User logged out"))
         }
     }

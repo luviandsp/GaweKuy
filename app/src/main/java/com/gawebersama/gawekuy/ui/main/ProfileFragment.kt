@@ -91,6 +91,10 @@ class ProfileFragment : Fragment() {
 //                startActivity(Intent(requireActivity(), FavoriteFreelancerActivity::class.java))
 //            }
 
+            trMyPayment.setOnClickListener {
+                startActivity(Intent(requireActivity(), PaymentOptionActivity::class.java))
+            }
+
             trLogout.setOnClickListener {
                 showLogoutDialog()
             }
@@ -129,14 +133,18 @@ class ProfileFragment : Fragment() {
                         btnBecomeFreelance.visibility = View.GONE
                         trMyPortfolio.visibility = View.VISIBLE
                         trMyService.visibility = View.VISIBLE
+                        trMyPayment.visibility = View.VISIBLE
                         dividerFreelancerService.visibility = View.VISIBLE
                         dividerFreelancerPortfolio.visibility = View.VISIBLE
+                        dividerFreelancerPayment.visibility = View.VISIBLE
                     } else {
                         btnBecomeFreelance.visibility = View.VISIBLE
                         trMyPortfolio.visibility = View.GONE
                         trMyService.visibility = View.GONE
+                        trMyPayment.visibility = View.GONE
                         dividerFreelancerService.visibility = View.GONE
                         dividerFreelancerPortfolio.visibility = View.GONE
+                        dividerFreelancerPayment.visibility = View.GONE
                     }
                 }
             }

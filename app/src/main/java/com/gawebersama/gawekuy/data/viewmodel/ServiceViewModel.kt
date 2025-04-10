@@ -78,6 +78,24 @@ class ServiceViewModel : ViewModel() {
     private val _ownerStatus = MutableLiveData<String?>()
     val ownerStatus: LiveData<String?> get() = _ownerStatus
 
+    private val _ownerBankName = MutableLiveData<String?>()
+    val ownerBankName: LiveData<String?> get() = _ownerBankName
+
+    private val _ownerBankAccountNumber = MutableLiveData<String?>()
+    val ownerAccountNumber: LiveData<String?> get() = _ownerBankAccountNumber
+
+    private val _ownerBankAccountName = MutableLiveData<String?>()
+    val ownerAccountName: LiveData<String?> get() = _ownerBankAccountName
+
+    private val _ownerEwalletType = MutableLiveData<String?>()
+    val ownerEwalletType: LiveData<String?> get() = _ownerEwalletType
+
+    private val _ownerEwalletNumber = MutableLiveData<String?>()
+    val ownerEwalletNumber: LiveData<String?> get() = _ownerEwalletNumber
+
+    private val _ownerEwalletAccountName = MutableLiveData<String?>()
+    val ownerEwalletAccountName: LiveData<String?> get() = _ownerEwalletAccountName
+
     private val _selectedPortfolio = MutableLiveData<List<PortfolioModel>>()
     val selectedPortfolio: LiveData<List<PortfolioModel>> get() = _selectedPortfolio
 
@@ -189,6 +207,12 @@ class ServiceViewModel : ViewModel() {
                 _ownerServiceAccountStatus.postValue(service.user.accountStatus)
                 _ownerServiceBio.postValue(service.user.biography)
                 _ownerStatus.postValue(service.user.userStatus)
+                _ownerBankName.postValue(service.user.paymentInfo?.bankName)
+                _ownerBankAccountNumber.postValue(service.user.paymentInfo?.bankAccountNumber)
+                _ownerBankAccountName.postValue(service.user.paymentInfo?.bankAccountName)
+                _ownerEwalletType.postValue(service.user.paymentInfo?.ewalletType)
+                _ownerEwalletNumber.postValue(service.user.paymentInfo?.ewalletNumber)
+                _ownerEwalletAccountName.postValue(service.user.paymentInfo?.ewalletAccountName)
                 _servicePortofolio.postValue(service.service.portfolio)
                 Log.d(TAG, "Fetched Service: $service")
             } else {

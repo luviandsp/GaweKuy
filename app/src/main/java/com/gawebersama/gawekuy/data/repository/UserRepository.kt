@@ -2,7 +2,9 @@ package com.gawebersama.gawekuy.data.repository
 
 import android.content.Context
 import android.util.Log
+import com.gawebersama.gawekuy.data.datamodel.PaymentInfoModel
 import com.gawebersama.gawekuy.data.datamodel.UserModel
+import com.gawebersama.gawekuy.data.datamodel.UserWithPaymentInfoModel
 import com.gawebersama.gawekuy.data.datastore.UserAccountPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
@@ -21,6 +23,8 @@ class UserRepository {
         const val TAG = "UserRepository"
     }
 
+    private val userCollection = firestore.collection("users")
+
     private fun UserModel.toHashMap(): HashMap<String, Any?> {
         return hashMapOf(
             "userId" to userId,
@@ -32,7 +36,8 @@ class UserRepository {
             "biography" to biography,
             "createdAt" to createdAt,
             "userStatus" to userStatus,
-            "accountStatus" to accountStatus
+            "accountStatus" to accountStatus,
+            "paymentInfo" to paymentInfo
         )
     }
 
@@ -47,7 +52,8 @@ class UserRepository {
             biography = this["biography"] as? String,
             createdAt = this["createdAt"] as Timestamp,
             userStatus = this["userStatus"] as? String,
-            accountStatus = this["accountStatus"] as Boolean
+            accountStatus = this["accountStatus"] as Boolean,
+            paymentInfo = this["paymentInfo"] as? PaymentInfoModel
         )
     }
 
@@ -90,7 +96,7 @@ class UserRepository {
             val refreshedUser = FirebaseAuth.getInstance().currentUser
 
             if (refreshedUser != null && refreshedUser.isEmailVerified) {
-                val userDocRef = firestore.collection("users").document(refreshedUser.uid)
+                val userDocRef = userCollection.document(refreshedUser.uid)
                 val existingUser = userDocRef.get().await()
 
                 if (existingUser.exists()) {
@@ -138,20 +144,22 @@ class UserRepository {
         }
     }
 
-    suspend fun getUserData(): UserModel? {
+    suspend fun getUserData(): UserWithPaymentInfoModel? {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return null
-            Log.d(TAG, "Fetching user data with ID: $userId")
-            val document = firestore.collection("users").document(userId).get().await()
-            Log.d(TAG, "Fetched user data: ${document.data}")
-            if (document.exists()) {
-                document.data?.toUser()
-            } else {
-                null
+            val userSnapshot = userCollection.document(userId).get().await()
+            val userData = userSnapshot.toObject(UserModel::class.java)
+
+            if (userData == null) {
+                Log.e(TAG, "User data not found for userId: $userId")
+                return null
             }
+
+            val paymentInfo = userData.paymentInfo
+            UserWithPaymentInfoModel(userData, paymentInfo)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            Log.e(TAG, "Error getting user data: ${e.message}")
+            Log.e(TAG, "Error fetching user data: ${e.message}")
             null
         }
     }
@@ -159,7 +167,7 @@ class UserRepository {
     suspend fun updateProfile(name: String, phone: String, userStatus: String, biography: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val userRef = firestore.collection("users").document(userId)
+            val userRef = userCollection.document(userId)
 
             userRef.update(
                 mapOf(
@@ -205,7 +213,7 @@ class UserRepository {
     suspend fun becomeFreelancer(): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val userRef = firestore.collection("users").document(userId)
+            val userRef = userCollection.document(userId)
 
             userRef.update("role", UserRole.FREELANCER.toString()).await()
 
@@ -221,7 +229,7 @@ class UserRepository {
     suspend fun updateAccountStatus(isActive: Boolean): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val userRef = firestore.collection("users").document(userId)
+            val userRef = userCollection.document(userId)
 
             userRef.update("accountStatus", isActive).await()
 
@@ -237,9 +245,7 @@ class UserRepository {
     suspend fun updateProfileImageUrl(imageUrl: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-
-            val userRef = firestore.collection("users").document(userId)
-
+            val userRef = userCollection.document(userId)
             userRef.update("profileImageUrl", imageUrl).await()
 
             Log.d(TAG, "User profile image URL updated with ID: $userId")
@@ -251,6 +257,20 @@ class UserRepository {
             Log.e(TAG, "Error updating profile image URL: $errorMessage")
 
             Pair(false, errorMessage)
+        }
+    }
+
+    suspend fun updatePaymentInfo(paymentInfo: PaymentInfoModel?): Pair<Boolean, String?> {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userRef = userCollection.document(userId)
+            userRef.update("paymentInfo", paymentInfo).await()
+
+            Log.d(TAG, "User payment info updated with ID: $userId")
+            Pair(true, "Pembayaran berhasil diperbarui")
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Pair(false, getErrorMessage(e))
         }
     }
 

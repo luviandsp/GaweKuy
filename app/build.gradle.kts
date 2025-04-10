@@ -32,6 +32,8 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${properties.getProperty("SUPABASE_ANON_KEY", "")}\"")
         buildConfigField("String", "SECRET", "\"${properties.getProperty("SECRET", "")}\"")
         buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL", "")}\"")
+        buildConfigField("String", "MIDTRANS_CLIENT_KEY", "\"${properties.getProperty("MIDTRANS_CLIENT_KEY", "")}\"")
+        buildConfigField("String", "BACKEND_BASE_URL", "\"${properties.getProperty("BACKEND_BASE_URL", "")}\"")
     }
 
     buildTypes {
@@ -70,10 +72,15 @@ dependencies {
     // Supabase
     implementation(platform(libs.supabase.bom))
     implementation(libs.supabase.storage.kt)
-    implementation(libs.supabase.postgrest.kt)
-    implementation(libs.supabase.auth.kt)
-    implementation(libs.supabase.realtime.kt)
-    implementation(libs.ktor.client.android)
+
+    // Midtrans
+    implementation(libs.midtrans.uikit.sandbox)
+//    implementation(libs.midtrans.uikit)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
 
     // Image Picker
     implementation(libs.drjacky.imagepicker)
@@ -100,6 +107,9 @@ dependencies {
 
     // Country Code Picker for Phone Number
     implementation (libs.ccp)
+
+    // Ktor
+    implementation(libs.ktor.client.okhttp)
 
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)

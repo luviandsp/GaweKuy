@@ -156,6 +156,24 @@
                         style="@style/optionProfileDesc"
                         android:text="@string/my_portfolio"/>
                 </TableRow>
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:id="@+id/divider_freelancer_payment"
+                    style="@style/optionProfileDivider" />
+
+                <TableRow
+                    android:id="@+id/tr_my_payment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        style="@style/optionProfileImage"
+                        android:src="@drawable/payment"/>
+
+                    <TextView
+                        style="@style/optionProfileDesc"
+                        android:text="@string/my_payment_option"/>
+                </TableRow>
             </TableLayout>
 
         </androidx.cardview.widget.CardView>

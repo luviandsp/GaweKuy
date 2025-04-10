@@ -241,7 +241,7 @@
             android:layout_marginTop="32dp"
             android:layout_marginBottom="32dp"
             android:backgroundTint="@color/blue"
-            android:text="@string/save_profile" />
+            android:text="@string/save" />
 
     </LinearLayout>
 

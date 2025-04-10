@@ -17,6 +17,7 @@ data class UserModel(
     @PropertyName("biography") val biography: String? = null,
     @PropertyName("createdAt") val createdAt: Timestamp = Timestamp.now(),
     @PropertyName("userStatus") val userStatus: String? = null,
-    @PropertyName("accountStatus") val accountStatus: Boolean = false
+    @PropertyName("accountStatus") val accountStatus: Boolean = false,
+    @PropertyName("paymentInfo") val paymentInfo: PaymentInfoModel? = null
 )
 

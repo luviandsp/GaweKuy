@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.profile.PaymentOptionActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            style="@style/Toolbar" >
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                style="@style/BackButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="@string/back_arrow_image" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/my_payment_option"
+                android:textSize="20sp"
+                app:fontFamily="@font/urbanist_bold" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.cardview.widget.CardView
+            style="@style/CardViewApp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:layout_marginTop="0dp"
+                    app:fontFamily="@font/urbanist_semibold"
+                    android:text="@string/payment_type" />
+
+                <RadioGroup
+                    android:id="@+id/rg_payment_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_bank"
+                        android:text="@string/bank"
+                        app:buttonTint="@color/blue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/rb_ewallet"
+                        android:text="@string/e_wallet"
+                        app:buttonTint="@color/blue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </RadioGroup>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_bank"
+            android:visibility="gone"
+            style="@style/CardViewApp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText"
+                    app:fontFamily="@font/urbanist_semibold"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="12dp"
+                    android:textSize="16sp"
+                    android:text="@string/bank_option" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/bank_name" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_bank_name"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_bank_name"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/bank_name_hint"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:text="@string/bank_account_name" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_bank_account_name"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_bank_account_name"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/bank_account_name_hint"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:text="@string/bank_account_number" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_bank_account_number"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_marginBottom="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_bank_account_number"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/bank_account_number_hint"
+                        android:inputType="number" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_ewallet"
+            style="@style/CardViewApp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText"
+                    app:fontFamily="@font/urbanist_semibold"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="12dp"
+                    android:textSize="16sp"
+                    android:text="@string/ewallet_option" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:layout_marginTop="0dp"
+                    android:text="@string/ewallet_type" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_ewallet_type"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_ewallet_type"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/ewallet_type_hint"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:text="@string/ewallet_account_name" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_ewallet_account_name"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_ewallet_account_name"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/ewallet_account_name_hint"
+                        android:inputType="text" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/BottomSheetDialogText.Label"
+                    android:text="@string/ewallet_phone_number" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_ewallet_phone_number"
+                    app:boxStrokeColor="@color/blue"
+                    app:hintTextColor="@color/blue"
+                    app:cursorColor="@color/blue"
+                    app:hintEnabled="false"
+                    android:layout_marginBottom="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tiet_ewallet_phone_number"
+                        style="@style/InputText"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/ewallet_phone_hint"
+                        android:inputType="number" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_payment"
+            style="@style/ButtonAuth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/blue"
+            android:text="@string/save" />
+    </LinearLayout>
+</ScrollView >
