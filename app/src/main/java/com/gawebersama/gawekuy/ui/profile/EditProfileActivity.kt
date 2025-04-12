@@ -2,6 +2,7 @@ package com.gawebersama.gawekuy.ui.profile
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -48,6 +49,7 @@ class EditProfileActivity : AppCompatActivity() {
 
     companion object {
         const val RESULT_CODE = 110
+        const val TAG = "EditProfileActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,9 +77,7 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun initViews() {
         with(binding) {
-            btnBack.setOnClickListener {
-                finish()
-            }
+            btnBack.setOnClickListener { finish() }
 
             btnChangePhoto.setOnClickListener {
                 launcher.launch(
@@ -119,7 +119,7 @@ class EditProfileActivity : AppCompatActivity() {
                 }
 
                 if (isPhotoDeleted) {
-                    deleteProfilePhoto()
+                    deleteProfilePhoto(oldProfileImageUrl)
                     userViewModel.updateProfile(name, phone, selectedStatus, biography, "")
                     setResult(RESULT_CODE)
                     finish()
@@ -130,7 +130,7 @@ class EditProfileActivity : AppCompatActivity() {
 
                         uploadImageToSupabase(imageUri!!) { imageUrl ->
                             userViewModel.updateProfile(name, phone, selectedStatus, biography, imageUrl)
-                            deleteProfilePhoto()
+                            deleteProfilePhoto(oldProfileImageUrl)
                             setResult(RESULT_CODE)
                             finish()
                         }
@@ -154,7 +154,10 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun observeViewModels() {
         userViewModel.apply {
-            userImageUrl.observe(this@EditProfileActivity) { updateProfilePicture(it) }
+            userImageUrl.observe(this@EditProfileActivity) { oldImageUrl ->
+                updateProfilePicture(oldImageUrl)
+                Log.d(TAG, "Old Image URL: $oldImageUrl")
+            }
             userName.observe(this@EditProfileActivity) { binding.tietFullName.setText(it) }
             userPhone.observe(this@EditProfileActivity) { phone ->
                 val currentCode = binding.ccp.selectedCountryCode
@@ -200,10 +203,10 @@ class EditProfileActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun deleteProfilePhoto() {
-        val currentImageUrl = userViewModel.userImageUrl.value
+    private fun deleteProfilePhoto(currentImageUrl : String? = null) {
         if (!currentImageUrl.isNullOrEmpty()) {
             val fileName = currentImageUrl.substringAfterLast("/")
+            Log.d(TAG, "File Name: $fileName")
             storageViewModel.deleteFile(fileName, "profile_pictures")
         } else {
             showToast("Foto profil tidak ditemukan")

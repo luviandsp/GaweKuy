@@ -1,7 +1,6 @@
 package com.gawebersama.gawekuy.ui.profile
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -67,14 +66,17 @@ class PaymentOptionActivity : AppCompatActivity() {
 
                     if (bankName.isEmpty()) {
                         tietBankName.error = "Nama bank tidak boleh kosong"
+                        return@setOnClickListener
                     }
 
                     if (accountNumber.isEmpty()) {
                         tietBankAccountNumber.error = "Nomor rekening tidak boleh kosong"
+                        return@setOnClickListener
                     }
 
                     if (accountHolderName.isEmpty()) {
                         tietBankAccountName.error = "Nama pemilik rekening tidak boleh kosong"
+                        return@setOnClickListener
                     }
 
                     paymentInfo = PaymentInfoModel(
@@ -86,7 +88,6 @@ class PaymentOptionActivity : AppCompatActivity() {
                         ewalletAccountName = null,
                         ewalletNumber = null
                     )
-
                 } else {
                     val eWalletType = tietEwalletType.text.toString().trim()
                     val eWalletAccountName = tietEwalletAccountName.text.toString().trim()
@@ -94,13 +95,16 @@ class PaymentOptionActivity : AppCompatActivity() {
 
                     if (eWalletType.isEmpty()) {
                         tietEwalletType.error = "Tipe e-wallet tidak boleh kosong"
+                        return@setOnClickListener
                     }
                     if (eWalletAccountName.isEmpty()) {
                         tietEwalletAccountName.error = "Nama pemilik e-wallet tidak boleh kosong"
+                        return@setOnClickListener
                     }
 
                     if (eWalletPhoneNumber.isEmpty()) {
                         tietEwalletPhoneNumber.error = "Nomor e-wallet tidak boleh kosong"
+                        return@setOnClickListener
                     }
 
                     paymentInfo = PaymentInfoModel(

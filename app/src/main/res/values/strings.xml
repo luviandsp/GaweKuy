@@ -153,4 +153,8 @@
     <string name="bank_account_name_hint">Masukkan nama di rekening Anda</string>
     <string name="bank_account_name">Nama di Rekening</string>
     <string name="payment_type">Jenis Pembayaran</string>
+    <string name="pay_service">Bayar Jasa</string>
+    <string name="service_price">Harga Jasa:</string>
+    <string name="app_service_price">Biaya Jasa Aplikasi:</string>
+    <string name="total_price">Total Tagihan:</string>
 </resources>

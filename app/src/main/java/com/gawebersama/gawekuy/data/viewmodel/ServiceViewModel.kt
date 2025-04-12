@@ -36,8 +36,8 @@ class ServiceViewModel : ViewModel() {
     private val _serviceDesc = MutableLiveData<String?>()
     val serviceDesc: LiveData<String?> get() = _serviceDesc
 
-    private val _serviceCategory = MutableLiveData<String?>()
-    val serviceCategory: LiveData<String?> get() = _serviceCategory
+    private val _serviceCategory = MutableLiveData<String>()
+    val serviceCategory: LiveData<String> get() = _serviceCategory
 
     private val _serviceOrdered = MutableLiveData<Int?>()
     val serviceOrdered: LiveData<Int?> get() = _serviceOrdered
@@ -62,6 +62,9 @@ class ServiceViewModel : ViewModel() {
 
     private val _ownerServiceName = MutableLiveData<String?>()
     val ownerServiceName: LiveData<String?> get() = _ownerServiceName
+
+    private val _ownerServiceEmail = MutableLiveData<String?>()
+    val ownerServiceEmail: LiveData<String?> get() = _ownerServiceEmail
 
     private val _ownerServicePhone = MutableLiveData<String?>()
     val ownerServicePhone: LiveData<String?> get() = _ownerServicePhone
@@ -202,6 +205,7 @@ class ServiceViewModel : ViewModel() {
                 _serviceTags.postValue(service.service.serviceTags)
                 _ownerServiceId.postValue(service.user.userId)
                 _ownerServiceName.postValue(service.user.name)
+                _ownerServiceEmail.postValue(service.user.email)
                 _ownerServicePhone.postValue(service.user.phone)
                 _ownerServiceImage.postValue(service.user.profileImageUrl)
                 _ownerServiceAccountStatus.postValue(service.user.accountStatus)

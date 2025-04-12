@@ -13,30 +13,42 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.gawebersama.gawekuy.BuildConfig
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.adapter.ServiceSelectedAdapter
 import com.gawebersama.gawekuy.data.adapter.ServiceShowTagsAdapter
 import com.gawebersama.gawekuy.data.api.RetrofitClient
 import com.gawebersama.gawekuy.data.datamodel.CustomerDetails
+import com.gawebersama.gawekuy.data.datamodel.ItemDetails
 import com.gawebersama.gawekuy.data.datamodel.MidtransRequest
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
+import com.gawebersama.gawekuy.data.viewmodel.TransactionViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityServiceDetailBinding
+import com.gawebersama.gawekuy.databinding.BottomSheetDialogOrderDetailBinding
 import com.gawebersama.gawekuy.ui.portfolio.FreelancerPortfolioActivity
 import com.gawebersama.gawekuy.ui.profile.FreelancerProfileActivity
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.flexbox.JustifyContent
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.Timestamp
 import com.midtrans.sdk.corekit.core.MidtransSDK
+import com.midtrans.sdk.corekit.core.themes.CustomColorTheme
+import com.midtrans.sdk.corekit.models.snap.TransactionResult
+import com.midtrans.sdk.uikit.SdkUIFlowBuilder
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
+import kotlin.math.roundToInt
 
 class ServiceDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityServiceDetailBinding
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
+    private val transactionViewModel by viewModels<TransactionViewModel>()
 
     private lateinit var serviceTagAdapter: ServiceShowTagsAdapter
     private val serviceTagList = mutableListOf<String>()
@@ -50,10 +62,13 @@ class ServiceDetailActivity : AppCompatActivity() {
     private var grossAmount : Double = 0.0
     private var customerName : String = ""
     private var customerEmail : String = ""
+    private var customerPhone : String = ""
+    private var thisServiceCategory : String = ""
 
     companion object {
         const val SERVICE_ID = "service_id"
         const val TAG = "ServiceDetailActivity"
+        private const val SERVICE_FEE_MULTIPLIER = 0.1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,23 +141,58 @@ class ServiceDetailActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
 
+                showBottomSheetDialog(selectedService)
+            }
+        }
+    }
+
+    private fun showBottomSheetDialog(selectedService: ServiceSelectionModel) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val sheetBinding = BottomSheetDialogOrderDetailBinding.inflate(layoutInflater)
+
+        bottomSheetDialog.setContentView(sheetBinding.root)
+        bottomSheetDialog.show()
+
+        with(sheetBinding) {
+            val formatter = DecimalFormat("#,###")
+
+            tvServiceName.text = serviceViewModel.serviceName.value
+            tvSelectedServiceName.text = selectedService.name
+
+            tvServicePrice.text = getString(R.string.price_format, formatter.format(selectedService.price))
+            tvAppService.text = getString(R.string.price_format, formatter.format(selectedService.price * 0.1))
+            tvTotalPayment.text = getString(R.string.price_format, formatter.format(selectedService.price + (selectedService.price * 0.1)))
+
+            btnPay.setOnClickListener {
                 orderId = "ORDER-${System.currentTimeMillis()}"
-                grossAmount = selectedService.price
+                grossAmount = selectedService.price + (selectedService.price * SERVICE_FEE_MULTIPLIER)
 
                 val request = MidtransRequest(
                     orderId = orderId,
-                    grossAmount = grossAmount,
+                    grossAmount = grossAmount.roundToInt().toInt(),
                     customerDetails = CustomerDetails(
-                        name = customerName,
-                        email = customerEmail
+                        firstName = customerName,
+                        lastName = "",
+                        email = customerEmail,
+                        phone = customerPhone
+                    ),
+                    itemDetails = listOf(
+                        ItemDetails(
+                            id = serviceId ?: "",
+                            price = selectedService.price.toInt(),
+                            quantity = 1,
+                            name = selectedService.name,
+                            category = thisServiceCategory
+                        )
                     )
                 )
 
                 Log.d(TAG, "Request: $request")
+                callMidtrans()
 
                 lifecycleScope.launch {
                     try {
-                        val response = RetrofitClient.instance.createTransaction(request)
+                        val response = RetrofitClient.apiService.createTransaction(request)
                         Log.d(TAG, "Response: $response")
                         Log.d(TAG, "Response Body: ${response.body()}")
                         if (response.isSuccessful && response.body() != null) {
@@ -150,6 +200,8 @@ class ServiceDetailActivity : AppCompatActivity() {
                             val sdk = MidtransSDK.getInstance()
                             if (sdk != null) {
                                 sdk.startPaymentUiFlow(this@ServiceDetailActivity, snapToken)
+                                saveTransactionToFirebase()
+                                bottomSheetDialog.dismiss()
                             } else {
                                 Toast.makeText(this@ServiceDetailActivity, "Midtrans belum siap. Coba buka ulang aplikasi.", Toast.LENGTH_SHORT).show()
                                 Log.e(TAG, "MidtransSDK is null, belum diinisialisasi.")
@@ -166,10 +218,73 @@ class ServiceDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveTransactionToFirebase() {
+        val buyerId = userViewModel.userId.value
+        val buyerName = userViewModel.userName.value
+        val buyerEmail = userViewModel.userEmail.value
+        val sellerId = serviceViewModel.ownerServiceId.value
+        val sellerName = serviceViewModel.ownerServiceName.value
+        val sellerEmail = serviceViewModel.ownerServiceEmail.value
+
+        if (buyerId == null || buyerName == null || buyerEmail == null ||
+            sellerId == null || sellerName == null || sellerEmail == null) {
+            Toast.makeText(this, "Data transaksi belum lengkap", Toast.LENGTH_SHORT).show()
+            Log.e(TAG, "Missing user/service data for transaction")
+        } else {
+            transactionViewModel.saveTransaction(
+                orderId = orderId,
+                serviceId = serviceId,
+                grossAmount = grossAmount,
+                status = "pending",
+                buyerId = buyerId,
+                buyerName = buyerName,
+                buyerEmail = buyerEmail,
+                sellerId = sellerId,
+                sellerName = sellerName,
+                sellerEmail = sellerEmail,
+                transactionTime = Timestamp.now()
+            )
+        }
+    }
+
+    private fun callMidtrans() {
+        SdkUIFlowBuilder.init()
+            .setContext(this@ServiceDetailActivity)
+            .setClientKey(BuildConfig.MIDTRANS_CLIENT_KEY_SANDBOX)
+            .setMerchantBaseUrl(BuildConfig.BACKEND_BASE_URL)
+            .enableLog(true)
+            .setColorTheme(CustomColorTheme("#0084FF", "#004c94", "#0084FF"))
+            .setLanguage("id")
+            .setTransactionFinishedCallback { result ->
+                when {
+                    result.status != null -> {
+                        if (result.status == TransactionResult.STATUS_SUCCESS) {
+                            Toast.makeText(this, "Transaksi berhasil!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Status: ${result.status}", Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, "Status transaksi bukan success")
+                        }
+                    }
+                    result.isTransactionCanceled -> {
+                        Toast.makeText(this, "Transaksi dibatalkan", Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Toast.makeText(this, "Transaksi gagal atau belum selesai", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .buildSDK()
+    }
+
+
     private fun observeViewModels() {
         serviceViewModel.apply {
             serviceName.observe(this@ServiceDetailActivity) { binding.tvServiceName.text = it }
             serviceDesc.observe(this@ServiceDetailActivity) { binding.tvServiceDesc.text = it }
+
+            serviceCategory.observe(this@ServiceDetailActivity) {
+                thisServiceCategory = it
+            }
 
             imageBannerUrl.observe(this@ServiceDetailActivity) { imageUrl ->
                 if (imageUrl != null && imageUrl.isNotEmpty()) {
@@ -236,6 +351,10 @@ class ServiceDetailActivity : AppCompatActivity() {
 
             userEmail.observe(this@ServiceDetailActivity) { email ->
                 customerEmail = email ?: ""
+            }
+
+            userPhone.observe(this@ServiceDetailActivity) { phone ->
+                customerPhone = phone ?: ""
             }
         }
     }

@@ -4,14 +4,12 @@ import android.content.Context
 import android.util.Log
 import com.gawebersama.gawekuy.data.datamodel.PaymentInfoModel
 import com.gawebersama.gawekuy.data.datamodel.UserModel
-import com.gawebersama.gawekuy.data.datamodel.UserWithPaymentInfoModel
 import com.gawebersama.gawekuy.data.datastore.UserAccountPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import kotlin.collections.hashMapOf
 import kotlin.coroutines.cancellation.CancellationException
 
 class UserRepository {
@@ -144,22 +142,20 @@ class UserRepository {
         }
     }
 
-    suspend fun getUserData(): UserWithPaymentInfoModel? {
+    suspend fun getUserData(): UserModel? {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return null
             val userSnapshot = userCollection.document(userId).get().await()
-            val userData = userSnapshot.toObject(UserModel::class.java)
 
-            if (userData == null) {
-                Log.e(TAG, "User data not found for userId: $userId")
-                return null
+            if (userSnapshot.exists()) {
+                userSnapshot.toObject(UserModel::class.java)
+            } else {
+                null
             }
 
-            val paymentInfo = userData.paymentInfo
-            UserWithPaymentInfoModel(userData, paymentInfo)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            Log.e(TAG, "Error fetching user data: ${e.message}")
+            Log.e(TAG, "Error getting user data: ${e.message}")
             null
         }
     }

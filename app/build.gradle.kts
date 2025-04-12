@@ -32,7 +32,8 @@ android {
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${properties.getProperty("SUPABASE_ANON_KEY", "")}\"")
         buildConfigField("String", "SECRET", "\"${properties.getProperty("SECRET", "")}\"")
         buildConfigField("String", "SUPABASE_URL", "\"${properties.getProperty("SUPABASE_URL", "")}\"")
-        buildConfigField("String", "MIDTRANS_CLIENT_KEY", "\"${properties.getProperty("MIDTRANS_CLIENT_KEY", "")}\"")
+        buildConfigField("String", "MIDTRANS_CLIENT_KEY_SANDBOX", "\"${properties.getProperty("MIDTRANS_CLIENT_KEY_SANDBOX", "")}\"")
+        buildConfigField("String", "MIDTRANS_CLIENT_KEY_PRODUCTION", "\"${properties.getProperty("MIDTRANS_CLIENT_KEY_PRODUCTION", "")}\"")
         buildConfigField("String", "BACKEND_BASE_URL", "\"${properties.getProperty("BACKEND_BASE_URL", "")}\"")
     }
 

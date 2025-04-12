@@ -95,6 +95,7 @@ class HomeFragment : Fragment() {
 
     private fun observeViewModel() {
         userViewModel.userName.observe(viewLifecycleOwner) { name ->
+            Log.d(TAG, "Fetched Name: $name")
             binding.tvName.text = name ?: getString(R.string.user)
         }
 
@@ -150,6 +151,7 @@ class HomeFragment : Fragment() {
     private fun refreshHomeData() {
         binding.srlHome.isRefreshing = true
         serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED, resetPaging = true)
+        userViewModel.getUser()
 
         lifecycleScope.launch {
             binding.srlHome.isRefreshing = false

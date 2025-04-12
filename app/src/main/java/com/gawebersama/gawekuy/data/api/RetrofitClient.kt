@@ -5,12 +5,16 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    val instance: MidtransApiService by lazy {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BuildConfig.BACKEND_BASE_URL)
+    private const val BASE_URL = BuildConfig.BACKEND_BASE_URL
+
+    private val retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+    }
 
+    val apiService: MidtransApiService by lazy {
         retrofit.create(MidtransApiService::class.java)
     }
 }

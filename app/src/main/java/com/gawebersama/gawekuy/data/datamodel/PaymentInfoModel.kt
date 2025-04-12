@@ -7,7 +7,6 @@ import com.google.firebase.firestore.PropertyName
 @Keep
 @IgnoreExtraProperties
 data class PaymentInfoModel(
-    @PropertyName("userId") val userId: String = "",
     @PropertyName("paymentType") val paymentType: String = "", // "bank" atau "ewallet"
 
     // Jika bank

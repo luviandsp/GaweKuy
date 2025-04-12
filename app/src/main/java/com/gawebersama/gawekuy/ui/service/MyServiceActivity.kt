@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gawebersama.gawekuy.data.adapter.ServiceAdapter
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
+import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityMyServiceBinding
 import kotlinx.coroutines.launch
 
@@ -21,6 +23,7 @@ class MyServiceActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMyServiceBinding
     private val serviceViewModel by viewModels<ServiceViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
     private lateinit var serviceAdapter: ServiceAdapter
 
     private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -51,6 +54,7 @@ class MyServiceActivity : AppCompatActivity() {
         observeViewModel()
 
         // Load data pertama kali
+        userViewModel.getUser()
         serviceViewModel.fetchUserServices(resetPaging = true)
     }
 
@@ -58,6 +62,16 @@ class MyServiceActivity : AppCompatActivity() {
         with(binding) {
             btnBack.setOnClickListener { finish() }
             fabCreateService.setOnClickListener {
+                val paymentType = userViewModel.paymentType.value
+
+                if (paymentType.isNullOrEmpty()) {
+                    Log.d(TAG, "Payment type is null or empty")
+                    Toast.makeText(this@MyServiceActivity, "Silahkan pilih opsi pembayaran terlebih dahulu", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                Log.d(TAG, "Payment type: $paymentType")
+
                 val intent = Intent(this@MyServiceActivity, CreateServiceActivity::class.java)
                 launcher.launch(intent)
             }
