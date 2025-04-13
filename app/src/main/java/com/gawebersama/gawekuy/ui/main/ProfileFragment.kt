@@ -83,9 +83,9 @@ class ProfileFragment : Fragment() {
                 startActivity(Intent(requireActivity(), SettingActivity::class.java))
             }
 
-            trHistory.setOnClickListener {
-                startActivity(Intent(requireActivity(), OrderHistoryActivity::class.java))
-            }
+//            trHistory.setOnClickListener {
+//                startActivity(Intent(requireActivity(), OrderHistoryActivity::class.java))
+//            }
 
 //            trFavorites.setOnClickListener {
 //                startActivity(Intent(requireActivity(), FavoriteFreelancerActivity::class.java))

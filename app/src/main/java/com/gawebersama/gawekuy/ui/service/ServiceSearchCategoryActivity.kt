@@ -151,7 +151,7 @@ class ServiceSearchCategoryActivity : AppCompatActivity() {
                         getColor(if (!isDarkMode) R.color.inactive_color_text else R.color.inactive_color_text_dark)
                     )
                     setStrokeColorResource(
-                        if (!isDarkMode) R.color.inactive_color else R.color.inactive_color_dark
+                        if (!isDarkMode) R.color.grey else R.color.inactive_color_dark
                     )
                     setBackgroundColor(
                         getColor(if (!isDarkMode) R.color.inactive_color else R.color.inactive_color_dark)

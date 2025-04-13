@@ -74,7 +74,7 @@ class HomeFragment : Fragment() {
                 adapter = serviceAdapter
             }
 
-            binding.btnLoadMore.setOnClickListener {
+            btnLoadMore.setOnClickListener {
                 serviceViewModel.fetchAllServices(FilterAndOrderService.ORDERED)
             }
 

@@ -76,7 +76,7 @@
                     android:layout_gravity="center"
                     android:src="@drawable/user"/>
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/tv_name"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -86,7 +86,7 @@
                     android:layout_marginStart="4dp"
                     android:textSize="12sp"
                     app:fontFamily="@font/urbanist_medium"
-                    android:text="Luvian Daffa" />
+                    android:text="@string/user_name" />
 
             </LinearLayout>
 

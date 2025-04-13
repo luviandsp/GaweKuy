@@ -20,6 +20,8 @@ class TransactionRepository {
         return hashMapOf(
             "orderId" to orderId,
             "serviceId" to serviceId,
+            "serviceName" to serviceName,
+            "selectedServiceType" to selectedServiceType,
             "grossAmount" to grossAmount,
             "status" to status,
             "buyerId" to buyerId,
@@ -28,30 +30,36 @@ class TransactionRepository {
             "sellerId" to sellerId,
             "sellerName" to sellerName,
             "sellerEmail" to sellerEmail,
+            "sellerPhone" to sellerPhone,
             "transactionTime" to transactionTime
         )
     }
 
     private fun Map<String, Any>.toTransaction(): TransactionModel {
         return TransactionModel(
-            orderId = this["orderId"] as? String ?: "",
-            serviceId = this["serviceId"] as? String ?: "",
-            grossAmount = (this["grossAmount"] as? Number)?.toDouble() ?: 0.0,
-            status = this["status"] as? String ?: "",
-            buyerId = this["buyerId"] as? String ?: "",
-            buyerName = this["buyerName"] as? String ?: "",
-            buyerEmail = this["buyerEmail"] as? String ?: "",
-            sellerId = this["sellerId"] as? String ?: "",
-            sellerName = this["sellerName"] as? String ?: "",
-            sellerEmail = this["sellerEmail"] as? String ?: "",
-            transactionTime = this["transactionTime"] as? Timestamp ?: Timestamp.now()
+            orderId = get("orderId") as? String ?: "",
+            serviceId = get("serviceId") as? String,
+            serviceName = get("serviceName") as? String,
+            selectedServiceType = get("selectedServiceType") as? String,
+            grossAmount = (get("grossAmount") as? Number)?.toInt() ?: 0,
+            status = get("status") as? String ?: "",
+            buyerId = get("buyerId") as? String ?: "",
+            buyerName = get("buyerName") as? String ?: "",
+            buyerEmail = get("buyerEmail") as? String ?: "",
+            sellerId = get("sellerId") as? String ?: "",
+            sellerName = get("sellerName") as? String ?: "",
+            sellerEmail = get("sellerEmail") as? String ?: "",
+            sellerPhone = get("sellerPhone") as? String ?: "",
+            transactionTime = get("transactionTime") as? Timestamp ?: Timestamp.now()
         )
     }
 
     suspend fun saveTransaction(
         orderId: String,
         serviceId: String?,
-        grossAmount: Double,
+        serviceName: String?,
+        selectedServiceType: String?,
+        grossAmount: Int,
         status: String,
         buyerId: String,
         buyerName: String,
@@ -59,11 +67,14 @@ class TransactionRepository {
         sellerId: String,
         sellerName: String,
         sellerEmail: String,
+        sellerPhone: String,
         transactionTime: Timestamp
     ) : Pair<Boolean, String?> {
         val transactionModelData = TransactionModel(
             orderId = orderId,
             serviceId = serviceId,
+            serviceName = serviceName,
+            selectedServiceType = selectedServiceType,
             grossAmount = grossAmount,
             status = status,
             buyerId = buyerId,
@@ -72,6 +83,7 @@ class TransactionRepository {
             sellerId = sellerId,
             sellerName = sellerName,
             sellerEmail = sellerEmail,
+            sellerPhone = sellerPhone,
             transactionTime = transactionTime
         ).toHashMap()
 
@@ -82,6 +94,61 @@ class TransactionRepository {
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error creating transaction: ${e.message}")
+            Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun getTransactionByBuyerId(buyerId: String): List<TransactionModel> {
+        return try {
+            val querySnapshot = transactionCollection
+                .whereEqualTo("buyerId", buyerId)
+                .get()
+                .await()
+            querySnapshot.documents.mapNotNull { it.data?.toTransaction() }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error getting transactions by buyer ID: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun getTransactionBySellerId(sellerId: String): List<TransactionModel> {
+        return try {
+            val querySnapshot = transactionCollection
+                .whereEqualTo("sellerId", sellerId)
+                .get()
+                .await()
+            querySnapshot.documents.mapNotNull { it.data?.toTransaction() }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error getting transactions by seller ID: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun getTransactionById(transactionId: String): TransactionModel? {
+        return try {
+            val documentSnapshot = transactionCollection.document(transactionId).get().await()
+            if (documentSnapshot.exists()) {
+                documentSnapshot.data?.toTransaction()
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error getting transaction by ID: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun updateTransactionStatus(transactionId: String, newStatus: String): Pair<Boolean, String?> {
+        return try {
+            transactionCollection.document(transactionId).update("status", newStatus).await()
+            Log.d(TAG, "Transaction status updated with ID: $transactionId")
+            Pair(true, "Status transaksi berhasil diperbarui")
+            } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error updating transaction status: ${e.message}")
             Pair(false, getErrorMessage(e))
         }
     }

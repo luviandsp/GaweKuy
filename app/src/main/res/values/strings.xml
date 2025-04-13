@@ -157,4 +157,13 @@
     <string name="service_price">Harga Jasa:</string>
     <string name="app_service_price">Biaya Jasa Aplikasi:</string>
     <string name="total_price">Total Tagihan:</string>
+    <string name="client">Client</string>
+    <string name="freelancer">Freelancer</string>
+    <string name="done">Selesai</string>
+    <string name="in_progress">Sedang Dikerjakan</string>
+    <string name="all">Semua</string>
+    <string name="user_name">Nama Pengguna</string>
+    <string name="selected_service">Pilihan Layanan:</string>
+    <string name="selected_service_name">Nama Layanan yang Dipesan</string>
+    <string name="send_result">Kirim Hasil</string>
 </resources>

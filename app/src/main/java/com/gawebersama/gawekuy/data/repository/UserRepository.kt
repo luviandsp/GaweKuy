@@ -160,6 +160,24 @@ class UserRepository {
         }
     }
 
+    suspend fun getUserRole(): String? {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return null
+            val userSnapshot = userCollection.document(userId).get().await()
+
+            if (userSnapshot.exists()) {
+                userSnapshot.getString("role")
+            } else {
+                null
+            }
+
+            } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "Error getting user role: ${e.message}")
+            null
+        }
+    }
+
     suspend fun updateProfile(name: String, phone: String, userStatus: String, biography: String, profileImageUrl: String): Pair<Boolean, String?> {
         return try {
             val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")

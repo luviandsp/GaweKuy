@@ -22,6 +22,7 @@ import com.gawebersama.gawekuy.data.datamodel.CustomerDetails
 import com.gawebersama.gawekuy.data.datamodel.ItemDetails
 import com.gawebersama.gawekuy.data.datamodel.MidtransRequest
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
+import com.gawebersama.gawekuy.data.enum.OrderStatus
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.TransactionViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
@@ -41,7 +42,6 @@ import com.midtrans.sdk.corekit.models.snap.TransactionResult
 import com.midtrans.sdk.uikit.SdkUIFlowBuilder
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import kotlin.math.roundToInt
 
 class ServiceDetailActivity : AppCompatActivity() {
 
@@ -59,7 +59,9 @@ class ServiceDetailActivity : AppCompatActivity() {
     private var serviceId: String? = null
 
     private var orderId : String = ""
-    private var grossAmount : Double = 0.0
+    private var serviceFee : Int = 0
+    private var servicePrice : Int = 0
+    private var totalAmount : Int = 0
     private var customerName : String = ""
     private var customerEmail : String = ""
     private var customerPhone : String = ""
@@ -165,11 +167,13 @@ class ServiceDetailActivity : AppCompatActivity() {
 
             btnPay.setOnClickListener {
                 orderId = "ORDER-${System.currentTimeMillis()}"
-                grossAmount = selectedService.price + (selectedService.price * SERVICE_FEE_MULTIPLIER)
+                servicePrice = selectedService.price.toInt()
+                serviceFee = (selectedService.price * SERVICE_FEE_MULTIPLIER).toInt()
+                totalAmount = servicePrice + serviceFee
 
                 val request = MidtransRequest(
                     orderId = orderId,
-                    grossAmount = grossAmount.roundToInt().toInt(),
+                    grossAmount = totalAmount,
                     customerDetails = CustomerDetails(
                         firstName = customerName,
                         lastName = "",
@@ -179,9 +183,16 @@ class ServiceDetailActivity : AppCompatActivity() {
                     itemDetails = listOf(
                         ItemDetails(
                             id = serviceId ?: "",
-                            price = selectedService.price.toInt(),
+                            price = servicePrice,
                             quantity = 1,
                             name = selectedService.name,
+                            category = thisServiceCategory
+                        ),
+                        ItemDetails(
+                            id = "fee-${serviceId ?: ""}",
+                            price = serviceFee,
+                            quantity = 1,
+                            name = "Biaya Layanan",
                             category = thisServiceCategory
                         )
                     )
@@ -200,7 +211,6 @@ class ServiceDetailActivity : AppCompatActivity() {
                             val sdk = MidtransSDK.getInstance()
                             if (sdk != null) {
                                 sdk.startPaymentUiFlow(this@ServiceDetailActivity, snapToken)
-                                saveTransactionToFirebase()
                                 bottomSheetDialog.dismiss()
                             } else {
                                 Toast.makeText(this@ServiceDetailActivity, "Midtrans belum siap. Coba buka ulang aplikasi.", Toast.LENGTH_SHORT).show()
@@ -220,28 +230,33 @@ class ServiceDetailActivity : AppCompatActivity() {
 
     private fun saveTransactionToFirebase() {
         val buyerId = userViewModel.userId.value
-        val buyerName = userViewModel.userName.value
-        val buyerEmail = userViewModel.userEmail.value
         val sellerId = serviceViewModel.ownerServiceId.value
-        val sellerName = serviceViewModel.ownerServiceName.value
-        val sellerEmail = serviceViewModel.ownerServiceEmail.value
+        val status = OrderStatus.PENDING.toString()
+        val selectedService = serviceSelectedList.find { it.isSelected }
+        val selectedServiceName = selectedService?.name
+        val serviceName = serviceViewModel.serviceName.value
+        val sellerName = serviceViewModel.ownerServiceName.value.toString()
+        val sellerEmail = serviceViewModel.ownerServiceEmail.value.toString()
+        val sellerPhone = serviceViewModel.ownerServicePhone.value.toString()
 
-        if (buyerId == null || buyerName == null || buyerEmail == null ||
-            sellerId == null || sellerName == null || sellerEmail == null) {
+        if (buyerId == null || sellerId == null) {
             Toast.makeText(this, "Data transaksi belum lengkap", Toast.LENGTH_SHORT).show()
             Log.e(TAG, "Missing user/service data for transaction")
         } else {
             transactionViewModel.saveTransaction(
                 orderId = orderId,
                 serviceId = serviceId,
-                grossAmount = grossAmount,
-                status = "pending",
+                serviceName = serviceName,
+                selectedServiceType = selectedServiceName,
+                grossAmount = totalAmount,
+                status = status,
                 buyerId = buyerId,
-                buyerName = buyerName,
-                buyerEmail = buyerEmail,
+                buyerName = customerName,
+                buyerEmail = customerEmail,
                 sellerId = sellerId,
                 sellerName = sellerName,
                 sellerEmail = sellerEmail,
+                sellerPhone = sellerPhone,
                 transactionTime = Timestamp.now()
             )
         }
@@ -260,6 +275,7 @@ class ServiceDetailActivity : AppCompatActivity() {
                     result.status != null -> {
                         if (result.status == TransactionResult.STATUS_SUCCESS) {
                             Toast.makeText(this, "Transaksi berhasil!", Toast.LENGTH_SHORT).show()
+                            saveTransactionToFirebase()
                         } else {
                             Toast.makeText(this, "Status: ${result.status}", Toast.LENGTH_SHORT).show()
                             Log.d(TAG, "Status transaksi bukan success")

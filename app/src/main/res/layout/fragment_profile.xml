@@ -205,22 +205,22 @@
                 <com.google.android.material.divider.MaterialDivider
                     style="@style/optionProfileDivider" />
 
-                <TableRow
-                    android:id="@+id/tr_history"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+<!--                <TableRow-->
+<!--                    android:id="@+id/tr_history"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content">-->
 
-                    <ImageView
-                        style="@style/optionProfileImage"
-                        android:src="@drawable/history"/>
+<!--                    <ImageView-->
+<!--                        style="@style/optionProfileImage"-->
+<!--                        android:src="@drawable/history"/>-->
 
-                    <TextView
-                        style="@style/optionProfileDesc"
-                        android:text="@string/order_history"/>
-                </TableRow>
+<!--                    <TextView-->
+<!--                        style="@style/optionProfileDesc"-->
+<!--                        android:text="@string/order_history"/>-->
+<!--                </TableRow>-->
 
-                <com.google.android.material.divider.MaterialDivider
-                    style="@style/optionProfileDivider" />
+<!--                <com.google.android.material.divider.MaterialDivider-->
+<!--                    style="@style/optionProfileDivider" />-->
 
 <!--                <TableRow-->
 <!--                    android:id="@+id/tr_favorites"-->

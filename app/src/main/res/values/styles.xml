@@ -234,4 +234,45 @@
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginBottom">10dp</item>
     </style>
+
+    <style name="ScrollButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="fontFamily">@font/urbanist_semibold</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="ScrollButton.Active">
+        <item name="backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/blue</item>
+        <item name="strokeColor">@color/blue</item>
+    </style>
+
+    <style name="ScrollButton.Inactive">
+        <item name="backgroundTint">@color/inactive_color</item>
+        <item name="android:textColor">@color/inactive_color_text</item>
+        <item name="strokeColor">@color/grey</item>
+    </style>
+
+    <style name="clientTypeButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/urbanist_semibold</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="clientTypeButton.Active">
+        <item name="backgroundTint">@color/white</item>
+        <item name="strokeColor">@color/blue</item>
+        <item name="android:textColor">@color/blue</item>
+    </style>
+
+    <style name="clientTypeButton.Inactive">
+        <item name="backgroundTint">@color/inactive_color</item>
+        <item name="strokeColor">@color/grey</item>
+        <item name="android:textColor">@color/inactive_color_text</item>
+    </style>
+
 </resources>

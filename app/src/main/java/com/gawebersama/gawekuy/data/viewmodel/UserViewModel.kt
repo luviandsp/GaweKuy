@@ -132,6 +132,13 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun getUserRole() {
+        viewModelScope.launch {
+            val role = userRepository.getUserRole()
+            _userRole.postValue(role)
+        }
+    }
+
     fun updateProfile(name: String, phone: String, userStatus: String, biography: String, profileImageUrl: String) {
         viewModelScope.launch {
             val result = userRepository.updateProfile(name, phone, userStatus, biography, profileImageUrl)
