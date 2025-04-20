@@ -56,11 +56,13 @@ class PaymentOptionActivity : AppCompatActivity() {
                 }
             }
 
+            ccp.registerCarrierNumberEditText(tietEwalletPhoneNumber)
+
             btnSavePayment.setOnClickListener {
                 selectedPayment = if (rgPaymentType.checkedRadioButtonId == R.id.rb_bank) "Bank" else "E-Wallet"
 
                 if (selectedPayment == "Bank") {
-                    val bankName = tietBankName.text.toString().trim()
+                    val bankName = tietBankName.text.toString().uppercase().trim()
                     val accountNumber = tietBankAccountNumber.text.toString().trim()
                     val accountHolderName = tietBankAccountName.text.toString().trim()
 
@@ -89,9 +91,9 @@ class PaymentOptionActivity : AppCompatActivity() {
                         ewalletNumber = null
                     )
                 } else {
-                    val eWalletType = tietEwalletType.text.toString().trim()
+                    val eWalletType = tietEwalletType.text.toString().uppercase().trim()
                     val eWalletAccountName = tietEwalletAccountName.text.toString().trim()
-                    val eWalletPhoneNumber = tietEwalletPhoneNumber.text.toString().trim()
+                    val eWalletPhoneNumber = ccp.fullNumber.trim()
 
                     if (eWalletType.isEmpty()) {
                         tietEwalletType.error = "Tipe e-wallet tidak boleh kosong"
@@ -163,8 +165,10 @@ class PaymentOptionActivity : AppCompatActivity() {
                 binding.tietEwalletAccountName.setText(it)
             }
 
-            ewalletNumber.observe(this@PaymentOptionActivity) {
-                binding.tietEwalletPhoneNumber.setText(it)
+            ewalletNumber.observe(this@PaymentOptionActivity) { phone ->
+                val currentCode = binding.ccp.selectedCountryCode
+                val phoneWithoutCode = phone?.removePrefix(currentCode)
+                binding.tietEwalletPhoneNumber.setText(phoneWithoutCode)
             }
             
             authStatus.observe(this@PaymentOptionActivity) {

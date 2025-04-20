@@ -14,6 +14,7 @@
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cv_tags"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/light_yellow"
@@ -98,7 +99,7 @@
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_chat_freelancer"
+            android:id="@+id/btn_chat"
             android:visibility="visible"
             style="@style/ButtonAuth.Chat"
             android:layout_marginTop="12dp"
@@ -116,6 +117,74 @@
             android:layout_marginStart="0dp"
             android:layout_marginEnd="0dp"
             android:text="@string/send_result"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_revision"
+            android:visibility="visible"
+            style="@style/ButtonAuth.Register"
+            app:strokeColor="@color/blue"
+            app:strokeWidth="2dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="@string/revision_again"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_done_order"
+            android:visibility="visible"
+            style="@style/ButtonAuth"
+            app:strokeColor="@color/blue"
+            app:strokeWidth="2dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="@string/done_order"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_order"
+            android:visibility="visible"
+            style="@style/ButtonAuth.Register"
+            app:strokeColor="@color/red"
+            app:strokeWidth="2dp"
+            android:textColor="@color/red"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
+            android:text="@string/cancel_order"/>
+
+        <LinearLayout
+            android:id="@+id/ll_button_accept_reject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:weightSum="2"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_accept_project"
+                android:visibility="visible"
+                style="@style/ButtonAuth"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                app:strokeColor="@color/blue"
+                app:strokeWidth="2dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/accept_order"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_reject_project"
+                android:visibility="visible"
+                style="@style/ButtonAuth.Register"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                app:strokeColor="@color/red"
+                android:textColor="@color/red"
+                app:strokeWidth="2dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="0dp"
+                android:text="@string/reject_order"/>
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

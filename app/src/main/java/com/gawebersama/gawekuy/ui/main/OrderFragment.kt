@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
@@ -69,6 +68,9 @@ class OrderFragment : Fragment() {
             visibilityButton(orderType)
         }
 
+        binding.srlOrder.setOnRefreshListener {
+            refreshOrderData()
+        }
         userViewModel.getUser()
 
         initViews()
@@ -77,12 +79,20 @@ class OrderFragment : Fragment() {
 
     private fun initViews() {
         with(binding) {
-            orderClientAdapter = OrderClientAdapter()
-            orderFreelancerAdapter = OrderFreelancerAdapter()
+            orderClientAdapter = OrderClientAdapter(transactionViewModel)
+            orderFreelancerAdapter = OrderFreelancerAdapter(transactionViewModel)
 
             rvOrder.apply {
                 layoutManager = LinearLayoutManager(requireContext())
                 adapter = orderClientAdapter
+            }
+
+            btnLoadMore.setOnClickListener {
+                if (isClient) {
+                    transactionViewModel.getAllTransactionsByBuyerId(buyerId, filter = orderType, resetPaging = false)
+                } else {
+                    transactionViewModel.getAllTransactionsBySellerId(sellerId, filter = orderType, resetPaging = false)
+                }
             }
 
             btnClient.apply {
@@ -97,9 +107,9 @@ class OrderFragment : Fragment() {
                     }
 
                     if (buyerId.isNotEmpty()) {
-                        binding.rvOrder.adapter = orderClientAdapter
-                        transactionViewModel.getAllTransactionsByBuyerId(buyerId)
-                        Log.d(TAG, "Buyer ID: $buyerId")
+                        getTransactionData()
+                    } else {
+                        Log.e(TAG, "Buyer ID is empty")
                     }
                 }
             }
@@ -116,9 +126,7 @@ class OrderFragment : Fragment() {
                     }
 
                     if (sellerId.isNotEmpty()) {
-                        binding.rvOrder.adapter = orderFreelancerAdapter
-                        transactionViewModel.getAllTransactionsBySellerId(sellerId)
-                        Log.d(TAG, "Seller ID: $sellerId")
+                        getTransactionData()
                     } else {
                         Log.e(TAG, "Seller ID is empty")
                     }
@@ -131,7 +139,8 @@ class OrderFragment : Fragment() {
                 lifecycleScope.launch {
                     visibilityButton(orderType)
                 }
-                Toast.makeText(requireContext(), "All Order", Toast.LENGTH_SHORT).show()
+
+                getTransactionData()
             }
 
             btnInProgressOrder.setOnClickListener {
@@ -140,7 +149,8 @@ class OrderFragment : Fragment() {
                 lifecycleScope.launch {
                     visibilityButton(orderType)
                 }
-                Toast.makeText(requireContext(), "In Progress Order", Toast.LENGTH_SHORT).show()
+
+                getTransactionData()
             }
 
             btnDoneOrder.setOnClickListener {
@@ -148,10 +158,58 @@ class OrderFragment : Fragment() {
                 lifecycleScope.launch {
                     visibilityButton(orderType)
                 }
-                Toast.makeText(requireContext(), "Done Order", Toast.LENGTH_SHORT).show()
+
+                getTransactionData()
+            }
+
+            btnRevisionOrder.setOnClickListener {
+                orderType = OrderStatus.REVISION.name
+                lifecycleScope.launch {
+                    visibilityButton(orderType)
+                }
+                getTransactionData()
+            }
+
+            btnWaitingOrder.setOnClickListener {
+                orderType = OrderStatus.WAITING_RESPONSES.name
+                lifecycleScope.launch {
+                    visibilityButton(orderType)
+                }
+                getTransactionData()
+            }
+
+            btnWatingPaymentOrder.setOnClickListener {
+                orderType = OrderStatus.WAITING_PAYMENT.name
+                lifecycleScope.launch {
+                    visibilityButton(orderType)
+                }
+                getTransactionData()
+            }
+
+            btnPaidOrder.setOnClickListener {
+                orderType = OrderStatus.PAID.name
+                lifecycleScope.launch {
+                    visibilityButton(orderType)
+                }
+                getTransactionData()
             }
 
         }
+    }
+
+    private fun getTransactionData() {
+        if (isClient) {
+            binding.rvOrder.adapter = orderClientAdapter
+            transactionViewModel.getAllTransactionsByBuyerId(buyerId, orderType, resetPaging = true)
+        } else {
+            binding.rvOrder.adapter = orderFreelancerAdapter
+            transactionViewModel.getAllTransactionsBySellerId(sellerId, orderType, resetPaging = true)
+        }
+
+        Log.d(TAG, "Buyer ID: $buyerId")
+        Log.d(TAG, "Seller ID: $sellerId")
+        Log.d(TAG, "Order Type: $orderType")
+        Log.d(TAG, "Is Client: $isClient")
     }
 
     private suspend fun updateRoleButton(isClient: Boolean) {
@@ -162,12 +220,26 @@ class OrderFragment : Fragment() {
 
                 btnFreelancer.background = createButtonDrawable(false, true)
                 btnFreelancer.setTextColor(getColor(requireContext(), R.color.inactive_color_text))
+
+                val layoutParams = btnDoneOrder.layoutParams as ViewGroup.MarginLayoutParams
+                layoutParams.marginEnd = (16 * resources.displayMetrics.density).toInt()
+                btnDoneOrder.layoutParams = layoutParams
+
+                btnPaidOrder.visibility = View.GONE
+                btnWatingPaymentOrder.visibility = View.GONE
             } else {
                 btnFreelancer.background = createButtonDrawable(true, true)
                 btnFreelancer.setTextColor(getColor(requireContext(), R.color.blue))
 
                 btnClient.background = createButtonDrawable(false, false)
                 btnClient.setTextColor(getColor(requireContext(), R.color.inactive_color_text))
+
+                val layoutParams = btnDoneOrder.layoutParams as ViewGroup.MarginLayoutParams
+                layoutParams.marginEnd = 0
+                btnDoneOrder.layoutParams = layoutParams
+
+                btnPaidOrder.visibility = View.VISIBLE
+                btnWatingPaymentOrder.visibility = View.VISIBLE
             }
         }
     }
@@ -231,16 +303,64 @@ class OrderFragment : Fragment() {
                 OrderStatus.ALL.name -> {
                     setActive(btnAllOrder)
                     setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
                 }
                 OrderStatus.IN_PROGRESS.name -> {
                     setInactive(btnAllOrder)
                     setActive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
+                    setInactive(btnDoneOrder)
+                }
+                OrderStatus.REVISION.name -> {
+                    setInactive(btnAllOrder)
+                    setInactive(btnInProgressOrder)
+                    setActive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
+                    setInactive(btnDoneOrder)
+                }
+                OrderStatus.PAID.name -> {
+                    setInactive(btnAllOrder)
+                    setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setActive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
+                    setInactive(btnDoneOrder)
+                }
+                OrderStatus.WAITING_RESPONSES.name -> {
+                    setInactive(btnAllOrder)
+                    setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setActive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
+                    setInactive(btnDoneOrder)
+                }
+                OrderStatus.WAITING_PAYMENT.name -> {
+                    setInactive(btnAllOrder)
+                    setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setActive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
                 }
                 OrderStatus.COMPLETED.name -> {
                     setInactive(btnAllOrder)
                     setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
                     setActive(btnDoneOrder)
                 }
                 else -> { }
@@ -255,10 +375,7 @@ class OrderFragment : Fragment() {
                     buyerId = id
                     sellerId = id
 
-                    if (buyerId.isNotEmpty()) {
-                        transactionViewModel.getAllTransactionsByBuyerId(buyerId)
-                        Log.d(TAG, "Buyer ID: $buyerId")
-                    }
+                    getTransactionData()
                 }
             }
 
@@ -288,7 +405,21 @@ class OrderFragment : Fragment() {
                 } else {
                     binding.ivPlaceholderEmpty.visibility = View.GONE
                 }
+
+                binding.btnLoadMore.visibility = if (transactionViewModel.hasMoreData()) View.VISIBLE else View.GONE
+                binding.srlOrder.isRefreshing = false
             }
+        }
+    }
+
+    private fun refreshOrderData() {
+        binding.srlOrder.isRefreshing = true
+
+        getTransactionData()
+        userViewModel.getUser()
+
+        lifecycleScope.launch {
+            binding.srlOrder.isRefreshing = false
         }
     }
 

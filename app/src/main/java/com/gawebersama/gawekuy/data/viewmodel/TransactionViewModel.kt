@@ -23,6 +23,12 @@ class TransactionViewModel: ViewModel() {
     private val _transactionList = MutableLiveData<List<TransactionModel>>()
     val transactionList: LiveData<List<TransactionModel>> get() = _transactionList
 
+    private var currentList = mutableListOf<TransactionModel>()
+
+    fun hasMoreData(): Boolean {
+        return !transactionRepository.isLastPage()
+    }
+
     companion object {
         const val TAG = "TransactionViewModel"
     }
@@ -33,10 +39,12 @@ class TransactionViewModel: ViewModel() {
         serviceName: String?,
         selectedServiceType: String?,
         grossAmount: Int,
-        status: String,
+        statusForBuyer: String,
+        statusForFreelancer: String,
         buyerId: String,
         buyerName: String,
         buyerEmail: String,
+        buyerPhone: String,
         sellerId: String,
         sellerName: String,
         sellerEmail: String,
@@ -50,10 +58,12 @@ class TransactionViewModel: ViewModel() {
                 serviceName = serviceName,
                 selectedServiceType = selectedServiceType,
                 grossAmount = grossAmount,
-                status = status,
+                statusForBuyer = statusForBuyer,
+                statusForFreelancer = statusForFreelancer,
                 buyerId = buyerId,
                 buyerName = buyerName,
                 buyerEmail = buyerEmail,
+                buyerPhone = buyerPhone,
                 sellerId = sellerId,
                 sellerName = sellerName,
                 sellerEmail = sellerEmail,
@@ -66,22 +76,79 @@ class TransactionViewModel: ViewModel() {
     }
 
     fun getAllTransactionsByBuyerId(
-        buyerId: String
+        buyerId: String,
+        filter: String? = null,
+        resetPaging: Boolean = false
     ) {
         viewModelScope.launch {
-            val transactions = transactionRepository.getTransactionByBuyerId(buyerId)
+            val transactions = transactionRepository.getTransactionByBuyerId(buyerId, filter, resetPaging)
             Log.d(TAG, "Buyer Transaction List: $transactions")
-            _transactionList.value = transactions
+
+            if (resetPaging) {
+                currentList.clear()
+            }
+
+            currentList.addAll(transactions)
+            _transactionList.postValue(currentList)
+            Log.d(TAG, "Current list size: ${currentList.size}")
         }
     }
 
     fun getAllTransactionsBySellerId(
-        sellerId: String
+        sellerId: String,
+        filter: String? = null,
+        resetPaging: Boolean = false
     ) {
         viewModelScope.launch {
-            val transactions = transactionRepository.getTransactionBySellerId(sellerId)
+            val transactions = transactionRepository.getTransactionBySellerId(sellerId, filter, resetPaging)
             Log.d(TAG, "Seller Transaction List: $transactions")
-            _transactionList.value = transactions
+
+            if (resetPaging) {
+                currentList.clear()
+            }
+
+            currentList.addAll(transactions)
+            _transactionList.postValue(currentList)
+            Log.d(TAG, "Current list size: ${currentList.size}")
         }
     }
+
+    fun updateTransactionStatusForBuyer(
+        transactionId: String,
+        newStatusForBuyer: String
+    ) {
+        viewModelScope.launch {
+            val result = transactionRepository.updateTransactionStatusForBuyer(transactionId, newStatusForBuyer)
+            _operationResult.postValue(result)
+        }
+    }
+
+    fun updateTransactionStatusForFreelancer(
+        transactionId: String,
+        newStatusForFreelancer: String
+    ) {
+        viewModelScope.launch {
+            val result = transactionRepository.updateTransactionStatusForFreelancer(transactionId, newStatusForFreelancer)
+            _operationResult.postValue(result)
+        }
+    }
+
+    fun getAllTransactions(
+        filter: String? = null,
+        resetPaging: Boolean = false
+    ) {
+        viewModelScope.launch {
+            val transactions = transactionRepository.getAllTransaction(filter, resetPaging)
+            Log.d(TAG, "All Transaction List: $transactions")
+
+            if (resetPaging) {
+                currentList.clear()
+            }
+
+            currentList.addAll(transactions)
+            _transactionList.postValue(currentList)
+            Log.d(TAG, "Current list size: ${currentList.size}")
+        }
+    }
+
 }

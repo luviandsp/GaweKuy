@@ -1,101 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/srl_order"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.OrderFragment">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <androidx.appcompat.widget.Toolbar
-            style="@style/Toolbar">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order"
-                android:textSize="28sp"
-                app:fontFamily="@font/urbanist_bold" />
-
-        </androidx.appcompat.widget.Toolbar>
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:weightSum="2"
-            android:layout_gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_client"
-                style="@style/clientTypeButton.Active"
-                android:text="@string/client"
-                android:textColor="@color/blue" />
+            <androidx.appcompat.widget.Toolbar
+                style="@style/Toolbar">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_freelancer"
-                style="@style/clientTypeButton.Inactive"
-                app:iconGravity="textStart"
-                app:iconTint="@color/grey"
-                android:text="@string/freelancer" />
-        </LinearLayout>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="3"
+                        android:text="@string/order"
+                        android:textSize="28sp"
+                        app:fontFamily="@font/urbanist_bold" />
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:scrollbars="none">
+<!--                    <ImageButton-->
+<!--                        android:id="@+id/btn_help"-->
+<!--                        style="@style/BackButton"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:layout_marginEnd="12dp"-->
+<!--                        android:src="@drawable/help_symbol"/>-->
+                </LinearLayout>
+
+            </androidx.appcompat.widget.Toolbar>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:weightSum="2"
+                android:layout_gravity="center"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_all_order"
-                    style="@style/ScrollButton.Active"
-                    android:layout_marginStart="16dp"
-                    android:text="@string/all" />
+                    android:id="@+id/btn_client"
+                    style="@style/clientTypeButton.Active"
+                    android:text="@string/client"
+                    android:textColor="@color/blue" />
+
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_inProgress_order"
-                    style="@style/ScrollButton.Inactive"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:text="@string/in_progress" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_done_order"
-                    style="@style/ScrollButton.Inactive"
-                    android:layout_marginEnd="16dp"
-                    android:text="@string/done" />
-
+                    android:id="@+id/btn_freelancer"
+                    style="@style/clientTypeButton.Inactive"
+                    app:iconGravity="textStart"
+                    app:iconTint="@color/grey"
+                    android:text="@string/freelancer" />
             </LinearLayout>
-        </HorizontalScrollView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_order"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/item_order" />
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:scrollbars="none">
 
-        <ImageView
-            android:id="@+id/iv_placeholder_empty"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/placeholder_empty_service"
-            android:visibility="visible" />
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_all_order"
+                        style="@style/ScrollButton.Active"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/all" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_inProgress_order"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/in_progress_text" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_waiting_order"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/waiting_responses" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_revision_order"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/revision" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_done_order"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/done" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_watingPayment_order"
+                        android:visibility="gone"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/waiting_payment" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_paid_order"
+                        android:visibility="gone"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="@string/paid" />
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_order" />
+
+            <ImageView
+                android:id="@+id/iv_placeholder_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/placeholder_empty_service"
+                android:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_load_more"
+                style="@style/ButtonAuth.Register"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/load_more"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

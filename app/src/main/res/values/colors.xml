@@ -13,6 +13,10 @@
     <color name="transparent">#00000000</color>
     <color name="brown">#7C3100</color>
     <color name="light_brown">#FFC098</color>
+    <color name="light_red">#FDB2B2</color>
+    <color name="dark_red">#A20000</color>
+    <color name="light_purple">#E9B2FD</color>
+    <color name="dark_purple">#69018E</color>
     <color name="light_yellow">#FDF6B2</color>
     <color name="dark_yellow">#C27803</color>
     <color name="light_green">#BCF0DA</color>

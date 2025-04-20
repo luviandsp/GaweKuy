@@ -137,9 +137,16 @@ class ServiceDetailActivity : AppCompatActivity() {
 
             btnOrderService.setOnClickListener {
                 val selectedService = serviceSelectedList.find { it.isSelected }
+                val ownerId = serviceViewModel.ownerServiceId.value
+                val userId = userViewModel.userId.value
 
                 if (selectedService == null) {
                     Toast.makeText(this@ServiceDetailActivity, "Pilih salah satu jenis layanan terlebih dahulu", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                if (userId == ownerId) {
+                    Toast.makeText(this@ServiceDetailActivity, "Anda tidak bisa memesan layanan Anda sendiri", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
@@ -212,6 +219,8 @@ class ServiceDetailActivity : AppCompatActivity() {
                             if (sdk != null) {
                                 sdk.startPaymentUiFlow(this@ServiceDetailActivity, snapToken)
                                 bottomSheetDialog.dismiss()
+                                saveTransactionToFirebase()
+                                updateServiceOrdered()
                             } else {
                                 Toast.makeText(this@ServiceDetailActivity, "Midtrans belum siap. Coba buka ulang aplikasi.", Toast.LENGTH_SHORT).show()
                                 Log.e(TAG, "MidtransSDK is null, belum diinisialisasi.")
@@ -231,7 +240,7 @@ class ServiceDetailActivity : AppCompatActivity() {
     private fun saveTransactionToFirebase() {
         val buyerId = userViewModel.userId.value
         val sellerId = serviceViewModel.ownerServiceId.value
-        val status = OrderStatus.PENDING.toString()
+        val status = OrderStatus.PENDING.formatted()
         val selectedService = serviceSelectedList.find { it.isSelected }
         val selectedServiceName = selectedService?.name
         val serviceName = serviceViewModel.serviceName.value
@@ -249,16 +258,30 @@ class ServiceDetailActivity : AppCompatActivity() {
                 serviceName = serviceName,
                 selectedServiceType = selectedServiceName,
                 grossAmount = totalAmount,
-                status = status,
+                statusForBuyer = status,
+                statusForFreelancer = status,
                 buyerId = buyerId,
                 buyerName = customerName,
                 buyerEmail = customerEmail,
+                buyerPhone = customerPhone,
                 sellerId = sellerId,
                 sellerName = sellerName,
                 sellerEmail = sellerEmail,
                 sellerPhone = sellerPhone,
                 transactionTime = Timestamp.now()
             )
+        }
+    }
+
+    private fun updateServiceOrdered() {
+        val serviceId = intent.getStringExtra(SERVICE_ID)
+        val serviceOrdered = serviceViewModel.serviceOrdered.value
+
+        Log.d(TAG, "Service ID: $serviceId")
+        Log.d(TAG, "Service Ordered: $serviceOrdered")
+
+        if (serviceId != null && serviceOrdered != null) {
+            serviceViewModel.updateServiceOrdered(serviceId, serviceOrdered + 1)
         }
     }
 
@@ -275,7 +298,7 @@ class ServiceDetailActivity : AppCompatActivity() {
                     result.status != null -> {
                         if (result.status == TransactionResult.STATUS_SUCCESS) {
                             Toast.makeText(this, "Transaksi berhasil!", Toast.LENGTH_SHORT).show()
-                            saveTransactionToFirebase()
+
                         } else {
                             Toast.makeText(this, "Status: ${result.status}", Toast.LENGTH_SHORT).show()
                             Log.d(TAG, "Status transaksi bukan success")
@@ -374,4 +397,11 @@ class ServiceDetailActivity : AppCompatActivity() {
             }
         }
     }
+
+    fun OrderStatus.formatted(): String {
+        return name.lowercase().replace("_", " ").capitalizeWords()
+    }
+
+    fun String.capitalizeWords(): String =
+        split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
 }

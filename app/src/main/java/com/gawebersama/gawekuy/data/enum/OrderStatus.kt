@@ -3,8 +3,12 @@ package com.gawebersama.gawekuy.data.enum
 enum class OrderStatus {
     ALL,
     PENDING,
-    ACCEPTED,
+    CANCELLED,
     REJECTED,
     IN_PROGRESS,
-    COMPLETED
+    REVISION,
+    COMPLETED,
+    WAITING_RESPONSES,
+    WAITING_PAYMENT,
+    PAID
 }

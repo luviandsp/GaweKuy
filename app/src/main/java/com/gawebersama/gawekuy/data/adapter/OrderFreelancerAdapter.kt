@@ -1,30 +1,100 @@
 package com.gawebersama.gawekuy.data.adapter
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.datamodel.TransactionModel
+import com.gawebersama.gawekuy.data.enum.OrderStatus
+import com.gawebersama.gawekuy.data.viewmodel.TransactionViewModel
+import com.gawebersama.gawekuy.databinding.DialogOrderBinding
 import com.gawebersama.gawekuy.databinding.ItemOrderBinding
 
-class OrderFreelancerAdapter : ListAdapter<TransactionModel, OrderFreelancerAdapter.OrderFreelancerViewHolder>(DIFF_CALLBACK) {
+class OrderFreelancerAdapter(
+    private val transactionViewModel: TransactionViewModel
+) : ListAdapter<TransactionModel, OrderFreelancerAdapter.OrderFreelancerViewHolder>(DIFF_CALLBACK) {
 
     inner class OrderFreelancerViewHolder(private val binding: ItemOrderBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(order: TransactionModel) {
             with(binding) {
-                tvTags.text = order.status
+                tvTags.text = order.statusForFreelancer
                 tvServiceName.text = order.serviceName
                 tvSelectedServiceName.text = order.selectedServiceType
                 tvUserName.text = order.buyerName
 
-                btnSendProject.visibility = View.VISIBLE
-                btnChatFreelancer.visibility = View.GONE
+                btnChat.visibility = View.GONE
+                btnDoneOrder.visibility = View.GONE
+                btnSendProject.visibility = View.GONE
+                btnCancelOrder.visibility = View.GONE
+                btnRevision.visibility = View.GONE
+                llButtonAcceptReject.visibility = View.GONE
 
                 val email = order.buyerEmail
+                val phone = order.buyerPhone
+
+                when (order.statusForFreelancer) {
+                    OrderStatus.IN_PROGRESS.formatted() -> {
+                        updateTagsColor(R.color.light_blue, R.color.dark_blue)
+                        btnChat.visibility = View.VISIBLE
+                        btnSendProject.visibility = View.VISIBLE
+                        btnDoneOrder.visibility = View.VISIBLE
+                    }
+                    OrderStatus.PENDING.formatted() -> {
+                        updateTagsColor(R.color.light_yellow, R.color.dark_yellow)
+                        llButtonAcceptReject.visibility = View.VISIBLE
+                    }
+                    OrderStatus.WAITING_RESPONSES.formatted() -> {
+                        updateTagsColor(R.color.light_yellow, R.color.dark_yellow)
+                        btnChat.visibility = View.VISIBLE
+                        btnSendProject.visibility = View.VISIBLE
+                    }
+                    OrderStatus.COMPLETED.formatted() -> {
+                        updateTagsColor(R.color.light_green, R.color.dark_green)
+                    }
+                    OrderStatus.REJECTED.formatted() -> {
+                        updateTagsColor(R.color.light_red, R.color.dark_red)
+                    }
+                    OrderStatus.CANCELLED.formatted() -> {
+                        updateTagsColor(R.color.light_red, R.color.dark_red)
+                    }
+                    OrderStatus.REVISION.formatted() -> {
+                        updateTagsColor(R.color.light_blue, R.color.dark_blue)
+                        btnChat.visibility = View.VISIBLE
+                        btnSendProject.visibility = View.VISIBLE
+                        btnDoneOrder.visibility = View.VISIBLE
+                    }
+                    OrderStatus.WAITING_PAYMENT.formatted() -> {
+                        updateTagsColor(R.color.light_purple, R.color.dark_purple)
+                    }
+                    OrderStatus.PAID.formatted() -> {
+                        updateTagsColor(R.color.light_green, R.color.dark_green)
+                    }
+                    else -> { }
+                }
+
+                btnAcceptProject.setOnClickListener {
+                    showOrderDialog("accept", order)
+                }
+
+                btnRejectProject.setOnClickListener {
+                    showOrderDialog("reject", order)
+                }
+
+                btnDoneOrder.setOnClickListener {
+                    showOrderDialog("done", order)
+                }
+
+                btnChat.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, "https://wa.me/$phone".toUri())
+                    itemView.context.startActivity(intent)
+                }
 
                 btnSendProject.setOnClickListener {
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -39,6 +109,96 @@ class OrderFreelancerAdapter : ListAdapter<TransactionModel, OrderFreelancerAdap
                     // Start email app
                     itemView.context.startActivity(Intent.createChooser(intent, "Kirim email dengan"))
                 }
+            }
+        }
+
+        fun updateTagsColor(cardColor: Int, textColor: Int) {
+            binding.cvTags.setCardBackgroundColor(ContextCompat.getColor(itemView.context, cardColor))
+            binding.tvTags.setTextColor(ContextCompat.getColor(itemView.context, textColor))
+        }
+
+        fun showOrderDialog(sourceButton: String, order: TransactionModel) {
+            val dialogBinding = DialogOrderBinding.inflate(LayoutInflater.from(itemView.context), null, false)
+            val orderDialog = AlertDialog.Builder(itemView.context).setView(dialogBinding.root).create()
+
+            when (sourceButton) {
+                "done" -> {
+                    dialogBinding.tvDialogTitle.text = itemView.context.getString(R.string.title_dialog_done_order)
+                    dialogBinding.tvDialogMessage.text = itemView.context.getString(R.string.message_dialog_done_order)
+                    dialogBinding.btnConfirm.text = itemView.context.getString(R.string.done)
+                    dialogBinding.btnCancel.text = itemView.context.getString(R.string.back)
+                }
+                "accept" -> {
+                    dialogBinding.tvDialogTitle.text = itemView.context.getString(R.string.title_dialog_accept_order)
+                    dialogBinding.tvDialogMessage.text = itemView.context.getString(R.string.message_dialog_accept_order)
+                    dialogBinding.btnConfirm.text = itemView.context.getString(R.string.accept)
+                    dialogBinding.btnCancel.text = itemView.context.getString(R.string.back)
+                }
+                "reject" -> {
+                    dialogBinding.tvDialogTitle.text = itemView.context.getString(R.string.title_dialog_reject_order)
+                    dialogBinding.tvDialogMessage.text = itemView.context.getString(R.string.message_dialog_reject_order)
+                    dialogBinding.btnConfirm.text = itemView.context.getString(R.string.reject)
+                    dialogBinding.btnCancel.text = itemView.context.getString(R.string.back)
+                }
+            }
+
+            with(dialogBinding) {
+                btnConfirm.setOnClickListener {
+                    when (sourceButton) {
+                        "done" -> {
+                            transactionViewModel.updateTransactionStatusForBuyer(
+                                order.orderId,
+                                OrderStatus.WAITING_RESPONSES.formatted()
+                            )
+
+                            transactionViewModel.updateTransactionStatusForFreelancer(
+                                order.orderId,
+                                OrderStatus.WAITING_RESPONSES.formatted()
+                            )
+
+                            binding.btnDoneOrder.visibility = View.GONE
+                            binding.btnChat.visibility = View.VISIBLE
+                            binding.btnSendProject.visibility = View.VISIBLE
+                        }
+                        "accept" -> {
+                            transactionViewModel.updateTransactionStatusForBuyer(
+                                order.orderId,
+                                OrderStatus.IN_PROGRESS.formatted()
+                            )
+
+                            transactionViewModel.updateTransactionStatusForFreelancer(
+                                order.orderId,
+                                OrderStatus.IN_PROGRESS.formatted()
+                            )
+
+                            binding.llButtonAcceptReject.visibility = View.GONE
+                            binding.btnChat.visibility = View.VISIBLE
+                            binding.btnSendProject.visibility = View.VISIBLE
+                            binding.btnDoneOrder.visibility = View.VISIBLE
+                        }
+                        "reject" -> {
+                            transactionViewModel.updateTransactionStatusForBuyer(
+                                order.orderId,
+                                OrderStatus.CANCELLED.formatted()
+                            )
+
+                            transactionViewModel.updateTransactionStatusForFreelancer(
+                                order.orderId,
+                                OrderStatus.CANCELLED.formatted()
+                            )
+
+                            binding.llButtonAcceptReject.visibility = View.GONE
+                        }
+                    }
+                    orderDialog.dismiss()
+                }
+
+                btnCancel.setOnClickListener {
+                    orderDialog.dismiss()
+                }
+
+                orderDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+                orderDialog.show()
             }
         }
     }
@@ -66,4 +226,11 @@ class OrderFreelancerAdapter : ListAdapter<TransactionModel, OrderFreelancerAdap
             }
         }
     }
+
+    fun OrderStatus.formatted(): String {
+        return name.lowercase().replace("_", " ").capitalizeWords()
+    }
+
+    fun String.capitalizeWords(): String =
+        split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
 }
