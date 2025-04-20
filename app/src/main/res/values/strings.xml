@@ -191,4 +191,6 @@
     <string name="waiting_responses">Menunggu Respon</string>
     <string name="waiting_payment">Menunggu Pembayaran oleh Admin</string>
     <string name="paid">Sudah Dibayar</string>
+    <string name="delete_account">Hapus Akun</string>
+    <string name="message_dialog_delete_account">Apakah Anda yakin untuk menghapus akun ini?</string>
 </resources>

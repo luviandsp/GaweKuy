@@ -228,6 +228,13 @@ class UserViewModel : ViewModel() {
         }
     }
 
+    fun deleteAccount() {
+        viewModelScope.launch {
+            val result = userRepository.deleteAccount()
+            _authStatus.postValue(result)
+        }
+    }
+
     fun forgotPassword(email: String) {
         viewModelScope.launch {
             userRepository.forgotPassword(email)

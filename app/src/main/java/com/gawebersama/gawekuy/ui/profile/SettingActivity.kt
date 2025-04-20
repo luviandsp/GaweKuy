@@ -13,8 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.datastore.AppPreferences
+import com.gawebersama.gawekuy.data.datastore.LoginPreferences
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivitySettingBinding
+import com.gawebersama.gawekuy.databinding.DialogDeleteAccountBinding
 import com.gawebersama.gawekuy.databinding.DialogSwitchAccountStatusBinding
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
@@ -25,6 +27,7 @@ class SettingActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySettingBinding
     private val userViewModel by viewModels<UserViewModel>()
     private lateinit var appPreferences: AppPreferences
+    private lateinit var loginPreferences: LoginPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +62,33 @@ class SettingActivity : AppCompatActivity() {
             switchAccountStatus.setOnCheckedChangeListener { _, isChecked ->
                 saveAccountStatus(isChecked)
             }
+
+            btnDeleteAccount.setOnClickListener {
+                showDeleteAccountDialog()
+            }
+        }
+    }
+
+    private fun showDeleteAccountDialog() {
+        val dialogBinding = DialogDeleteAccountBinding.inflate(layoutInflater)
+        val deleteDialog = AlertDialog.Builder(this@SettingActivity).setView(dialogBinding.root).create()
+
+        with(dialogBinding) {
+            btnCancel.setOnClickListener {
+                deleteDialog.dismiss()
+            }
+
+            btnDelete.setOnClickListener {
+                lifecycleScope.launch {
+                    loginPreferences.setLoginStatus(false)
+                }
+
+                userViewModel.deleteAccount()
+                deleteDialog.dismiss()
+            }
+
+            deleteDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            deleteDialog.show()
         }
     }
 

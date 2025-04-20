@@ -8,6 +8,7 @@ import com.gawebersama.gawekuy.data.datastore.UserAccountPreferences
 import com.gawebersama.gawekuy.data.enum.UserRole
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
@@ -285,6 +286,22 @@ class UserRepository {
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Pair(false, getErrorMessage(e))
+        }
+    }
+
+    suspend fun deleteAccount(): Pair<Boolean, String?> {
+        return try {
+            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
+            val userRef = userCollection.document(userId)
+            userRef.delete().await()
+            firebaseAuth.currentUser?.delete()?.await()
+            Pair(true, "Akun berhasil dihapus")
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            if (e is FirebaseAuthRecentLoginRequiredException) {
+                return Pair(false, "Harap login ulang untuk menghapus akun")
+            }
+            return Pair(false, getErrorMessage(e))
         }
     }
 
