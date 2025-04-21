@@ -14,6 +14,14 @@ object RetrofitClient {
             .build()
     }
 
+    val noificationApi: CloudflareApi by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(CloudflareApi::class.java)
+    }
+
     val apiService: MidtransApiService by lazy {
         retrofit.create(MidtransApiService::class.java)
     }

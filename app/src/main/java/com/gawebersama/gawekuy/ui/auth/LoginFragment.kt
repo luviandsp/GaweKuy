@@ -18,6 +18,7 @@ import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogLoginBinding
 import com.gawebersama.gawekuy.databinding.FragmentLoginBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
+import com.gawebersama.gawekuy.ui.main.SuperAdminActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
 
@@ -30,11 +31,12 @@ class LoginFragment : Fragment() {
 
     private var email = ""
     private var password = ""
+    private var thisUserRole = ""
 
     private lateinit var userAccountPreferences: UserAccountPreferences
 
     companion object {
-        const val TAG = "LoginFragment"
+        private const val TAG = "LoginFragment"
     }
 
     override fun onCreateView(
@@ -95,7 +97,6 @@ class LoginFragment : Fragment() {
                     return@setOnClickListener
                 }
 
-
                 userViewModel.loginUser(email, password)
             }
 
@@ -107,19 +108,30 @@ class LoginFragment : Fragment() {
                 }
             }
 
-            userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
-                if (result.first) {
-                    Toast.makeText(requireContext(), result.second ?: "Login sukses", Toast.LENGTH_SHORT).show()
+            userViewModel.userRole.observe(viewLifecycleOwner) { role ->
+                if (!role.isNullOrEmpty()) {
+                    thisUserRole = role
                     lifecycleScope.launch {
-                        loginPreferences.setLoginStatus(true)
+                        if (role == "SUPERADMIN") {
+                            loginPreferences.setAdminLoginStatus(true)
+                            navigatetToSuperAdminActivity()
+                        } else {
+                            loginPreferences.setLoginStatus(true)
+                            navigateToMainActivity()
+                        }
                         userAccountPreferences.setRegistered(false)
                     }
-                    navigateToMainActivity()
+                }
+            }
+
+            userViewModel.authStatus.observe(viewLifecycleOwner) { result ->
+                if (result.first) {
+                    userViewModel.getUserRole()
+                    Toast.makeText(requireContext(), result.second ?: "Login sukses", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(requireContext(), result.second ?: "Terjadi kesalahan", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
     }
 
@@ -132,6 +144,13 @@ class LoginFragment : Fragment() {
 
     private fun navigateToMainActivity() {
         Intent(activity, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(this)
+        }
+    }
+
+    private fun navigatetToSuperAdminActivity() {
+        Intent(activity, SuperAdminActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(this)
         }

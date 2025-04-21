@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.datamodel.PaymentInfoModel
+import com.gawebersama.gawekuy.data.enum.PaymentType
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityPaymentOptionBinding
 
@@ -59,9 +60,9 @@ class PaymentOptionActivity : AppCompatActivity() {
             ccp.registerCarrierNumberEditText(tietEwalletPhoneNumber)
 
             btnSavePayment.setOnClickListener {
-                selectedPayment = if (rgPaymentType.checkedRadioButtonId == R.id.rb_bank) "Bank" else "E-Wallet"
+                selectedPayment = if (rgPaymentType.checkedRadioButtonId == R.id.rb_bank) PaymentType.BANK.formatted() else PaymentType.E_WALLET.formatted()
 
-                if (selectedPayment == "Bank") {
+                if (selectedPayment == PaymentType.BANK.formatted()) {
                     val bankName = tietBankName.text.toString().uppercase().trim()
                     val accountNumber = tietBankAccountNumber.text.toString().trim()
                     val accountHolderName = tietBankAccountName.text.toString().trim()
@@ -131,12 +132,12 @@ class PaymentOptionActivity : AppCompatActivity() {
                 if (type != null) {
                     selectedPayment = type
                     when (type) {
-                        "Bank" -> {
+                        PaymentType.BANK.formatted() -> {
                             binding.rgPaymentType.check(R.id.rb_bank)
                             binding.cvBank.visibility = View.VISIBLE
                             binding.cvEwallet.visibility = View.GONE
                         }
-                        "E-Wallet" -> {
+                        PaymentType.E_WALLET.formatted() -> {
                             binding.rgPaymentType.check(R.id.rb_ewallet)
                             binding.cvBank.visibility = View.GONE
                             binding.cvEwallet.visibility = View.VISIBLE
@@ -178,5 +179,9 @@ class PaymentOptionActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun PaymentType.formatted(): String {
+        return name.uppercase().replace("_", "-")
     }
 }

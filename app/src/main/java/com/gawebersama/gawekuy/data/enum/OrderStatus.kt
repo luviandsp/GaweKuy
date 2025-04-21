@@ -9,6 +9,7 @@ enum class OrderStatus {
     REVISION,
     COMPLETED,
     WAITING_RESPONSES,
+    WAITING_REFUND,
     WAITING_PAYMENT,
     PAID
 }

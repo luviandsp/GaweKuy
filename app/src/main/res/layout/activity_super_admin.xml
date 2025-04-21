@@ -2,23 +2,28 @@
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/srl_order"
+    android:id="@+id/srl_super_admin"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.OrderFragment">
+    tools:context=".ui.main.SuperAdminActivity"
+    android:orientation="vertical">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/main"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.Toolbar
-                style="@style/Toolbar">
+                style="@style/Toolbar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -31,48 +36,25 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_weight="3"
-                        android:text="@string/order"
+                        android:text="@string/super_admin"
                         android:textSize="28sp"
                         app:fontFamily="@font/urbanist_bold" />
 
-<!--                    <ImageButton-->
-<!--                        android:id="@+id/btn_help"-->
-<!--                        style="@style/BackButton"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:layout_gravity="center"-->
-<!--                        android:layout_marginEnd="12dp"-->
-<!--                        android:src="@drawable/help_symbol"/>-->
+                    <ImageButton
+                        android:id="@+id/btn_logout"
+                        style="@style/BackButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="12dp"
+                        android:src="@drawable/logout" />
                 </LinearLayout>
-
             </androidx.appcompat.widget.Toolbar>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:weightSum="2"
-                android:layout_gravity="center"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_client"
-                    style="@style/clientTypeButton.Active"
-                    android:text="@string/client"
-                    android:textColor="@color/blue" />
-
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_freelancer"
-                    style="@style/clientTypeButton.Inactive"
-                    app:iconGravity="textStart"
-                    app:iconTint="@color/grey"
-                    android:text="@string/freelancer" />
-            </LinearLayout>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:scrollbars="none">
 
@@ -88,24 +70,6 @@
                         android:text="@string/all" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_inProgress_order"
-                        style="@style/ScrollButton.Inactive"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/in_progress_text" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_waiting_order"
-                        style="@style/ScrollButton.Inactive"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/waiting_responses" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_revision_order"
-                        style="@style/ScrollButton.Inactive"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/revision" />
-
-                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_waiting_refund_order"
                         android:visibility="visible"
                         style="@style/ScrollButton.Inactive"
@@ -113,28 +77,22 @@
                         android:text="@string/waiting_refund" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_cancelled_order"
-                        style="@style/ScrollButton.Inactive"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/cancelled" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_done_order"
-                        style="@style/ScrollButton.Inactive"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="16dp"
-                        android:text="@string/done" />
-
-                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_watingPayment_order"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         style="@style/ScrollButton.Inactive"
                         android:layout_marginStart="8dp"
                         android:text="@string/waiting_payment" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_cancelled_order"
+                        android:visibility="visible"
+                        style="@style/ScrollButton.Inactive"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/cancelled" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_paid_order"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         style="@style/ScrollButton.Inactive"
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="16dp"
@@ -153,7 +111,7 @@
                 android:layout_marginEnd="16dp"
                 android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_order" />
+                tools:listitem="@layout/item_order_admin" />
 
             <ImageView
                 android:id="@+id/iv_placeholder_empty"

@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gawebersama.gawekuy.data.datamodel.TransactionModel
+import com.gawebersama.gawekuy.data.datamodel.TransactionDetailModel
 import com.gawebersama.gawekuy.data.repository.TransactionRepository
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.launch
@@ -14,16 +14,16 @@ class TransactionViewModel: ViewModel() {
 
     private val transactionRepository = TransactionRepository()
 
-    private val _transactions = MutableLiveData<List<TransactionModel>>()
-    val transactions: LiveData<List<TransactionModel>> get() = _transactions
+    private val _transactions = MutableLiveData<List<TransactionDetailModel>>()
+    val transactions: LiveData<List<TransactionDetailModel>> get() = _transactions
 
     private val _operationResult = MutableLiveData<Pair<Boolean, String?>>()
     val operationResult: LiveData<Pair<Boolean, String?>> get() = _operationResult
 
-    private val _transactionList = MutableLiveData<List<TransactionModel>>()
-    val transactionList: LiveData<List<TransactionModel>> get() = _transactionList
+    private val _transactionList = MutableLiveData<List<TransactionDetailModel>>()
+    val transactionList: LiveData<List<TransactionDetailModel>> get() = _transactionList
 
-    private var currentList = mutableListOf<TransactionModel>()
+    private var currentList = mutableListOf<TransactionDetailModel>()
 
     fun hasMoreData(): Boolean {
         return !transactionRepository.isLastPage()
@@ -36,38 +36,26 @@ class TransactionViewModel: ViewModel() {
     fun saveTransaction(
         orderId: String,
         serviceId: String?,
-        serviceName: String?,
         selectedServiceType: String?,
+        selectedServicePrice: Int,
         grossAmount: Int,
         statusForBuyer: String,
         statusForFreelancer: String,
         buyerId: String,
-        buyerName: String,
-        buyerEmail: String,
-        buyerPhone: String,
         sellerId: String,
-        sellerName: String,
-        sellerEmail: String,
-        sellerPhone: String,
         transactionTime: Timestamp
     ) {
         viewModelScope.launch {
             val result = transactionRepository.saveTransaction(
                 orderId = orderId,
                 serviceId = serviceId,
-                serviceName = serviceName,
                 selectedServiceType = selectedServiceType,
+                selectedServicePrice = selectedServicePrice,
                 grossAmount = grossAmount,
                 statusForBuyer = statusForBuyer,
                 statusForFreelancer = statusForFreelancer,
                 buyerId = buyerId,
-                buyerName = buyerName,
-                buyerEmail = buyerEmail,
-                buyerPhone = buyerPhone,
                 sellerId = sellerId,
-                sellerName = sellerName,
-                sellerEmail = sellerEmail,
-                sellerPhone = sellerPhone,
                 transactionTime = transactionTime
             )
 

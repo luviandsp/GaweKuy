@@ -141,9 +141,11 @@
     <string name="bank_option">Pembayaran Bank</string>
     <string name="ewallet_option">Pembayaran E-Wallet</string>
     <string name="bank_name">Nama Bank (contoh: BCA)</string>
+    <string name="bank_name_text">Nama Bank</string>
     <string name="bank_name_hint">Masukkan nama Bank</string>
     <string name="ewallet_type_hint">Masukkan nama jenis E-Wallet</string>
     <string name="ewallet_type">Jenis E-Wallet (contoh: DANA)</string>
+    <string name="ewallet_type_text">Jenis E-Wallet</string>
     <string name="ewallet_account_name">Nama Akun E-Wallet</string>
     <string name="ewallet_account_name_hint">Masukkan nama di akun E-Wallet Anda</string>
     <string name="ewallet_phone_hint">Masukkan nomor HP E-Wallet</string>
@@ -193,4 +195,13 @@
     <string name="paid">Sudah Dibayar</string>
     <string name="delete_account">Hapus Akun</string>
     <string name="message_dialog_delete_account">Apakah Anda yakin untuk menghapus akun ini?</string>
+    <string name="super_admin">Super Admin</string>
+    <string name="email_freelancer">Kirim Email ke Freelancer</string>
+    <string name="message_dialog_paid_order">Yakin ingin menyelesaikan pesanan ini? Pastikan bahwa Freelancer sudah dibayar sebelum klik selesai</string>
+    <string name="message_dialog_refund_order">Yakin ingin menyelesaikan pesanan ini? Pastikan bahwa Client sudah di-refund sebelum klik selesai</string>
+    <string name="order_id">ID Pesanan</string>
+    <string name="colon">:</string>
+    <string name="waiting_refund">Menunggu Refund</string>
+    <string name="cancelled">Dibatalkan</string>
+    <string name="user_role">Peran Pengguna</string>
 </resources>

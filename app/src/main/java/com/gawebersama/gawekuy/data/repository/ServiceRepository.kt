@@ -222,16 +222,7 @@ class ServiceRepository() {
             val userIds = services.map { it.userId }.toSet()
             if (userIds.isEmpty()) return emptyList()
 
-            // Fetch the users in a single request
-            val userSnapshots = firestore.collection("users")
-                .whereIn("userId", userIds.toList())
-                .get()
-                .await()
-
-            val userMap = userSnapshots.documents
-                .mapNotNull { it.toObject(UserModel::class.java) }
-                .filter { it.accountStatus == true }
-                .associateBy { it.userId }
+            val userMap = fetchUsersByIds(userIds)
 
             Log.d(TAG, "Last document: ${lastDocument?.id}")
             Log.d(TAG, "Total fetched services: ${services.size}")
@@ -239,7 +230,9 @@ class ServiceRepository() {
             // Combine services with user data
             return services.mapNotNull { service ->
                 val user = userMap[service.userId]
-                user?.let { ServiceWithUserModel(service, it) }
+                if (user != null) {
+                    ServiceWithUserModel(service, user)
+                } else null
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error searching services: ${e.message}", e)
@@ -255,13 +248,7 @@ class ServiceRepository() {
             val userSnapshot = userCollection.document(service.userId).get().await()
             val user = userSnapshot.toObject(UserModel::class.java) ?: return null
 
-            val portfolios = if (service.portfolio.isNotEmpty()) {
-                firestore.collection("portfolios")
-                    .whereIn("portfolioId", service.portfolio)
-                    .get()
-                    .await()
-                    .documents.mapNotNull { it.toObject(PortfolioModel::class.java) }
-            } else emptyList()
+            val portfolios = getPortfolioByServiceId(serviceId)
 
             ServiceWithUserModel(service, user, portfolios)
         } catch (e: Exception) {
@@ -330,28 +317,14 @@ class ServiceRepository() {
             val userIds = services.map { it.userId }.toSet()
             if (userIds.isEmpty()) return emptyList()
 
-            // Ambil data pengguna dalam satu permintaan
-            val userSnapshots = userCollection
-                .whereIn("userId", userIds.toList())
-                .get()
-                .await()
-
-            val userMap = userSnapshots.documents
-                .mapNotNull { it.toObject(UserModel::class.java) }
-                .filter { it.accountStatus == true }
-                .associateBy { it.userId }
-
-            Log.d(TAG, "Last document: ${lastDocument?.id}")
-            Log.d(TAG, "Total fetched services: ${services.size}")
+            val userMap = fetchUsersByIds(userIds)
 
             // Gabungkan layanan dengan data pengguna
             return services.mapNotNull { service ->
                 val user = userMap[service.userId]
                 if (user != null) {
                     ServiceWithUserModel(service, user)
-                } else {
-                    null
-                }
+                } else null
             }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
@@ -475,5 +448,19 @@ class ServiceRepository() {
                 "Terjadi kesalahan jaringan, coba lagi nanti"
             else -> e.message ?: "Terjadi kesalahan, coba lagi nanti"
         }
+    }
+
+    private suspend fun fetchUsersByIds(userIds: Set<String>): Map<String, UserModel> {
+        val result = mutableMapOf<String, UserModel>()
+        userIds.chunked(10).forEach { chunk ->
+            val snapshot = firestore.collection("users")
+                .whereIn("userId", chunk)
+                .get()
+                .await()
+
+            val users = snapshot.documents.mapNotNull { it.toObject(UserModel::class.java) }
+            result.putAll(users.filter { it.accountStatus == true }.associateBy { it.userId })
+        }
+        return result
     }
 }

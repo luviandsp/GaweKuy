@@ -40,7 +40,7 @@ class ProfileFragment : Fragment() {
     }
 
     companion object {
-        const val TAG = "ProfileFragment"
+        private const val TAG = "ProfileFragment"
     }
 
     override fun onCreateView(

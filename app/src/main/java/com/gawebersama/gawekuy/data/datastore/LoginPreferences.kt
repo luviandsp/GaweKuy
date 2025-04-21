@@ -15,6 +15,17 @@ class LoginPreferences(context: Context) {
 
     companion object {
         private val LOGIN_STATUS_KEY = booleanPreferencesKey("loginStatus")
+        private val ADMIN_LOGIN_STATUS_KEY = booleanPreferencesKey("adminLoginStatus")
+    }
+
+    suspend fun setAdminLoginStatus(loginStatus: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[ADMIN_LOGIN_STATUS_KEY] = loginStatus
+        }
+    }
+
+    suspend fun getAdminLoginStatus(): Boolean? {
+        return dataStore.data.first()[ADMIN_LOGIN_STATUS_KEY] ?: false
     }
 
     suspend fun setLoginStatus(loginStatus: Boolean) {

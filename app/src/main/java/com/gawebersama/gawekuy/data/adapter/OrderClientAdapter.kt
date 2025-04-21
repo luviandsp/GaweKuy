@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gawebersama.gawekuy.R
-import com.gawebersama.gawekuy.data.datamodel.TransactionModel
+import com.gawebersama.gawekuy.data.datamodel.TransactionDetailModel
 import com.gawebersama.gawekuy.data.enum.OrderStatus
 import com.gawebersama.gawekuy.data.viewmodel.TransactionViewModel
 import com.gawebersama.gawekuy.databinding.DialogOrderBinding
@@ -19,15 +19,15 @@ import com.gawebersama.gawekuy.databinding.ItemOrderBinding
 
 class OrderClientAdapter(
     private val transactionViewModel: TransactionViewModel
-) : ListAdapter<TransactionModel, OrderClientAdapter.OrderClientViewHolder>(DIFF_CALLBACK) {
+) : ListAdapter<TransactionDetailModel, OrderClientAdapter.OrderClientViewHolder>(DIFF_CALLBACK) {
 
     inner class OrderClientViewHolder(private val binding: ItemOrderBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(order: TransactionModel) {
+        fun bind(order: TransactionDetailModel) {
             with(binding) {
-                tvTags.text = order.statusForBuyer
-                tvServiceName.text = order.serviceName
-                tvSelectedServiceName.text = order.selectedServiceType
-                tvUserName.text = order.sellerName
+                tvTags.text = order.transaction.statusForBuyer
+                tvServiceName.text = order.service.serviceName
+                tvSelectedServiceName.text = order.transaction.selectedServiceType
+                tvUserName.text = order.seller.name
 
                 // Khusus untuk Freelancer
                 btnSendProject.visibility = View.GONE
@@ -38,9 +38,9 @@ class OrderClientAdapter(
                 btnDoneOrder.visibility = View.GONE
                 btnRevision.visibility = View.GONE
 
-                val phone = order.sellerPhone
+                val phone = order.seller.phone
 
-                when (order.statusForBuyer) {
+                when (order.transaction.statusForBuyer) {
                     OrderStatus.IN_PROGRESS.formatted() -> {
                         updateTagsColor(R.color.light_blue, R.color.dark_blue)
                         btnChat.visibility = View.VISIBLE
@@ -69,6 +69,10 @@ class OrderClientAdapter(
                     OrderStatus.REVISION.formatted() -> {
                         updateTagsColor(R.color.light_blue, R.color.dark_blue)
                     }
+                    OrderStatus.WAITING_REFUND.formatted() -> {
+                        updateTagsColor(R.color.light_yellow, R.color.dark_yellow)
+                        btnChat.visibility = View.GONE
+                    }
                     else -> { }
                 }
 
@@ -96,7 +100,7 @@ class OrderClientAdapter(
             binding.tvTags.setTextColor(ContextCompat.getColor(itemView.context, textColor))
         }
 
-        fun showOrderDialog(sourceButton: String, order: TransactionModel) {
+        fun showOrderDialog(sourceButton: String, order: TransactionDetailModel) {
             val dialogBinding = DialogOrderBinding.inflate(LayoutInflater.from(itemView.context), null, false)
             val orderDialog = AlertDialog.Builder(itemView.context).setView(dialogBinding.root).create()
 
@@ -125,19 +129,19 @@ class OrderClientAdapter(
                 btnConfirm.setOnClickListener {
                     when (sourceButton) {
                         "done" -> {
-                            transactionViewModel.updateTransactionStatusForBuyer(order.orderId, OrderStatus.COMPLETED.formatted())
-                            transactionViewModel.updateTransactionStatusForFreelancer(order.orderId, OrderStatus.WAITING_PAYMENT.formatted())
+                            transactionViewModel.updateTransactionStatusForBuyer(order.transaction.orderId, OrderStatus.COMPLETED.formatted())
+                            transactionViewModel.updateTransactionStatusForFreelancer(order.transaction.orderId, OrderStatus.WAITING_PAYMENT.formatted())
                             binding.btnDoneOrder.visibility = View.GONE
                             binding.btnChat.visibility = View.GONE
                             binding.btnRevision.visibility = View.GONE
                         }
                         "cancel" -> {
                             transactionViewModel.updateTransactionStatusForBuyer(
-                                order.orderId,
-                                OrderStatus.CANCELLED.formatted()
+                                order.transaction.orderId,
+                                OrderStatus.WAITING_REFUND.formatted()
                             )
                             transactionViewModel.updateTransactionStatusForFreelancer(
-                                order.orderId,
+                                order.transaction.orderId,
                                 OrderStatus.CANCELLED.formatted()
                             )
                             binding.btnCancelOrder.visibility = View.GONE
@@ -145,11 +149,11 @@ class OrderClientAdapter(
                         }
                         "revision" -> {
                             transactionViewModel.updateTransactionStatusForBuyer(
-                                order.orderId,
+                                order.transaction.orderId,
                                 OrderStatus.REVISION.formatted()
                             )
                             transactionViewModel.updateTransactionStatusForFreelancer(
-                                order.orderId,
+                                order.transaction.orderId,
                                 OrderStatus.REVISION.formatted()
                             )
                             binding.btnRevision.visibility = View.GONE
@@ -182,12 +186,12 @@ class OrderClientAdapter(
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<TransactionModel>() {
-            override fun areItemsTheSame(oldItem: TransactionModel, newItem: TransactionModel): Boolean {
-                return oldItem.orderId == newItem.orderId
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<TransactionDetailModel>() {
+            override fun areItemsTheSame(oldItem: TransactionDetailModel, newItem: TransactionDetailModel): Boolean {
+                return oldItem.transaction.orderId == newItem.transaction.orderId
             }
 
-            override fun areContentsTheSame(oldItem: TransactionModel, newItem: TransactionModel): Boolean {
+            override fun areContentsTheSame(oldItem: TransactionDetailModel, newItem: TransactionDetailModel): Boolean {
                 return oldItem == newItem
             }
         }

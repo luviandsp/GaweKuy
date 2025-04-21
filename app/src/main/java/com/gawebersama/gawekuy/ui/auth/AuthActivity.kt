@@ -13,6 +13,7 @@ import com.gawebersama.gawekuy.data.datastore.LoginPreferences
 import com.gawebersama.gawekuy.data.datastore.AppPreferences
 import com.gawebersama.gawekuy.databinding.ActivityAuthBinding
 import com.gawebersama.gawekuy.ui.main.MainActivity
+import com.gawebersama.gawekuy.ui.main.SuperAdminActivity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -23,6 +24,7 @@ class AuthActivity : AppCompatActivity() {
     private lateinit var appPreferences: AppPreferences
     private lateinit var loginPreferences: LoginPreferences
     private var loginStatus : Boolean? = null
+    private var adminLoginStatus : Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Splash screen ditahan dulu sampai login status dicek
@@ -39,7 +41,13 @@ class AuthActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             loginStatus = loginPreferences.getLoginStatus()
-            if (loginStatus == true) {
+            adminLoginStatus = loginPreferences.getAdminLoginStatus()
+            if (adminLoginStatus == true) {
+                Intent(this@AuthActivity, SuperAdminActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(this)
+                }
+            } else if (loginStatus == true) {
                 // Sudah login → langsung ke MainActivity
                 Intent(this@AuthActivity, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -13,7 +13,7 @@ gmsGoogleServices = "4.4.2"
 glide = "4.16.0"
 datastorePreferences = "1.1.4"
 kotlin = "2.0.21"
-coreKtx = "1.15.0"
+coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -37,6 +37,8 @@ androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx",
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+firebase-inappmessaging-display = { module = "com.google.firebase:firebase-inappmessaging-display" }
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexbox" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
 midtrans-uikit = { module = "com.midtrans:uikit", version.ref = "uikitVersion" }

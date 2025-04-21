@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.inappmessaging.display)
+    implementation(libs.firebase.messaging)
 
     // Supabase
     implementation(platform(libs.supabase.bom))

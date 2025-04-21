@@ -69,8 +69,8 @@ class ServiceDetailActivity : AppCompatActivity() {
 
     companion object {
         const val SERVICE_ID = "service_id"
-        const val TAG = "ServiceDetailActivity"
-        private const val SERVICE_FEE_MULTIPLIER = 0.1
+        private const val TAG = "ServiceDetailActivity"
+        private const val SERVICE_FEE_MULTIPLIER = 0.05
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -169,8 +169,8 @@ class ServiceDetailActivity : AppCompatActivity() {
             tvSelectedServiceName.text = selectedService.name
 
             tvServicePrice.text = getString(R.string.price_format, formatter.format(selectedService.price))
-            tvAppService.text = getString(R.string.price_format, formatter.format(selectedService.price * 0.1))
-            tvTotalPayment.text = getString(R.string.price_format, formatter.format(selectedService.price + (selectedService.price * 0.1)))
+            tvAppService.text = getString(R.string.price_format, formatter.format(selectedService.price * SERVICE_FEE_MULTIPLIER))
+            tvTotalPayment.text = getString(R.string.price_format, formatter.format(selectedService.price + (selectedService.price * SERVICE_FEE_MULTIPLIER)))
 
             btnPay.setOnClickListener {
                 orderId = "ORDER-${System.currentTimeMillis()}"
@@ -218,9 +218,9 @@ class ServiceDetailActivity : AppCompatActivity() {
                             val sdk = MidtransSDK.getInstance()
                             if (sdk != null) {
                                 sdk.startPaymentUiFlow(this@ServiceDetailActivity, snapToken)
-                                bottomSheetDialog.dismiss()
                                 saveTransactionToFirebase()
                                 updateServiceOrdered()
+                                bottomSheetDialog.dismiss()
                             } else {
                                 Toast.makeText(this@ServiceDetailActivity, "Midtrans belum siap. Coba buka ulang aplikasi.", Toast.LENGTH_SHORT).show()
                                 Log.e(TAG, "MidtransSDK is null, belum diinisialisasi.")
@@ -243,10 +243,6 @@ class ServiceDetailActivity : AppCompatActivity() {
         val status = OrderStatus.PENDING.formatted()
         val selectedService = serviceSelectedList.find { it.isSelected }
         val selectedServiceName = selectedService?.name
-        val serviceName = serviceViewModel.serviceName.value
-        val sellerName = serviceViewModel.ownerServiceName.value.toString()
-        val sellerEmail = serviceViewModel.ownerServiceEmail.value.toString()
-        val sellerPhone = serviceViewModel.ownerServicePhone.value.toString()
 
         if (buyerId == null || sellerId == null) {
             Toast.makeText(this, "Data transaksi belum lengkap", Toast.LENGTH_SHORT).show()
@@ -255,19 +251,13 @@ class ServiceDetailActivity : AppCompatActivity() {
             transactionViewModel.saveTransaction(
                 orderId = orderId,
                 serviceId = serviceId,
-                serviceName = serviceName,
                 selectedServiceType = selectedServiceName,
+                selectedServicePrice = servicePrice,
                 grossAmount = totalAmount,
                 statusForBuyer = status,
                 statusForFreelancer = status,
                 buyerId = buyerId,
-                buyerName = customerName,
-                buyerEmail = customerEmail,
-                buyerPhone = customerPhone,
                 sellerId = sellerId,
-                sellerName = sellerName,
-                sellerEmail = sellerEmail,
-                sellerPhone = sellerPhone,
                 transactionTime = Timestamp.now()
             )
         }
@@ -294,21 +284,25 @@ class ServiceDetailActivity : AppCompatActivity() {
             .setColorTheme(CustomColorTheme("#0084FF", "#004c94", "#0084FF"))
             .setLanguage("id")
             .setTransactionFinishedCallback { result ->
-                when {
-                    result.status != null -> {
-                        if (result.status == TransactionResult.STATUS_SUCCESS) {
-                            Toast.makeText(this, "Transaksi berhasil!", Toast.LENGTH_SHORT).show()
-
-                        } else {
-                            Toast.makeText(this, "Status: ${result.status}", Toast.LENGTH_SHORT).show()
-                            Log.d(TAG, "Status transaksi bukan success")
-                        }
+                val response = result.response
+                when (result.status) {
+                    TransactionResult.STATUS_SUCCESS -> {
+                        Toast.makeText(this, "Transaksi berhasil!", Toast.LENGTH_SHORT).show()
+                        Log.d(TAG, "Success: ${response.transactionId}")
                     }
-                    result.isTransactionCanceled -> {
-                        Toast.makeText(this, "Transaksi dibatalkan", Toast.LENGTH_SHORT).show()
+                    TransactionResult.STATUS_PENDING -> {
+                        Toast.makeText(this, "Menunggu pembayaran", Toast.LENGTH_SHORT).show()
+                    }
+                    TransactionResult.STATUS_FAILED -> {
+                        Toast.makeText(this, "Transaksi gagal", Toast.LENGTH_SHORT).show()
+                        Log.d(TAG, "Gagal: ${response?.statusMessage}")
                     }
                     else -> {
-                        Toast.makeText(this, "Transaksi gagal atau belum selesai", Toast.LENGTH_SHORT).show()
+                        if (result.isTransactionCanceled) {
+                            Toast.makeText(this, "Transaksi dibatalkan", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Transaksi tidak selesai", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }

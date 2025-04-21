@@ -1,7 +1,10 @@
 package com.gawebersama.gawekuy.data.repository
 
 import android.util.Log
+import com.gawebersama.gawekuy.data.datamodel.ServiceModel
+import com.gawebersama.gawekuy.data.datamodel.TransactionDetailModel
 import com.gawebersama.gawekuy.data.datamodel.TransactionModel
+import com.gawebersama.gawekuy.data.datamodel.UserModel
 import com.gawebersama.gawekuy.data.enum.OrderStatus
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
@@ -17,6 +20,7 @@ class TransactionRepository {
 
     private var lastDocument: DocumentSnapshot? = null
     private var isLastPage = false
+    private var lastVisibleTime: Timestamp? = null
 
     companion object {
         const val TAG = "TransactionRepository"
@@ -27,19 +31,13 @@ class TransactionRepository {
         return hashMapOf(
             "orderId" to orderId,
             "serviceId" to serviceId,
-            "serviceName" to serviceName,
             "selectedServiceType" to selectedServiceType,
+            "selectedServicePrice" to selectedServicePrice,
             "grossAmount" to grossAmount,
             "statusForBuyer" to statusForBuyer,
             "statusForFreelancer" to statusForFreelancer,
             "buyerId" to buyerId,
-            "buyerName" to buyerName,
-            "buyerEmail" to buyerEmail,
-            "buyerPhone" to buyerPhone,
             "sellerId" to sellerId,
-            "sellerName" to sellerName,
-            "sellerEmail" to sellerEmail,
-            "sellerPhone" to sellerPhone,
             "transactionTime" to transactionTime
         )
     }
@@ -48,19 +46,13 @@ class TransactionRepository {
         return TransactionModel(
             orderId = get("orderId") as? String ?: "",
             serviceId = get("serviceId") as? String,
-            serviceName = get("serviceName") as? String,
             selectedServiceType = get("selectedServiceType") as? String,
+            selectedServicePrice = (get("selectedServicePrice") as? Number)?.toInt() ?: 0,
             grossAmount = (get("grossAmount") as? Number)?.toInt() ?: 0,
             statusForBuyer = get("statusForBuyer") as? String ?: "",
             statusForFreelancer = get("statusForFreelancer") as? String ?: "",
             buyerId = get("buyerId") as? String ?: "",
-            buyerName = get("buyerName") as? String ?: "",
-            buyerEmail = get("buyerEmail") as? String ?: "",
-            buyerPhone = get("buyerPhone") as? String ?: "",
             sellerId = get("sellerId") as? String ?: "",
-            sellerName = get("sellerName") as? String ?: "",
-            sellerEmail = get("sellerEmail") as? String ?: "",
-            sellerPhone = get("sellerPhone") as? String ?: "",
             transactionTime = get("transactionTime") as? Timestamp ?: Timestamp.now()
         )
     }
@@ -68,37 +60,25 @@ class TransactionRepository {
     suspend fun saveTransaction(
         orderId: String,
         serviceId: String?,
-        serviceName: String?,
         selectedServiceType: String?,
+        selectedServicePrice: Int,
         grossAmount: Int,
         statusForBuyer: String,
         statusForFreelancer: String,
         buyerId: String,
-        buyerName: String,
-        buyerEmail: String,
-        buyerPhone: String,
         sellerId: String,
-        sellerName: String,
-        sellerEmail: String,
-        sellerPhone: String,
         transactionTime: Timestamp
     ) : Pair<Boolean, String?> {
         val transactionModelData = TransactionModel(
             orderId = orderId,
             serviceId = serviceId,
-            serviceName = serviceName,
             selectedServiceType = selectedServiceType,
+            selectedServicePrice = selectedServicePrice,
             grossAmount = grossAmount,
             statusForBuyer = statusForBuyer,
             statusForFreelancer = statusForFreelancer,
             buyerId = buyerId,
-            buyerName = buyerName,
-            buyerEmail = buyerEmail,
-            buyerPhone = buyerPhone,
             sellerId = sellerId,
-            sellerName = sellerName,
-            sellerEmail = sellerEmail,
-            sellerPhone = sellerPhone,
             transactionTime = transactionTime
         ).toHashMap()
 
@@ -117,9 +97,8 @@ class TransactionRepository {
         buyerId: String,
         filter: String? = null,
         resetPaging: Boolean = false
-    ): List<TransactionModel> {
+    ): List<TransactionDetailModel> {
         return try {
-
             if (resetPaging) {
                 lastDocument = null
                 isLastPage = false
@@ -127,6 +106,7 @@ class TransactionRepository {
 
             if (isLastPage) return emptyList()
 
+            // Query transaksi berdasarkan filter
             var query = when (filter) {
                 OrderStatus.ALL.name -> transactionCollection.whereEqualTo("buyerId", buyerId)
                 OrderStatus.REVISION.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "Revision")
@@ -134,6 +114,7 @@ class TransactionRepository {
                 OrderStatus.REJECTED.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "Rejected")
                 OrderStatus.CANCELLED.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "Cancelled")
                 OrderStatus.WAITING_RESPONSES.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "Waiting Responses")
+                OrderStatus.WAITING_REFUND.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "Waiting Refund")
                 OrderStatus.IN_PROGRESS.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "In Progress")
                 OrderStatus.COMPLETED.name -> transactionCollection.whereEqualTo("buyerId", buyerId).whereEqualTo("statusForBuyer", "Completed")
                 else -> transactionCollection.whereEqualTo("buyerId", buyerId)
@@ -145,14 +126,33 @@ class TransactionRepository {
 
             val querySnapshot = query.get().await()
             val transactions = querySnapshot.documents.mapNotNull { it.data?.toTransaction() }
-
             lastDocument = querySnapshot.documents.lastOrNull()
 
             if (querySnapshot.documents.size < PAGE_SIZE) {
                 isLastPage = true
             }
 
-            transactions
+            if (transactions.isEmpty()) return emptyList()
+
+            // Ambil semua serviceId, buyerId, sellerId
+            val serviceIds = transactions.mapNotNull { it.serviceId }.toSet()
+            val buyerIds = transactions.map { it.buyerId }.toSet()
+            val sellerIds = transactions.map { it.sellerId }.toSet()
+
+            val serviceMap = fetchServicesByIds(serviceIds)
+            val buyerMap = fetchUsersByIds(buyerIds)
+            val sellerMap = fetchUsersByIds(sellerIds)
+
+            return transactions.mapNotNull { transaction ->
+                val service = serviceMap[transaction.serviceId]
+                val buyer = buyerMap[transaction.buyerId]
+                val seller = sellerMap[transaction.sellerId]
+
+                if (service != null && buyer != null && seller != null) {
+                    TransactionDetailModel(transaction, service, buyer, seller)
+                } else null
+            }
+
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error getting transactions by buyer ID: ${e.message}")
@@ -164,7 +164,7 @@ class TransactionRepository {
         sellerId: String,
         filter: String? = null,
         resetPaging: Boolean = false
-    ): List<TransactionModel> {
+    ): List<TransactionDetailModel> {
         return try {
             if (resetPaging) {
                 lastDocument = null
@@ -200,7 +200,26 @@ class TransactionRepository {
                 isLastPage = true
             }
 
-            transactions
+            if (transactions.isEmpty()) return emptyList()
+
+            // Ambil semua serviceId, buyerId, sellerId
+            val serviceIds = transactions.mapNotNull { it.serviceId }.toSet()
+            val buyerIds = transactions.map { it.buyerId }.toSet()
+            val sellerIds = transactions.map { it.sellerId }.toSet()
+
+            val serviceMap = fetchServicesByIds(serviceIds)
+            val buyerMap = fetchUsersByIds(buyerIds)
+            val sellerMap = fetchUsersByIds(sellerIds)
+
+            return transactions.mapNotNull { transaction ->
+                val service = serviceMap[transaction.serviceId]
+                val buyer = buyerMap[transaction.buyerId]
+                val seller = sellerMap[transaction.sellerId]
+
+                if (service != null && buyer != null && seller != null) {
+                    TransactionDetailModel(transaction, service, buyer, seller)
+                } else null
+            }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error getting transactions by seller ID: ${e.message}")
@@ -211,35 +230,81 @@ class TransactionRepository {
     suspend fun getAllTransaction(
         filter: String?,
         resetPaging: Boolean = false
-    ): List<TransactionModel> {
+    ): List<TransactionDetailModel> {
         return try {
             if (resetPaging) {
-                lastDocument = null
+                lastVisibleTime = null
                 isLastPage = false
             }
 
             if (isLastPage) return emptyList()
 
-            var query = when (filter) {
-                OrderStatus.WAITING_PAYMENT.name -> transactionCollection.whereEqualTo("statusForFreelancer", "Waiting Payment")
-                OrderStatus.PAID.name -> transactionCollection.whereEqualTo("statusForFreelancer", "Paid")
-                else -> transactionCollection
-            }.orderBy("transactionTime", DESCENDING).limit(PAGE_SIZE.toLong())
-
-            lastDocument?.let {
-                query = query.startAfter(it)
+            val queries = when (filter) {
+                OrderStatus.WAITING_REFUND.name -> listOf(
+                    transactionCollection.whereEqualTo("statusForBuyer", "Waiting Refund")
+                )
+                OrderStatus.CANCELLED.name -> listOf(
+                    transactionCollection.whereEqualTo("statusForBuyer", "Cancelled")
+                )
+                OrderStatus.WAITING_PAYMENT.name -> listOf(
+                    transactionCollection.whereEqualTo("statusForFreelancer", "Waiting Payment")
+                )
+                OrderStatus.PAID.name -> listOf(
+                    transactionCollection.whereEqualTo("statusForFreelancer", "Paid")
+                )
+                else -> listOf(
+                    transactionCollection.whereEqualTo("statusForBuyer", "Waiting Refund"),
+                    transactionCollection.whereEqualTo("statusForBuyer", "Cancelled"),
+                    transactionCollection.whereEqualTo("statusForFreelancer", "Waiting Payment"),
+                    transactionCollection.whereEqualTo("statusForFreelancer", "Paid")
+                )
             }
 
-            val querySnapshot = query.get().await()
-            val transactions = querySnapshot.documents.mapNotNull { it.data?.toTransaction() }
+            val allTransactions = mutableListOf<TransactionModel>()
 
-            lastDocument = querySnapshot.documents.lastOrNull()
+            for (query in queries) {
+                var pagedQuery = query.orderBy("transactionTime", DESCENDING).limit(PAGE_SIZE.toLong() * 2)
 
-            if (querySnapshot.documents.size < PAGE_SIZE) {
+                lastVisibleTime?.let { timestamp ->
+                    pagedQuery = pagedQuery.whereLessThan("transactionTime", timestamp)
+                }
+
+                val snapshot = pagedQuery.get().await()
+                val transactions = snapshot.documents.mapNotNull { it.data?.toTransaction() }
+                allTransactions.addAll(transactions)
+            }
+
+            val sorted = allTransactions
+                .distinctBy { it.orderId }
+                .sortedByDescending { it.transactionTime }
+                .take(PAGE_SIZE)
+
+            lastVisibleTime = sorted.lastOrNull()?.transactionTime
+
+            if (sorted.size < PAGE_SIZE) {
                 isLastPage = true
             }
 
-            transactions
+            if (sorted.isEmpty()) return emptyList()
+
+            // Enrich data
+            val serviceIds = sorted.mapNotNull { it.serviceId }.toSet()
+            val buyerIds = sorted.map { it.buyerId }.toSet()
+            val sellerIds = sorted.map { it.sellerId }.toSet()
+
+            val serviceMap = fetchServicesByIds(serviceIds)
+            val buyerMap = fetchUsersByIds(buyerIds)
+            val sellerMap = fetchUsersByIds(sellerIds)
+
+            return sorted.mapNotNull { transaction ->
+                val service = serviceMap[transaction.serviceId]
+                val buyer = buyerMap[transaction.buyerId]
+                val seller = sellerMap[transaction.sellerId]
+
+                if (service != null && buyer != null && seller != null) {
+                    TransactionDetailModel(transaction, service, buyer, seller)
+                } else null
+            }
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e(TAG, "Error getting all transactions: ${e.message}")
@@ -283,5 +348,33 @@ class TransactionRepository {
 
     fun isLastPage(): Boolean {
         return isLastPage
+    }
+
+    private suspend fun fetchServicesByIds(serviceIds: Set<String>): Map<String, ServiceModel> {
+        val result = mutableMapOf<String, ServiceModel>()
+        serviceIds.chunked(10).forEach { chunk ->
+            val snapshot = firestore.collection("services")
+                .whereIn("serviceId", chunk)
+                .get()
+                .await()
+
+            val services = snapshot.documents.mapNotNull { it.toObject(ServiceModel::class.java) }
+            result.putAll(services.associateBy { it.serviceId })
+        }
+        return result
+    }
+
+    private suspend fun fetchUsersByIds(userIds: Set<String>): Map<String, UserModel> {
+        val result = mutableMapOf<String, UserModel>()
+        userIds.chunked(10).forEach { chunk ->
+            val snapshot = firestore.collection("users")
+                .whereIn("userId", chunk)
+                .get()
+                .await()
+
+            val users = snapshot.documents.mapNotNull { it.toObject(UserModel::class.java) }
+            result.putAll(users.associateBy { it.userId })
+        }
+        return result
     }
 }

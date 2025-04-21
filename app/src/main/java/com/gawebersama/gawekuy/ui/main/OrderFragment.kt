@@ -44,7 +44,7 @@ class OrderFragment : Fragment() {
     private var sellerId : String = ""
 
     companion object {
-        const val TAG = "OrderFragment"
+        private const val TAG = "OrderFragment"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +71,7 @@ class OrderFragment : Fragment() {
         binding.srlOrder.setOnRefreshListener {
             refreshOrderData()
         }
+
         userViewModel.getUser()
 
         initViews()
@@ -194,6 +195,22 @@ class OrderFragment : Fragment() {
                 getTransactionData()
             }
 
+            btnWaitingRefundOrder.setOnClickListener {
+                orderType = OrderStatus.WAITING_REFUND.name
+                lifecycleScope.launch {
+                    visibilityButton(orderType)
+                }
+                getTransactionData()
+            }
+
+            btnCancelledOrder.setOnClickListener {
+                orderType = OrderStatus.CANCELLED.name
+                lifecycleScope.launch {
+                    visibilityButton(orderType)
+                }
+                getTransactionData()
+            }
+
         }
     }
 
@@ -205,11 +222,6 @@ class OrderFragment : Fragment() {
             binding.rvOrder.adapter = orderFreelancerAdapter
             transactionViewModel.getAllTransactionsBySellerId(sellerId, orderType, resetPaging = true)
         }
-
-        Log.d(TAG, "Buyer ID: $buyerId")
-        Log.d(TAG, "Seller ID: $sellerId")
-        Log.d(TAG, "Order Type: $orderType")
-        Log.d(TAG, "Is Client: $isClient")
     }
 
     private suspend fun updateRoleButton(isClient: Boolean) {
@@ -221,10 +233,8 @@ class OrderFragment : Fragment() {
                 btnFreelancer.background = createButtonDrawable(false, true)
                 btnFreelancer.setTextColor(getColor(requireContext(), R.color.inactive_color_text))
 
-                val layoutParams = btnDoneOrder.layoutParams as ViewGroup.MarginLayoutParams
-                layoutParams.marginEnd = (16 * resources.displayMetrics.density).toInt()
-                btnDoneOrder.layoutParams = layoutParams
-
+                btnDoneOrder.visibility = View.VISIBLE
+                btnWaitingRefundOrder.visibility = View.VISIBLE
                 btnPaidOrder.visibility = View.GONE
                 btnWatingPaymentOrder.visibility = View.GONE
             } else {
@@ -234,10 +244,8 @@ class OrderFragment : Fragment() {
                 btnClient.background = createButtonDrawable(false, false)
                 btnClient.setTextColor(getColor(requireContext(), R.color.inactive_color_text))
 
-                val layoutParams = btnDoneOrder.layoutParams as ViewGroup.MarginLayoutParams
-                layoutParams.marginEnd = 0
-                btnDoneOrder.layoutParams = layoutParams
-
+                btnDoneOrder.visibility = View.GONE
+                btnWaitingRefundOrder.visibility = View.GONE
                 btnPaidOrder.visibility = View.VISIBLE
                 btnWatingPaymentOrder.visibility = View.VISIBLE
             }
@@ -308,6 +316,8 @@ class OrderFragment : Fragment() {
                     setInactive(btnWaitingOrder)
                     setInactive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
                 }
                 OrderStatus.IN_PROGRESS.name -> {
                     setInactive(btnAllOrder)
@@ -317,6 +327,8 @@ class OrderFragment : Fragment() {
                     setInactive(btnWaitingOrder)
                     setInactive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
                 }
                 OrderStatus.REVISION.name -> {
                     setInactive(btnAllOrder)
@@ -326,6 +338,8 @@ class OrderFragment : Fragment() {
                     setInactive(btnWaitingOrder)
                     setInactive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
                 }
                 OrderStatus.PAID.name -> {
                     setInactive(btnAllOrder)
@@ -335,6 +349,8 @@ class OrderFragment : Fragment() {
                     setInactive(btnWaitingOrder)
                     setInactive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
                 }
                 OrderStatus.WAITING_RESPONSES.name -> {
                     setInactive(btnAllOrder)
@@ -344,6 +360,8 @@ class OrderFragment : Fragment() {
                     setActive(btnWaitingOrder)
                     setInactive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
                 }
                 OrderStatus.WAITING_PAYMENT.name -> {
                     setInactive(btnAllOrder)
@@ -353,6 +371,8 @@ class OrderFragment : Fragment() {
                     setInactive(btnWaitingOrder)
                     setActive(btnWatingPaymentOrder)
                     setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
                 }
                 OrderStatus.COMPLETED.name -> {
                     setInactive(btnAllOrder)
@@ -362,6 +382,30 @@ class OrderFragment : Fragment() {
                     setInactive(btnWaitingOrder)
                     setInactive(btnWatingPaymentOrder)
                     setActive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
+                }
+                OrderStatus.CANCELLED.name -> {
+                    setInactive(btnAllOrder)
+                    setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
+                    setInactive(btnDoneOrder)
+                    setActive(btnCancelledOrder)
+                    setInactive(btnWaitingRefundOrder)
+                }
+                OrderStatus.WAITING_REFUND.name -> {
+                    setInactive(btnAllOrder)
+                    setInactive(btnInProgressOrder)
+                    setInactive(btnRevisionOrder)
+                    setInactive(btnPaidOrder)
+                    setInactive(btnWaitingOrder)
+                    setInactive(btnWatingPaymentOrder)
+                    setInactive(btnDoneOrder)
+                    setInactive(btnCancelledOrder)
+                    setActive(btnWaitingRefundOrder)
                 }
                 else -> { }
             }
