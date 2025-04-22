@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -21,13 +22,16 @@ import com.gawebersama.gawekuy.data.api.RetrofitClient
 import com.gawebersama.gawekuy.data.datamodel.CustomerDetails
 import com.gawebersama.gawekuy.data.datamodel.ItemDetails
 import com.gawebersama.gawekuy.data.datamodel.MidtransRequest
+import com.gawebersama.gawekuy.data.datamodel.OrderStatusRequest
 import com.gawebersama.gawekuy.data.datamodel.ServiceSelectionModel
+import com.gawebersama.gawekuy.data.datastore.TransactionPreferences
 import com.gawebersama.gawekuy.data.enum.OrderStatus
 import com.gawebersama.gawekuy.data.viewmodel.ServiceViewModel
 import com.gawebersama.gawekuy.data.viewmodel.TransactionViewModel
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityServiceDetailBinding
 import com.gawebersama.gawekuy.databinding.BottomSheetDialogOrderDetailBinding
+import com.gawebersama.gawekuy.databinding.DialogDetailPendingOrderBinding
 import com.gawebersama.gawekuy.ui.portfolio.FreelancerPortfolioActivity
 import com.gawebersama.gawekuy.ui.profile.FreelancerProfileActivity
 import com.google.android.flexbox.FlexDirection
@@ -49,6 +53,7 @@ class ServiceDetailActivity : AppCompatActivity() {
     private val serviceViewModel by viewModels<ServiceViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
     private val transactionViewModel by viewModels<TransactionViewModel>()
+    private lateinit var transactionPreferences: TransactionPreferences
 
     private lateinit var serviceTagAdapter: ServiceShowTagsAdapter
     private val serviceTagList = mutableListOf<String>()
@@ -57,15 +62,16 @@ class ServiceDetailActivity : AppCompatActivity() {
     private val serviceSelectedList = mutableListOf<ServiceSelectionModel>()
 
     private var serviceId: String? = null
+    private var hasCheckedTransaction = false
 
-    private var orderId : String = ""
-    private var serviceFee : Int = 0
-    private var servicePrice : Int = 0
-    private var totalAmount : Int = 0
-    private var customerName : String = ""
-    private var customerEmail : String = ""
-    private var customerPhone : String = ""
-    private var thisServiceCategory : String = ""
+    private var orderId: String = ""
+    private var serviceFee: Int = 0
+    private var servicePrice: Int = 0
+    private var totalAmount: Int = 0
+    private var customerName: String = ""
+    private var customerEmail: String = ""
+    private var customerPhone: String = ""
+    private var thisServiceCategory: String = ""
 
     companion object {
         const val SERVICE_ID = "service_id"
@@ -83,6 +89,8 @@ class ServiceDetailActivity : AppCompatActivity() {
             insets
         }
 
+        transactionPreferences = TransactionPreferences(this)
+
         serviceId = intent.getStringExtra(SERVICE_ID)
         Log.d(TAG, "Service ID received: $serviceId")
         if (serviceId != null) {
@@ -91,6 +99,7 @@ class ServiceDetailActivity : AppCompatActivity() {
 
         initViews()
         observeViewModels()
+        callMidtrans()
     }
 
     private fun initViews() {
@@ -108,12 +117,13 @@ class ServiceDetailActivity : AppCompatActivity() {
                 setHasFixedSize(true)
             }
 
-            serviceSelectedAdapter = ServiceSelectedAdapter(serviceSelectedList) { position, isChecked ->
-                serviceSelectedList.forEachIndexed { index, service ->
-                    service.isSelected = (index == position && isChecked)
+            serviceSelectedAdapter =
+                ServiceSelectedAdapter(serviceSelectedList) { position, isChecked ->
+                    serviceSelectedList.forEachIndexed { index, service ->
+                        service.isSelected = (index == position && isChecked)
+                    }
+                    serviceSelectedAdapter.notifyItemRangeChanged(0, serviceSelectedList.size)
                 }
-                serviceSelectedAdapter.notifyItemRangeChanged(0, serviceSelectedList.size)
-            }
 
             rvServiceSelection.apply {
                 layoutManager = LinearLayoutManager(this@ServiceDetailActivity)
@@ -122,13 +132,15 @@ class ServiceDetailActivity : AppCompatActivity() {
             }
 
             llPortfolio.setOnClickListener {
-                val intent = Intent(this@ServiceDetailActivity, FreelancerPortfolioActivity::class.java)
+                val intent =
+                    Intent(this@ServiceDetailActivity, FreelancerPortfolioActivity::class.java)
                 intent.putExtra(FreelancerPortfolioActivity.SERVICE_ID, serviceId)
                 startActivity(intent)
             }
 
             llOwnerProfile.setOnClickListener {
-                val intent = Intent(this@ServiceDetailActivity, FreelancerProfileActivity::class.java)
+                val intent =
+                    Intent(this@ServiceDetailActivity, FreelancerProfileActivity::class.java)
                 intent.putExtra(FreelancerProfileActivity.SERVICE_ID, serviceId)
                 startActivity(intent)
             }
@@ -141,12 +153,20 @@ class ServiceDetailActivity : AppCompatActivity() {
                 val userId = userViewModel.userId.value
 
                 if (selectedService == null) {
-                    Toast.makeText(this@ServiceDetailActivity, "Pilih salah satu jenis layanan terlebih dahulu", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ServiceDetailActivity,
+                        "Pilih salah satu jenis layanan terlebih dahulu",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setOnClickListener
                 }
 
                 if (userId == ownerId) {
-                    Toast.makeText(this@ServiceDetailActivity, "Anda tidak bisa memesan layanan Anda sendiri", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ServiceDetailActivity,
+                        "Anda tidak bisa memesan layanan Anda sendiri",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setOnClickListener
                 }
 
@@ -168,9 +188,16 @@ class ServiceDetailActivity : AppCompatActivity() {
             tvServiceName.text = serviceViewModel.serviceName.value
             tvSelectedServiceName.text = selectedService.name
 
-            tvServicePrice.text = getString(R.string.price_format, formatter.format(selectedService.price))
-            tvAppService.text = getString(R.string.price_format, formatter.format(selectedService.price * SERVICE_FEE_MULTIPLIER))
-            tvTotalPayment.text = getString(R.string.price_format, formatter.format(selectedService.price + (selectedService.price * SERVICE_FEE_MULTIPLIER)))
+            tvServicePrice.text =
+                getString(R.string.price_format, formatter.format(selectedService.price))
+            tvAppService.text = getString(
+                R.string.price_format,
+                formatter.format(selectedService.price * SERVICE_FEE_MULTIPLIER)
+            )
+            tvTotalPayment.text = getString(
+                R.string.price_format,
+                formatter.format(selectedService.price + (selectedService.price * SERVICE_FEE_MULTIPLIER))
+            )
 
             btnPay.setOnClickListener {
                 orderId = "ORDER-${System.currentTimeMillis()}"
@@ -206,7 +233,6 @@ class ServiceDetailActivity : AppCompatActivity() {
                 )
 
                 Log.d(TAG, "Request: $request")
-                callMidtrans()
 
                 lifecycleScope.launch {
                     try {
@@ -215,26 +241,88 @@ class ServiceDetailActivity : AppCompatActivity() {
                         Log.d(TAG, "Response Body: ${response.body()}")
                         if (response.isSuccessful && response.body() != null) {
                             val snapToken = response.body()!!.token
+
+                            transactionPreferences.saveToken(token = snapToken)
+                            transactionPreferences.saveTransactionId(transactionId = orderId)
+                            transactionPreferences.saveGrossAmount(grossAmount = totalAmount)
+                            transactionPreferences.saveServiceName(serviceName = serviceViewModel.serviceName.value.toString())
+                            transactionPreferences.saveSelectedService(selectedService = selectedService.name)
+
                             val sdk = MidtransSDK.getInstance()
                             if (sdk != null) {
                                 sdk.startPaymentUiFlow(this@ServiceDetailActivity, snapToken)
-                                saveTransactionToFirebase()
-                                updateServiceOrdered()
                                 bottomSheetDialog.dismiss()
                             } else {
-                                Toast.makeText(this@ServiceDetailActivity, "Midtrans belum siap. Coba buka ulang aplikasi.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@ServiceDetailActivity,
+                                    "Midtrans belum siap. Coba buka ulang aplikasi.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 Log.e(TAG, "MidtransSDK is null, belum diinisialisasi.")
                             }
                         } else {
-                            Toast.makeText(this@ServiceDetailActivity, "Gagal mendapatkan token pembayaran", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ServiceDetailActivity,
+                                "Gagal mendapatkan token pembayaran",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     } catch (e: Exception) {
-                        Toast.makeText(this@ServiceDetailActivity, "Terjadi kesalahan: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@ServiceDetailActivity,
+                            "Terjadi kesalahan: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         Log.e(TAG, "Error creating transaction", e)
                     }
                 }
             }
         }
+    }
+
+    private suspend fun continuePendingTransactionIfExists() {
+        val token = transactionPreferences.getToken()
+        val status = transactionPreferences.getTransactionStatus()
+        Log.d(TAG, "Token: $token")
+
+        if (status == "pending" && token != null) {
+            showPendingOrderDialog(token)
+            Log.d(TAG, "Melanjutkan transaksi pending dengan token: $token")
+        }
+    }
+
+    private suspend fun showPendingOrderDialog(token: String) {
+        val dialogBinding = DialogDetailPendingOrderBinding.inflate(layoutInflater)
+        val layoutDialog = AlertDialog.Builder(this@ServiceDetailActivity).setView(dialogBinding.root).create()
+
+        layoutDialog.setCancelable(false)
+
+        with(dialogBinding) {
+            val serviceName = transactionPreferences.getServiceName()
+            val selectedService = transactionPreferences.getSelectedService()
+            val orderId = transactionPreferences.getTransactionId()
+            val formatter = DecimalFormat("#,###")
+
+            tvServiceName.text = serviceName
+            tvSelectedServiceName.text = selectedService
+            tvOrderId.text = orderId
+            tvServicePrice.text = getString(R.string.price_format, formatter.format(transactionPreferences.getGrossAmount()))
+
+            btnContinueOrder.setOnClickListener {
+                MidtransSDK.getInstance().startPaymentUiFlow(this@ServiceDetailActivity, token)
+                layoutDialog.dismiss()
+            }
+
+            btnCancelOrder.setOnClickListener {
+                lifecycleScope.launch {
+                    transactionPreferences.clearTransactionData()
+                }
+                layoutDialog.dismiss()
+            }
+        }
+
+        layoutDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        layoutDialog.show()
     }
 
     private fun saveTransactionToFirebase() {
@@ -284,31 +372,71 @@ class ServiceDetailActivity : AppCompatActivity() {
             .setColorTheme(CustomColorTheme("#0084FF", "#004c94", "#0084FF"))
             .setLanguage("id")
             .setTransactionFinishedCallback { result ->
-                val response = result.response
+                Log.d(TAG, "Status Transaksi: ${result.status}")
                 when (result.status) {
                     TransactionResult.STATUS_SUCCESS -> {
-                        Toast.makeText(this, "Transaksi berhasil!", Toast.LENGTH_SHORT).show()
-                        Log.d(TAG, "Success: ${response.transactionId}")
+                        Toast.makeText(this@ServiceDetailActivity, "Transaksi berhasil", Toast.LENGTH_SHORT).show()
                     }
                     TransactionResult.STATUS_PENDING -> {
-                        Toast.makeText(this, "Menunggu pembayaran", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ServiceDetailActivity, "Transaksi pending", Toast.LENGTH_SHORT).show()
                     }
                     TransactionResult.STATUS_FAILED -> {
-                        Toast.makeText(this, "Transaksi gagal", Toast.LENGTH_SHORT).show()
-                        Log.d(TAG, "Gagal: ${response?.statusMessage}")
+                        Toast.makeText(this@ServiceDetailActivity, "Transaksi gagal", Toast.LENGTH_SHORT).show()
+                    }
+                    TransactionResult.STATUS_INVALID -> {
+                        Toast.makeText(this@ServiceDetailActivity, "Transaksi tidak valid", Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-                        if (result.isTransactionCanceled) {
-                            Toast.makeText(this, "Transaksi dibatalkan", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(this, "Transaksi tidak selesai", Toast.LENGTH_SHORT).show()
-                        }
+                        Toast.makeText(this@ServiceDetailActivity, "Transaksi tidak diketahui", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
             .buildSDK()
     }
 
+    private fun getTransactionStatus(transactionId: String? = null) {
+        lifecycleScope.launch {
+            try {
+                val statusResponse = RetrofitClient.apiService.getTransactionStatus(
+                    OrderStatusRequest(orderId = transactionId.toString())
+                )
+                if (statusResponse.isSuccessful && statusResponse.body() != null) {
+                    val status = statusResponse.body()!!
+                    Log.d(TAG, "Status Transaksi: ${status.transaction_status}")
+                    transactionPreferences.saveTransactionStatus(status.transaction_status)
+
+                    if (!hasCheckedTransaction) {
+                        when (status.transaction_status) {
+                            "settlement" -> {
+                                hasCheckedTransaction = true
+                                saveTransactionToFirebase()
+                                updateServiceOrdered()
+                                transactionPreferences.clearTransactionData()
+                                finish()
+                                Log.d(TAG, "Transaction settled")
+                            }
+                            "pending" -> {
+                                continuePendingTransactionIfExists()
+                                Log.d(TAG, "Transaction pending")
+                            }
+                            "cancel" -> {
+                                Log.d(TAG, "Transaction canceled")
+                            }
+                            "expire" -> {
+                                Log.d(TAG, "Transaction expired")
+                                Toast.makeText(this@ServiceDetailActivity, "Pembayaran Anda telah expired", Toast.LENGTH_SHORT).show()
+                                finish()
+                            }
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "Gagal mendapatkan status transaksi")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting transaction status", e)
+            }
+        }
+    }
 
     private fun observeViewModels() {
         serviceViewModel.apply {
@@ -321,9 +449,11 @@ class ServiceDetailActivity : AppCompatActivity() {
 
             imageBannerUrl.observe(this@ServiceDetailActivity) { imageUrl ->
                 if (imageUrl != null && imageUrl.isNotEmpty()) {
-                    Glide.with(this@ServiceDetailActivity).load(imageUrl).into(binding.ivServiceBanner)
+                    Glide.with(this@ServiceDetailActivity).load(imageUrl)
+                        .into(binding.ivServiceBanner)
                 } else {
-                    Glide.with(this@ServiceDetailActivity).load(R.drawable.logo_background).into(binding.ivServiceBanner)
+                    Glide.with(this@ServiceDetailActivity).load(R.drawable.logo_background)
+                        .into(binding.ivServiceBanner)
                 }
             }
 
@@ -349,14 +479,34 @@ class ServiceDetailActivity : AppCompatActivity() {
 
             ownerServiceAccountStatus.observe(this@ServiceDetailActivity) { status ->
                 with(binding) {
-                    if(status == true) {
+                    if (status == true) {
                         tvStatusAccount.setText(R.string.active)
-                        tvStatusAccount.setTextColor(ContextCompat.getColor(this@ServiceDetailActivity, R.color.active_color_text))
-                        cvStatusAccount.setCardBackgroundColor(ContextCompat.getColor(this@ServiceDetailActivity, R.color.active_color))
+                        tvStatusAccount.setTextColor(
+                            ContextCompat.getColor(
+                                this@ServiceDetailActivity,
+                                R.color.active_color_text
+                            )
+                        )
+                        cvStatusAccount.setCardBackgroundColor(
+                            ContextCompat.getColor(
+                                this@ServiceDetailActivity,
+                                R.color.active_color
+                            )
+                        )
                     } else {
                         tvStatusAccount.setText(R.string.inactive)
-                        tvStatusAccount.setTextColor(ContextCompat.getColor(this@ServiceDetailActivity, R.color.inactive_color_text))
-                        cvStatusAccount.setCardBackgroundColor(ContextCompat.getColor(this@ServiceDetailActivity, R.color.inactive_color))
+                        tvStatusAccount.setTextColor(
+                            ContextCompat.getColor(
+                                this@ServiceDetailActivity,
+                                R.color.inactive_color_text
+                            )
+                        )
+                        cvStatusAccount.setCardBackgroundColor(
+                            ContextCompat.getColor(
+                                this@ServiceDetailActivity,
+                                R.color.inactive_color
+                            )
+                        )
                     }
                 }
             }
@@ -398,4 +548,14 @@ class ServiceDetailActivity : AppCompatActivity() {
 
     fun String.capitalizeWords(): String =
         split(" ").joinToString(" ") { it.replaceFirstChar { char -> char.uppercase() } }
+
+    override fun onResume() {
+        super.onResume()
+        transactionPreferences = TransactionPreferences(this)
+
+        lifecycleScope.launch {
+            val transactionId = transactionPreferences.getTransactionId()
+            getTransactionStatus(transactionId = transactionId)
+        }
+    }
 }

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginEnd="24dp"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_gravity="center"
+    app:cardCornerRadius="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:orientation="vertical">
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/Dialog.Title"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:layout_gravity="start"
+            android:text="@string/pending_transaction"/>
+
+        <TextView
+            android:id="@+id/tvDialogMessage"
+            style="@style/Dialog.Message"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:justificationMode="inter_word"
+            android:text="@string/message_dialog_pending_order" />
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/Dialog.Title"
+            app:fontFamily="@font/urbanist_semibold"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_gravity="start"
+            android:text="@string/order_detail"/>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="16dp">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle"
+                    android:text="@string/order_id"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle.Colon"
+                    android:text="@string/colon"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_order_id"
+                    style="@style/ValueTextStyle"
+                    android:text="@string/order_id"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle"
+                    android:text="@string/service_name"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle.Colon"
+                    android:text="@string/colon"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_service_name"
+                    style="@style/ValueTextStyle"
+                    android:text="@string/service_name"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle"
+                    android:text="@string/selected_service"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle.Colon"
+                    android:text="@string/colon"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_selected_service_name"
+                    style="@style/ValueTextStyle"
+                    android:text="@string/selected_service_name"/>
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle"
+                    android:text="@string/service_price"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    style="@style/LabelTextStyle.Colon"
+                    android:text="@string/colon"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_service_price"
+                    style="@style/ValueTextStyle"
+                    android:text="@string/service_price"/>
+            </TableRow>
+        </TableLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_continue_order"
+            style="@style/ButtonAuth.Register"
+            android:text="@string/continue_transaction"
+            app:strokeColor="@color/blue"
+            app:strokeWidth="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:textColor="@color/blue"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_order"
+            style="@style/ButtonAuth.Register"
+            android:text="@string/cancel_order"
+            app:strokeColor="@color/red"
+            app:strokeWidth="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

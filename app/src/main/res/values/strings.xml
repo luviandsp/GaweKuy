@@ -204,4 +204,7 @@
     <string name="waiting_refund">Menunggu Refund</string>
     <string name="cancelled">Dibatalkan</string>
     <string name="user_role">Peran Pengguna</string>
+    <string name="continue_transaction">Lanjutkan Transaksi</string>
+    <string name="pending_transaction">Transaksi Tertunda!!</string>
+    <string name="message_dialog_pending_order">Hai, kamu memiliki transaksi yang belum selesai, mohon diselesaikan terlebih dahulu sebelum expired!</string>
 </resources>

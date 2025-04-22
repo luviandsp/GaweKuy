@@ -21,3 +21,7 @@ data class ItemDetails(
     val name: String,
     val category: String
 )
+
+data class OrderStatusRequest(
+    val orderId: String
+)
