@@ -77,8 +77,8 @@ dependencies {
     implementation(libs.supabase.storage.kt)
 
     // Midtrans
-    implementation(libs.midtrans.uikit.sandbox)
-//    implementation(libs.midtrans.uikit)
+//    implementation(libs.midtrans.uikit.sandbox)
+    implementation(libs.midtrans.uikit)
 
     // Retrofit
     implementation(libs.retrofit)

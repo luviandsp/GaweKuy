@@ -100,6 +100,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_notification"
         style="@style/CardViewApp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cv_theme">

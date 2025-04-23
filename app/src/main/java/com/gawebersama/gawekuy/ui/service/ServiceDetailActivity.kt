@@ -387,7 +387,7 @@ class ServiceDetailActivity : AppCompatActivity() {
                         Toast.makeText(this@ServiceDetailActivity, "Transaksi tidak valid", Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-                        Toast.makeText(this@ServiceDetailActivity, "Transaksi tidak diketahui", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@ServiceDetailActivity, "Transaksi dibatalkan", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
