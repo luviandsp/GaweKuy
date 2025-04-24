@@ -165,6 +165,7 @@ class EditProfileActivity : AppCompatActivity() {
                 binding.tietPhoneNumber.setText(phoneWithoutCode)
             }
             userBiography.observe(this@EditProfileActivity) { binding.tietBiography.setText(it) }
+
             userStatus.observe(this@EditProfileActivity) { status ->
                 val formattedStatus = status?.lowercase()?.replace("_", " ")?.capitalizeWords()
                 if (statusList.contains(formattedStatus)) {

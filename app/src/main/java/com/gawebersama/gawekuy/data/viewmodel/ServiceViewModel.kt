@@ -211,7 +211,7 @@ class ServiceViewModel : ViewModel() {
                 _ownerServiceAccountStatus.postValue(service.user.accountStatus)
                 _ownerServiceBio.postValue(service.user.biography)
                 _ownerStatus.postValue(service.user.userStatus)
-                _ownerBankName.postValue(service.user.paymentInfo?.bankName)
+                _ownerBankName.postValue(service.user.paymentInfo?.bankType)
                 _ownerBankAccountNumber.postValue(service.user.paymentInfo?.bankAccountNumber)
                 _ownerBankAccountName.postValue(service.user.paymentInfo?.bankAccountName)
                 _ownerEwalletType.postValue(service.user.paymentInfo?.ewalletType)

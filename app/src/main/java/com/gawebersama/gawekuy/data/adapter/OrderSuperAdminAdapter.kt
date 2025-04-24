@@ -147,7 +147,7 @@ class OrderSuperAdminAdapter(
                         trEwalletAccountName.visibility = View.GONE
                         trEwalletNumber.visibility = View.GONE
 
-                        tvBankName.text = sellerPaymentInfo.bankName
+                        tvBankType.text = sellerPaymentInfo.bankType
                         tvBankAccountName.text = sellerPaymentInfo.bankAccountName
                         tvBankAccountNumber.text = sellerPaymentInfo.bankAccountNumber
                         tvBankAccountNumber.setOnLongClickListener {

@@ -222,10 +222,8 @@ class ServiceRepository() {
             val userIds = services.map { it.userId }.toSet()
             if (userIds.isEmpty()) return emptyList()
 
-            val userMap = fetchUsersByIds(userIds)
-
-            Log.d(TAG, "Last document: ${lastDocument?.id}")
-            Log.d(TAG, "Total fetched services: ${services.size}")
+            val userMap = userCollection.whereIn("userId", userIds.toList()).get().await()
+                .documents.mapNotNull { it.toObject(UserModel::class.java) }.associateBy { it.userId }
 
             // Combine services with user data
             return services.mapNotNull { service ->
@@ -301,6 +299,8 @@ class ServiceRepository() {
             }
 
             val services = serviceSnapshot.documents.mapNotNull { it.data?.toService() }
+            Log.d(TAG, "Fetched ${services.size} services")
+
 
             // Simpan dokumen terakhir untuk paginasi berikutnya
             if (serviceSnapshot.documents.isNotEmpty()) {
@@ -315,17 +315,27 @@ class ServiceRepository() {
             }
 
             val userIds = services.map { it.userId }.toSet()
+            Log.d(TAG, "User IDs: $userIds")
             if (userIds.isEmpty()) return emptyList()
 
             val userMap = fetchUsersByIds(userIds)
+
+            Log.d(TAG, "User Map: $userMap")
+
+            Log.d(TAG, "Last document: ${lastDocument?.id}")
+            Log.d(TAG, "Total fetched services: ${services.size}")
 
             // Gabungkan layanan dengan data pengguna
             return services.mapNotNull { service ->
                 val user = userMap[service.userId]
                 if (user != null) {
                     ServiceWithUserModel(service, user)
-                } else null
+                } else {
+                    Log.w(TAG, "Service ${service.serviceId} punya userId ${service.userId} yang sudah tidak ada.")
+                    null
+                }
             }
+
         } catch (e: Exception) {
             if (e is CancellationException) throw e
             Log.e("FirestorePaging", "Error fetching paged services: ${e.message}")
@@ -459,7 +469,7 @@ class ServiceRepository() {
                 .await()
 
             val users = snapshot.documents.mapNotNull { it.toObject(UserModel::class.java) }
-            result.putAll(users.filter { it.accountStatus == true }.associateBy { it.userId })
+            result.putAll(users.associateBy { it.userId })
         }
         return result
     }

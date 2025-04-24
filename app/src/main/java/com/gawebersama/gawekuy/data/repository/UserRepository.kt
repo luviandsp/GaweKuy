@@ -291,9 +291,7 @@ class UserRepository {
 
     suspend fun deleteAccount(): Pair<Boolean, String?> {
         return try {
-            val userId = firebaseAuth.currentUser?.uid ?: return Pair(false, "User belum login")
-            val userRef = userCollection.document(userId)
-            userRef.delete().await()
+            updateAccountStatus(false)
             firebaseAuth.currentUser?.delete()?.await()
             Pair(true, "Akun berhasil dihapus")
         } catch (e: Exception) {

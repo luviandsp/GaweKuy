@@ -150,7 +150,10 @@ class TransactionRepository {
 
                 if (service != null && buyer != null && seller != null) {
                     TransactionDetailModel(transaction, service, buyer, seller)
-                } else null
+                } else {
+                    Log.e(TAG, "Service, buyer, or seller not found for transaction: $transaction")
+                    null
+                }
             }
 
         } catch (e: Exception) {

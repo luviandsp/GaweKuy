@@ -93,24 +93,22 @@
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/BottomSheetDialogText.Label"
                     android:layout_marginTop="0dp"
-                    android:text="@string/bank_name" />
+                    android:text="@string/bank_type" />
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/til_bank_name"
-                    app:boxStrokeColor="@color/blue"
-                    app:hintTextColor="@color/blue"
-                    app:cursorColor="@color/blue"
-                    app:hintEnabled="false"
+                    android:id="@+id/til_bank_type"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    app:hintEnabled="false"
+                    app:boxStrokeColor="@color/blue">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/tiet_bank_name"
-                        style="@style/InputText"
+                    <com.rosemaryapp.amazingspinner.AmazingSpinner
+                        android:id="@+id/spinner_bank_type"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="@string/bank_name_hint"
-                        android:inputType="text" />
+                        android:layout_height="wrap_content"
+                        android:hint="@string/bank_type_hint"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -189,20 +187,18 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/til_ewallet_type"
-                    app:boxStrokeColor="@color/blue"
-                    app:hintTextColor="@color/blue"
-                    app:cursorColor="@color/blue"
-                    app:hintEnabled="false"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    app:hintEnabled="false"
+                    app:boxStrokeColor="@color/blue">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/tiet_ewallet_type"
-                        style="@style/InputText"
+                    <com.rosemaryapp.amazingspinner.AmazingSpinner
+                        android:id="@+id/spinner_ewallet_type"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="@string/ewallet_type_hint"
-                        android:inputType="text" />
+                        android:layout_height="wrap_content"
+                        android:hint="@string/ewallet_type_hint"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 

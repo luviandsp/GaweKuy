@@ -10,7 +10,7 @@ data class PaymentInfoModel(
     @PropertyName("paymentType") val paymentType: String = "", // "bank" atau "ewallet"
 
     // Jika bank
-    @PropertyName("bankName") val bankName: String? = null,
+    @PropertyName("bankType") val bankType: String? = null,
     @PropertyName("bankAccountName") val bankAccountName: String? = null,
     @PropertyName("bankAccountNumber") val bankAccountNumber: String? = null,
 

@@ -151,22 +151,20 @@ class ServiceDetailActivity : AppCompatActivity() {
                 val selectedService = serviceSelectedList.find { it.isSelected }
                 val ownerId = serviceViewModel.ownerServiceId.value
                 val userId = userViewModel.userId.value
+                val ownerStatus = serviceViewModel.ownerServiceAccountStatus.value
 
                 if (selectedService == null) {
-                    Toast.makeText(
-                        this@ServiceDetailActivity,
-                        "Pilih salah satu jenis layanan terlebih dahulu",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@ServiceDetailActivity, "Pilih salah satu jenis layanan terlebih dahulu", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
                 if (userId == ownerId) {
-                    Toast.makeText(
-                        this@ServiceDetailActivity,
-                        "Anda tidak bisa memesan layanan Anda sendiri",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@ServiceDetailActivity, "Anda tidak bisa memesan layanan Anda sendiri", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                if (ownerStatus == false) {
+                    Toast.makeText(this@ServiceDetailActivity, "Akun freelancer tidak aktif", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 

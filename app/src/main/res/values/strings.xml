@@ -94,7 +94,7 @@
     <string name="example">Contoh</string>
     <string name="are_you_sure_to_delete_this_service">Apakah anda yakin ingin menghapus jasa ini?</string>
     <string name="are_you_sure_to_delete_this_portfolio">Apakah anda yakin ingin menghapus portofolio ini?</string>
-    <string name="are_you_sure_to_switch_off_account">Apakah anda yakin ingin menonaktifkan akun? Semua jasamu tidak akan tampil di pencarian</string>
+    <string name="are_you_sure_to_switch_off_account">Apakah anda yakin ingin menonaktifkan akun? Semua jasamu tidak akan bisa dipesan</string>
     <string name="delete">Hapus</string>
     <string name="order_service">Pesan Jasa</string>
     <string name="price_format">Rp.%s</string>
@@ -140,11 +140,10 @@
     <string name="e_wallet">E-Wallet</string>
     <string name="bank_option">Pembayaran Bank</string>
     <string name="ewallet_option">Pembayaran E-Wallet</string>
-    <string name="bank_name">Nama Bank (contoh: BCA)</string>
-    <string name="bank_name_text">Nama Bank</string>
-    <string name="bank_name_hint">Masukkan nama Bank</string>
-    <string name="ewallet_type_hint">Masukkan nama jenis E-Wallet</string>
-    <string name="ewallet_type">Jenis E-Wallet (contoh: DANA)</string>
+    <string name="bank_type">Jenis Bank</string>
+    <string name="bank_type_hint">Pilih jenis bank yang digunakan</string>
+    <string name="ewallet_type_hint">Pilih jenis E-Wallet yang digunakan</string>
+    <string name="ewallet_type">Jenis E-Wallet</string>
     <string name="ewallet_type_text">Jenis E-Wallet</string>
     <string name="ewallet_account_name">Nama Akun E-Wallet</string>
     <string name="ewallet_account_name_hint">Masukkan nama di akun E-Wallet Anda</string>

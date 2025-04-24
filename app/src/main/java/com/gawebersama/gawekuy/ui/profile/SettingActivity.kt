@@ -1,7 +1,9 @@
 package com.gawebersama.gawekuy.ui.profile
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,7 @@ import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivitySettingBinding
 import com.gawebersama.gawekuy.databinding.DialogDeleteAccountBinding
 import com.gawebersama.gawekuy.databinding.DialogSwitchAccountStatusBinding
+import com.gawebersama.gawekuy.ui.auth.AuthActivity
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -29,10 +32,15 @@ class SettingActivity : AppCompatActivity() {
     private lateinit var appPreferences: AppPreferences
     private lateinit var loginPreferences: LoginPreferences
 
+    companion object {
+        private const val TAG = "SettingActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         appPreferences = AppPreferences(this)
+        loginPreferences = LoginPreferences(this)
         binding = ActivitySettingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -84,6 +92,7 @@ class SettingActivity : AppCompatActivity() {
                 }
 
                 userViewModel.deleteAccount()
+                Log.d(TAG, "Account deleted")
                 deleteDialog.dismiss()
             }
 
@@ -93,6 +102,15 @@ class SettingActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
+        userViewModel.authStatus.observe(this@SettingActivity) { (success, message) ->
+            if (success) {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                logoutUser()
+            } else {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
         userViewModel.accountStatus.observe(this@SettingActivity) { isActive ->
             with (binding) {
                 switchAccountStatus.isChecked = isActive == true
@@ -104,6 +122,15 @@ class SettingActivity : AppCompatActivity() {
             errorMsg?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun logoutUser() {
+        lifecycleScope.launch {
+            userViewModel.logoutUser()
+            startActivity(Intent(this@SettingActivity, AuthActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            })
         }
     }
 

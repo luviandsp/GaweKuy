@@ -8,7 +8,7 @@ import com.google.firebase.firestore.PropertyName
 @Keep
 @IgnoreExtraProperties
 data class UserModel(
-    @PropertyName("userId") val userId: String = "",
+    @PropertyName("userId") var userId: String = "",
     @PropertyName("email") val email: String = "",
     @PropertyName("name") val name: String = "",
     @PropertyName("phone") val phone: String = "",

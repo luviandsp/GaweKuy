@@ -162,16 +162,16 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/LabelTextStyle"
-                    android:text="@string/bank_name_text"/>
+                    android:text="@string/bank_type"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/LabelTextStyle.Colon"
                     android:text="@string/colon"/>
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tv_bank_name"
+                    android:id="@+id/tv_bank_type"
                     style="@style/ValueTextStyle"
-                    android:text="@string/bank_name_text"/>
+                    android:text="@string/bank_type"/>
             </TableRow>
 
             <TableRow

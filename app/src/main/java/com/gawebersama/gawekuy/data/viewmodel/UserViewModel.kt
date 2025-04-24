@@ -52,8 +52,8 @@ class UserViewModel : ViewModel() {
     private val _paymentType = MutableLiveData<String?>()
     val paymentType: LiveData<String?> get() = _paymentType
 
-    private val _bankName = MutableLiveData<String?>()
-    val bankName: LiveData<String?> get() = _bankName
+    private val _bankType = MutableLiveData<String?>()
+    val bankType: LiveData<String?> get() = _bankType
 
     private val _bankAccountName = MutableLiveData<String?>()
     val bankAccountName: LiveData<String?> get() = _bankAccountName
@@ -120,7 +120,7 @@ class UserViewModel : ViewModel() {
                 _userImageUrl.postValue(userData.profileImageUrl)
                 _accountStatus.postValue(userData.accountStatus)
                 _paymentType.postValue(userData.paymentInfo?.paymentType)
-                _bankName.postValue(userData.paymentInfo?.bankName)
+                _bankType.postValue(userData.paymentInfo?.bankType)
                 _bankAccountName.postValue(userData.paymentInfo?.bankAccountName)
                 _bankAccountNumber.postValue(userData.paymentInfo?.bankAccountNumber)
                 _ewalletType.postValue(userData.paymentInfo?.ewalletType)
@@ -193,7 +193,7 @@ class UserViewModel : ViewModel() {
 
             if (result.first) {
                 _paymentType.postValue(paymentInfo?.paymentType)
-                _bankName.postValue(paymentInfo?.bankName)
+                _bankType.postValue(paymentInfo?.bankType)
                 _bankAccountName.postValue(paymentInfo?.bankAccountName)
                 _bankAccountNumber.postValue(paymentInfo?.bankAccountNumber)
                 _ewalletType.postValue(paymentInfo?.ewalletType)
@@ -219,7 +219,7 @@ class UserViewModel : ViewModel() {
             _accountStatus.postValue(null)
             _errorMessage.postValue(null)
             _paymentType.postValue(null)
-            _bankName.postValue(null)
+            _bankType.postValue(null)
             _bankAccountName.postValue(null)
             _bankAccountNumber.postValue(null)
             _ewalletType.postValue(null)

@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
     android:layout_marginEnd="24dp"
-    android:orientation="vertical"
     android:background="@color/white"
     android:layout_gravity="center"
     app:cardCornerRadius="8dp">
@@ -44,6 +43,8 @@
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:shrinkColumns="2"
+            android:stretchColumns="2"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="0dp"

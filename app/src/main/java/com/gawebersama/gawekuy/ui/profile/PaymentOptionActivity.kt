@@ -2,6 +2,7 @@ package com.gawebersama.gawekuy.ui.profile
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +10,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.gawebersama.gawekuy.R
 import com.gawebersama.gawekuy.data.datamodel.PaymentInfoModel
+import com.gawebersama.gawekuy.data.enum.BankType
+import com.gawebersama.gawekuy.data.enum.EwalletType
 import com.gawebersama.gawekuy.data.enum.PaymentType
 import com.gawebersama.gawekuy.data.viewmodel.UserViewModel
 import com.gawebersama.gawekuy.databinding.ActivityPaymentOptionBinding
@@ -25,6 +28,9 @@ class PaymentOptionActivity : AppCompatActivity() {
         const val TAG = "PaymentOptionActivity"
     }
 
+    val bankTypeList = BankType.entries.map { it.name.replace("_", " ") }
+    val ewalletTypeList = EwalletType.entries.map { it.name.replace("_", " ") }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPaymentOptionBinding.inflate(layoutInflater)
@@ -33,6 +39,23 @@ class PaymentOptionActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val bankAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, bankTypeList)
+        val eWalletAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, ewalletTypeList)
+
+        with(binding) {
+            spinnerBankType.setAdapter(bankAdapter)
+            spinnerBankType.setOnItemClickListener { _, _, position, _ ->
+                bankTypeList[position]
+            }
+            spinnerBankType.setDropDownBackgroundResource(R.drawable.dropdown_background)
+
+            spinnerEwalletType.setAdapter(eWalletAdapter)
+            spinnerEwalletType.setOnItemClickListener { _, _, position, _ ->
+                ewalletTypeList[position]
+            }
+            spinnerEwalletType.setDropDownBackgroundResource(R.drawable.dropdown_background)
         }
 
         initViews()
@@ -63,12 +86,12 @@ class PaymentOptionActivity : AppCompatActivity() {
                 selectedPayment = if (rgPaymentType.checkedRadioButtonId == R.id.rb_bank) PaymentType.BANK.formatted() else PaymentType.E_WALLET.formatted()
 
                 if (selectedPayment == PaymentType.BANK.formatted()) {
-                    val bankName = tietBankName.text.toString().uppercase().trim()
+                    val selectedBankType = spinnerBankType.text.toString().trim()
                     val accountNumber = tietBankAccountNumber.text.toString().trim()
                     val accountHolderName = tietBankAccountName.text.toString().trim()
 
-                    if (bankName.isEmpty()) {
-                        tietBankName.error = "Nama bank tidak boleh kosong"
+                    if (selectedBankType.isEmpty()) {
+                        spinnerBankType.error = "Pilih jenis bank terlebih dahulu"
                         return@setOnClickListener
                     }
 
@@ -84,7 +107,7 @@ class PaymentOptionActivity : AppCompatActivity() {
 
                     paymentInfo = PaymentInfoModel(
                         paymentType = selectedPayment,
-                        bankName = bankName,
+                        bankType = selectedBankType,
                         bankAccountName = accountHolderName,
                         bankAccountNumber = accountNumber,
                         ewalletType = null,
@@ -92,12 +115,12 @@ class PaymentOptionActivity : AppCompatActivity() {
                         ewalletNumber = null
                     )
                 } else {
-                    val eWalletType = tietEwalletType.text.toString().uppercase().trim()
+                    val selectedEwalletType = spinnerEwalletType.text.toString().trim()
                     val eWalletAccountName = tietEwalletAccountName.text.toString().trim()
                     val eWalletPhoneNumber = ccp.fullNumber.trim()
 
-                    if (eWalletType.isEmpty()) {
-                        tietEwalletType.error = "Tipe e-wallet tidak boleh kosong"
+                    if (selectedEwalletType.isEmpty()) {
+                        spinnerEwalletType.error = "Tipe e-wallet tidak boleh kosong"
                         return@setOnClickListener
                     }
                     if (eWalletAccountName.isEmpty()) {
@@ -112,10 +135,10 @@ class PaymentOptionActivity : AppCompatActivity() {
 
                     paymentInfo = PaymentInfoModel(
                         paymentType = selectedPayment,
-                        ewalletType = eWalletType,
+                        ewalletType = selectedEwalletType,
                         ewalletAccountName = eWalletAccountName,
                         ewalletNumber = eWalletPhoneNumber,
-                        bankName = null,
+                        bankType = null,
                         bankAccountName = null,
                         bankAccountNumber = null
                     )
@@ -146,8 +169,10 @@ class PaymentOptionActivity : AppCompatActivity() {
                 }
             }
 
-            bankName.observe(this@PaymentOptionActivity) {
-                binding.tietBankName.setText(it)
+            bankType.observe(this@PaymentOptionActivity) {
+                if (bankTypeList.contains(it)) {
+                    binding.spinnerBankType.setText(it, false)
+                }
             }
 
             bankAccountName.observe(this@PaymentOptionActivity) {
@@ -159,7 +184,9 @@ class PaymentOptionActivity : AppCompatActivity() {
             }
 
             ewalletType.observe(this@PaymentOptionActivity) {
-                binding.tietEwalletType.setText(it)
+                if (ewalletTypeList.contains(it)) {
+                    binding.spinnerEwalletType.setText(it, false)
+                }
             }
 
             ewalletAccountName.observe(this@PaymentOptionActivity) {
