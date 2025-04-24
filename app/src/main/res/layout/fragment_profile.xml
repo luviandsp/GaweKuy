@@ -239,22 +239,22 @@
 <!--                <com.google.android.material.divider.MaterialDivider-->
 <!--                    style="@style/optionProfileDivider" />-->
 
-                <TableRow
-                    android:id="@+id/tr_review"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+<!--                <TableRow-->
+<!--                    android:id="@+id/tr_review"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content">-->
 
-                    <ImageView
-                        style="@style/optionProfileImage"
-                        android:src="@drawable/review"/>
+<!--                    <ImageView-->
+<!--                        style="@style/optionProfileImage"-->
+<!--                        android:src="@drawable/review"/>-->
 
-                    <TextView
-                        style="@style/optionProfileDesc"
-                        android:text="@string/app_review"/>
-                </TableRow>
+<!--                    <TextView-->
+<!--                        style="@style/optionProfileDesc"-->
+<!--                        android:text="@string/app_review"/>-->
+<!--                </TableRow>-->
 
-                <com.google.android.material.divider.MaterialDivider
-                    style="@style/optionProfileDivider" />
+<!--                <com.google.android.material.divider.MaterialDivider-->
+<!--                    style="@style/optionProfileDivider" />-->
 
                 <TableRow
                     android:id="@+id/tr_logout"
