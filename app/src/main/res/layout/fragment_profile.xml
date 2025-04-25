@@ -222,6 +222,23 @@
 <!--                <com.google.android.material.divider.MaterialDivider-->
 <!--                    style="@style/optionProfileDivider" />-->
 
+                <TableRow
+                    android:id="@+id/tr_check_updates"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        style="@style/optionProfileImage"
+                        android:src="@drawable/update_symbol"/>
+
+                    <TextView
+                        style="@style/optionProfileDesc"
+                        android:text="@string/check_update_app"/>
+                </TableRow>
+
+                <com.google.android.material.divider.MaterialDivider
+                    style="@style/optionProfileDivider" />
+
 <!--                <TableRow-->
 <!--                    android:id="@+id/tr_favorites"-->
 <!--                    android:layout_width="match_parent"-->

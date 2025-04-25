@@ -13,6 +13,22 @@ android {
     namespace = "com.gawebersama.gawekuy"
     compileSdk = 35
 
+    val properties = Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+
+    if (localPropertiesFile.exists()) {
+        FileInputStream(localPropertiesFile).use { properties.load(it) }
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = properties.getProperty("KEY_ALIAS")
+            keyPassword = properties.getProperty("KEY_PASSWORD")
+            storeFile = file(properties.getProperty("KEYSTORE_FILE"))
+            storePassword = properties.getProperty("KEYSTORE_PASSWORD")
+        }
+    }
+
     defaultConfig {
         applicationId = "com.gawebersama.gawekuy"
         minSdk = 26
@@ -21,13 +37,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        val properties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-
-        if (localPropertiesFile.exists()) {
-            FileInputStream(localPropertiesFile).use { properties.load(it) }
-        }
 
         buildConfigField("String", "SUPABASE_ANON_KEY", "\"${properties.getProperty("SUPABASE_ANON_KEY", "")}\"")
         buildConfigField("String", "SECRET", "\"${properties.getProperty("SECRET", "")}\"")
@@ -39,6 +48,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

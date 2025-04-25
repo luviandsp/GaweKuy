@@ -61,6 +61,7 @@
     <string name="user">User</string>
     <string name="become_freelancer_opt">Jadi Freelancer?</string>
     <string name="order_history">Riwayat Pesanan</string>
+    <string name="check_update_app">Cek Update Aplikasi</string>
     <string name="favorite_freelancer">Freelancer Favorit</string>
     <string name="app_review">Ulasan Aplikasi</string>
     <string name="minimal_char">Minimal 8 karakter</string>
